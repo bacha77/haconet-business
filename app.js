@@ -269,6 +269,68 @@ let searchQuery = '';
 // Wizard Step Tracker
 let currentStep = 1;
 
+// Helper to map camelCase registration fields to lowercase database columns
+function mapRegistrationToDb(reg) {
+  return {
+    regid: reg.regId,
+    bizname: reg.bizName,
+    ownername: reg.ownerName,
+    title: reg.title,
+    address: reg.address,
+    city: reg.city,
+    state: reg.state,
+    zip: reg.zip,
+    phone: reg.phone,
+    email: reg.email,
+    website: reg.website,
+    industry: reg.industry,
+    established: reg.established ? parseInt(reg.established) : null,
+    description: reg.description,
+    interests: typeof reg.interests === 'string' ? reg.interests : JSON.stringify(reg.interests || []),
+    exhibitor: reg.exhibitor,
+    electricity: reg.electricity,
+    directoryconsent: reg.directoryConsent,
+    accommodations: reg.accommodations,
+    signature: reg.signature,
+    datesigned: reg.dateSigned
+  };
+}
+
+// Helper to map lowercase database columns to camelCase registration fields
+function mapRegistrationFromDb(dbReg) {
+  let interestsArray = [];
+  if (dbReg.interests) {
+    try {
+      interestsArray = typeof dbReg.interests === 'string' ? JSON.parse(dbReg.interests) : dbReg.interests;
+    } catch (e) {
+      interestsArray = [];
+    }
+  }
+  return {
+    regId: dbReg.regid,
+    bizName: dbReg.bizname,
+    ownerName: dbReg.ownername,
+    title: dbReg.title,
+    address: dbReg.address,
+    city: dbReg.city,
+    state: dbReg.state,
+    zip: dbReg.zip,
+    phone: dbReg.phone,
+    email: dbReg.email,
+    website: dbReg.website,
+    industry: dbReg.industry,
+    established: dbReg.established,
+    description: dbReg.description,
+    interests: interestsArray,
+    exhibitor: dbReg.exhibitor,
+    electricity: dbReg.electricity,
+    directoryConsent: dbReg.directoryconsent,
+    accommodations: dbReg.accommodations,
+    signature: dbReg.signature,
+    dateSigned: dbReg.datesigned
+  };
+}
+
 // ==========================================================================
 // 3. Database Initialization & Seeding
 // ==========================================================================
@@ -301,11 +363,12 @@ async function initDatabase() {
       if (!rError) {
         if (!rData || rData.length === 0) {
           console.log("Seeding registrations table...");
-          const { error: seedError } = await supabaseClient.from('registrations').insert(SEED_REGISTRATIONS);
+          const seededData = SEED_REGISTRATIONS.map(mapRegistrationToDb);
+          const { error: seedError } = await supabaseClient.from('registrations').insert(seededData);
           if (seedError) console.error("Seeding registrations failed:", seedError);
           registrations = SEED_REGISTRATIONS;
         } else {
-          registrations = rData;
+          registrations = rData.map(mapRegistrationFromDb);
         }
       } else {
         console.error("Fetching registrations failed:", rError);
@@ -1171,7 +1234,8 @@ if (regForm) {
 
     // 1. Add to Registrations Table in database
     if (useSupabase) {
-      const { error } = await supabaseClient.from('registrations').insert([newRegistration]);
+      const dbRegistration = mapRegistrationToDb(newRegistration);
+      const { error } = await supabaseClient.from('registrations').insert([dbRegistration]);
       if (error) {
         console.error("Supabase write failed:", error);
         alert("Failed to submit registration: " + error.message);
@@ -1373,7 +1437,7 @@ function renderAdminAttendeeList() {
       const id = btn.getAttribute('data-id');
       if (confirm(`Are you sure you want to delete registration ${id}?`)) {
         if (useSupabase) {
-          const { error } = await supabaseClient.from('registrations').delete().eq('regId', id);
+          const { error } = await supabaseClient.from('registrations').delete().eq('regid', id);
           if (error) {
             console.error("Supabase deletion failed:", error);
             alert("Failed to delete record: " + error.message);
