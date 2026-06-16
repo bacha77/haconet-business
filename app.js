@@ -1161,6 +1161,11 @@ function renderTicketStub(reg) {
       : 'Not Applicable';
   }
 
+  const tQrCodeImg = document.getElementById('tQrCodeImg');
+  if (tQrCodeImg) {
+    tQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(reg.regId)}`;
+  }
+
   if (tExhibitor) {
     if (reg.exhibitor === 'Yes') {
       tExhibitor.className = 't-info-val highlight';
