@@ -1050,6 +1050,34 @@ if (btnNextStep) {
       console.log("Incremented to step", currentStep);
     } else {
       console.warn("Validation failed for step", currentStep);
+      
+      // Build feedback message for Step 1
+      if (currentStep === 1) {
+        let missingFields = [];
+        const biz = document.getElementById('regBizName');
+        const owner = document.getElementById('regOwnerName');
+        const tel = document.getElementById('regPhone');
+        const mail = document.getElementById('regEmail');
+
+        if (biz && biz.value.trim() === '') missingFields.push("Business Name");
+        if (owner && owner.value.trim() === '') missingFields.push("Business Owner/Representative");
+        if (tel && tel.value.trim() === '') missingFields.push("Phone Number");
+        
+        if (mail) {
+          const emailVal = mail.value.trim();
+          const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (emailVal === '') {
+            missingFields.push("Email Address");
+          } else if (!emailPattern.test(emailVal)) {
+            missingFields.push("Email Address (Invalid format - must contain @ and .com/etc)");
+          }
+        }
+        
+        if (missingFields.length > 0) {
+          alert("Please check Step 1 fields:\n- " + missingFields.join("\n- "));
+        }
+      }
+      
       if (wizardCard) {
         wizardCard.classList.add('animate-shake');
         setTimeout(() => wizardCard.classList.remove('animate-shake'), 400);
