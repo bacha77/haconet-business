@@ -3,6 +3,11 @@
  * Single Page Application Orchestrator with Supabase Database
  */
 
+// Global diagnostic error logger
+window.addEventListener('error', (event) => {
+  console.error("HACONET JavaScript Uncaught Error:", event.error);
+});
+
 // ==========================================================================
 // 1. Initial Seed Data
 // ==========================================================================
@@ -253,7 +258,9 @@ const sectorLinks = document.querySelectorAll('.footer-sector-link');
 
 // Set active signature date automatically
 const today = new Date();
-regDateField.value = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+if (regDateField) {
+  regDateField.value = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+}
 
 // Keep track of active filters
 let currentCategory = 'all';
@@ -266,6 +273,7 @@ let currentStep = 1;
 // 3. Database Initialization & Seeding
 // ==========================================================================
 async function initDatabase() {
+  console.log("Initializing HACONET database...");
   if (supabase) {
     try {
       // 1. Fetch businesses
@@ -301,6 +309,13 @@ async function initDatabase() {
         }
       } else {
         console.error("Fetching registrations failed:", rError);
+        // Fallback list of registrations inside local storage if select failed
+        try {
+          const fallbackRegs = JSON.parse(localStorage.getItem('haconet_registrations'));
+          registrations = Array.isArray(fallbackRegs) ? fallbackRegs : SEED_REGISTRATIONS;
+        } catch (e) {
+          registrations = SEED_REGISTRATIONS;
+        }
       }
     } catch (err) {
       console.warn("Supabase connection succeeded but database operations failed (check table structures). Falling back to LocalStorage.", err);
@@ -314,74 +329,99 @@ async function initDatabase() {
   
   // Render views after data loaded
   renderDirectory();
-  if (adminDashboard.style.display === 'block') {
+  if (adminDashboard && adminDashboard.style.display === 'block') {
     renderAdminAttendeeList();
   }
 }
 
 function loadLocalStorageFallback() {
   console.log("Using browser LocalStorage fallback.");
-  businesses = JSON.parse(localStorage.getItem('haconet_businesses'));
-  if (!businesses || businesses.length === 0) {
+  
+  // Safe parsing for businesses
+  try {
+    businesses = JSON.parse(localStorage.getItem('haconet_businesses'));
+  } catch (e) {
+    console.error("Corrupted businesses in localStorage, resetting...", e);
+    businesses = null;
+  }
+  if (!businesses || !Array.isArray(businesses) || businesses.length === 0) {
     businesses = SEED_BUSINESSES;
-    localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+    try {
+      localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+    } catch (e) {
+      console.error("Failed to save businesses to localStorage:", e);
+    }
   }
 
-  registrations = JSON.parse(localStorage.getItem('haconet_registrations'));
-  if (!registrations) {
+  // Safe parsing for registrations
+  try {
+    registrations = JSON.parse(localStorage.getItem('haconet_registrations'));
+  } catch (e) {
+    console.error("Corrupted registrations in localStorage, resetting...", e);
+    registrations = null;
+  }
+  if (!registrations || !Array.isArray(registrations)) {
     registrations = SEED_REGISTRATIONS;
-    localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+    try {
+      localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+    } catch (e) {
+      console.error("Failed to save registrations to localStorage:", e);
+    }
   }
 }
 
 // ==========================================================================
 // 4. Navigation & Header Animations
 // ==========================================================================
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 50) {
-    header.classList.add('scrolled');
-  } else {
-    header.classList.remove('scrolled');
-  }
-  
-  // Update nav link highlighting based on section scroll
-  let currentSection = '';
-  const sections = document.querySelectorAll('section');
-  
-  sections.forEach(section => {
-    const sectionTop = section.offsetTop;
-    const sectionHeight = section.clientHeight;
-    if (window.scrollY >= (sectionTop - 120)) {
-      currentSection = section.getAttribute('id');
+if (header) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
     }
-  });
+    
+    // Update nav link highlighting based on section scroll
+    let currentSection = '';
+    const sections = document.querySelectorAll('section');
+    
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.clientHeight;
+      if (window.scrollY >= (sectionTop - 120)) {
+        currentSection = section.getAttribute('id');
+      }
+    });
 
-  navLinks.forEach(link => {
-    link.classList.remove('active');
-    if (link.getAttribute('href') === `#${currentSection}`) {
-      link.classList.add('active');
-    }
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${currentSection}`) {
+        link.classList.add('active');
+      }
+    });
   });
-});
+}
 
 // Mobile menu toggle
-menuToggle.addEventListener('click', () => {
-  navLinksList.classList.toggle('open');
-  const icon = menuToggle.querySelector('i');
-  if (navLinksList.classList.contains('open')) {
-    icon.className = 'fa-solid fa-xmark';
-  } else {
-    icon.className = 'fa-solid fa-bars';
-  }
-});
-
-// Close mobile menu on click nav link
-navLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    navLinksList.classList.remove('open');
-    menuToggle.querySelector('i').className = 'fa-solid fa-bars';
+if (menuToggle && navLinksList) {
+  menuToggle.addEventListener('click', () => {
+    navLinksList.classList.toggle('open');
+    const icon = menuToggle.querySelector('i');
+    if (navLinksList.classList.contains('open')) {
+      icon.className = 'fa-solid fa-xmark';
+    } else {
+      icon.className = 'fa-solid fa-bars';
+    }
   });
-});
+
+  // Close mobile menu on click nav link
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      navLinksList.classList.remove('open');
+      menuToggle.querySelector('i').className = 'fa-solid fa-bars';
+    });
+  });
+}
 
 // Sector link filter click from footer
 sectorLinks.forEach(link => {
@@ -401,16 +441,18 @@ sectorLinks.forEach(link => {
 const targetEventDate = new Date('August 6, 2026 17:00:00').getTime();
 
 function updateCountdownClock() {
+  if (!daysVal || !hoursVal || !minutesVal || !secondsVal) return;
+
   const now = new Date().getTime();
   const timeDifference = targetEventDate - now;
 
   if (timeDifference < 0) {
-    // If target has passed
     daysVal.innerText = '00';
     hoursVal.innerText = '00';
     minutesVal.innerText = '00';
     secondsVal.innerText = '00';
-    document.getElementById('countdownCardTitle').innerText = "Event is underway!";
+    const clockTitle = document.getElementById('countdownCardTitle');
+    if (clockTitle) clockTitle.innerText = "Event is underway!";
     return;
   }
 
@@ -431,13 +473,16 @@ function updateCountdownClock() {
 }
 
 // Initialize clock and update every 1 second
-updateCountdownClock();
-setInterval(updateCountdownClock, 1000);
+if (daysVal) {
+  updateCountdownClock();
+  setInterval(updateCountdownClock, 1000);
+}
 
 // ==========================================================================
 // 6. Business Directory Manager (Search, Filter, Rendering)
 // ==========================================================================
 function renderDirectory() {
+  if (!directoryGrid) return;
   directoryGrid.innerHTML = '';
   
   // Apply combined filters
@@ -445,12 +490,20 @@ function renderDirectory() {
     const matchesCategory = currentCategory === 'all' || biz.category === currentCategory;
     
     const term = searchQuery.toLowerCase().trim();
+    
+    // Null-safe values for matching
+    const nameVal = (biz.name || '').toLowerCase();
+    const ownerVal = (biz.owner || '').toLowerCase();
+    const descVal = (biz.description || '').toLowerCase();
+    const catVal = (biz.category || '').toLowerCase();
+    const addrVal = (biz.address || '').toLowerCase();
+
     const matchesSearch = term === '' || 
-      biz.name.toLowerCase().includes(term) ||
-      biz.owner.toLowerCase().includes(term) ||
-      biz.description.toLowerCase().includes(term) ||
-      biz.category.toLowerCase().includes(term) ||
-      (biz.address && biz.address.toLowerCase().includes(term));
+      nameVal.includes(term) ||
+      ownerVal.includes(term) ||
+      descVal.includes(term) ||
+      catVal.includes(term) ||
+      addrVal.includes(term);
       
     return matchesCategory && matchesSearch;
   });
@@ -469,21 +522,20 @@ function renderDirectory() {
   filtered.forEach(biz => {
     const card = document.createElement('div');
     card.className = 'biz-card';
-    card.id = `bizCard-${biz.id || biz.name.replace(/\s+/g, '-').toLowerCase()}`;
+    card.id = `bizCard-${biz.id || (biz.name || '').replace(/\s+/g, '-').toLowerCase()}`;
     
-    // Website link logic
     const webButton = biz.website 
       ? `<a href="${biz.website}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" id="btnWeb-${biz.id}"><i class="fa-solid fa-globe"></i> Website</a>`
       : '';
 
     card.innerHTML = `
-      <span class="biz-cat-tag">${biz.category}</span>
-      <h3 class="biz-title serif-font">${biz.name}</h3>
-      <div class="biz-owner"><i class="fa-solid fa-user-tie"></i> ${biz.owner}</div>
-      <p class="biz-desc">${biz.description}</p>
+      <span class="biz-cat-tag">${biz.category || 'Other'}</span>
+      <h3 class="biz-title serif-font">${biz.name || 'Untitled Business'}</h3>
+      <div class="biz-owner"><i class="fa-solid fa-user-tie"></i> ${biz.owner || 'Representative'}</div>
+      <p class="biz-desc">${biz.description || ''}</p>
       <div class="biz-contact-info">
-        <div class="biz-contact-item"><i class="fa-solid fa-phone"></i> <span>${biz.phone}</span></div>
-        <div class="biz-contact-item"><i class="fa-solid fa-envelope"></i> <span>${biz.email}</span></div>
+        <div class="biz-contact-item"><i class="fa-solid fa-phone"></i> <span>${biz.phone || ''}</span></div>
+        <div class="biz-contact-item"><i class="fa-solid fa-envelope"></i> <span>${biz.email || ''}</span></div>
         ${biz.address ? `<div class="biz-contact-item"><i class="fa-solid fa-location-dot"></i> <span>${biz.address}</span></div>` : ''}
       </div>
       <div class="biz-actions">
@@ -508,10 +560,12 @@ function renderDirectory() {
 }
 
 // Search input keypress
-searchInput.addEventListener('input', (e) => {
-  searchQuery = e.target.value;
-  renderDirectory();
-});
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value;
+    renderDirectory();
+  });
+}
 
 // Category pills clicks
 categoryPills.forEach(pill => {
@@ -527,14 +581,16 @@ categoryPills.forEach(pill => {
 // 7. Business Profile Details Modal
 // ==========================================================================
 function openProfileModal(biz) {
-  document.getElementById('pCategory').innerText = biz.category;
-  document.getElementById('pBusinessName').innerText = biz.name;
-  document.getElementById('pOwner').innerText = biz.owner;
+  if (!businessProfileModal) return;
+
+  document.getElementById('pCategory').innerText = biz.category || 'Other';
+  document.getElementById('pBusinessName').innerText = biz.name || 'Business Profile';
+  document.getElementById('pOwner').innerText = biz.owner || 'N/A';
   document.getElementById('pOwnerTitle').innerText = biz.title ? `(${biz.title})` : '';
   document.getElementById('pYearEstablished').innerText = biz.established || 'N/A';
-  document.getElementById('pDescription').innerText = biz.description;
-  document.getElementById('pPhone').innerText = biz.phone;
-  document.getElementById('pEmail').innerText = biz.email;
+  document.getElementById('pDescription').innerText = biz.description || '';
+  document.getElementById('pPhone').innerText = biz.phone || '';
+  document.getElementById('pEmail').innerText = biz.email || '';
   
   const pWeb = document.getElementById('pWebsite');
   if (biz.website) {
@@ -550,176 +606,209 @@ function openProfileModal(biz) {
   // Networking interests block
   const interestsBlock = document.getElementById('pInterestsBlock');
   const interestsList = document.getElementById('pInterestsList');
-  interestsList.innerHTML = '';
-  
-  // Format handling for array structure
-  let interestArray = [];
-  if (biz.interests) {
-    interestArray = typeof biz.interests === 'string' ? JSON.parse(biz.interests) : biz.interests;
-  }
-  
-  if (interestArray && interestArray.length > 0) {
-    interestsBlock.style.display = 'block';
-    interestArray.forEach(interest => {
-      const tag = document.createElement('span');
-      tag.className = 'p-interest-tag';
-      tag.innerText = interest;
-      interestsList.appendChild(tag);
-    });
-  } else {
-    interestsBlock.style.display = 'none';
+  if (interestsList) {
+    interestsList.innerHTML = '';
+    
+    let interestArray = [];
+    if (biz.interests) {
+      try {
+        interestArray = typeof biz.interests === 'string' ? JSON.parse(biz.interests) : biz.interests;
+      } catch (e) {
+        interestArray = [];
+      }
+    }
+    
+    if (interestArray && Array.isArray(interestArray) && interestArray.length > 0) {
+      if (interestsBlock) interestsBlock.style.display = 'block';
+      interestArray.forEach(interest => {
+        const tag = document.createElement('span');
+        tag.className = 'p-interest-tag';
+        tag.innerText = interest;
+        interestsList.appendChild(tag);
+      });
+    } else {
+      if (interestsBlock) interestsBlock.style.display = 'none';
+    }
   }
 
   businessProfileModal.classList.add('open');
-  document.body.style.overflow = 'hidden'; // Lock scrolling background
+  document.body.style.overflow = 'hidden';
 }
 
-btnCloseProfileModal.addEventListener('click', () => {
-  businessProfileModal.classList.remove('open');
-  document.body.style.overflow = '';
-});
-
-businessProfileModal.addEventListener('click', (e) => {
-  if (e.target === businessProfileModal) {
+if (btnCloseProfileModal) {
+  btnCloseProfileModal.addEventListener('click', () => {
     businessProfileModal.classList.remove('open');
     document.body.style.overflow = '';
-  }
-});
+  });
+}
+
+if (businessProfileModal) {
+  businessProfileModal.addEventListener('click', (e) => {
+    if (e.target === businessProfileModal) {
+      businessProfileModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+}
 
 // ==========================================================================
 // 8. Add Business intake form Modal
 // ==========================================================================
-btnOpenAddBusiness.addEventListener('click', () => {
-  addBusinessModal.classList.add('open');
-  document.body.style.overflow = 'hidden';
-});
-
-function closeAddBusinessModal() {
-  addBusinessModal.classList.remove('open');
-  document.body.style.overflow = '';
-  addBusinessForm.reset();
-  // Clear error classes
-  addBusinessForm.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
-  addBusinessForm.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
+if (btnOpenAddBusiness) {
+  btnOpenAddBusiness.addEventListener('click', () => {
+    if (addBusinessModal) {
+      addBusinessModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+  });
 }
 
-btnCloseAddBusiness.addEventListener('click', closeAddBusinessModal);
-btnCancelAddBusiness.addEventListener('click', closeAddBusinessModal);
-
-addBusinessModal.addEventListener('click', (e) => {
-  if (e.target === addBusinessModal) closeAddBusinessModal();
-});
-
-addBusinessForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  let isValid = true;
-  
-  // Validation checks
-  const nameVal = document.getElementById('addBizName');
-  const ownerVal = document.getElementById('addOwnerName');
-  const industryVal = document.getElementById('addIndustry');
-  const phoneVal = document.getElementById('addPhone');
-  const emailVal = document.getElementById('addEmail');
-  const descVal = document.getElementById('addDescription');
-  
-  if (nameVal.value.trim() === '') {
-    nameVal.classList.add('error');
-    document.getElementById('addErrBizName').style.display = 'block';
-    isValid = false;
-  } else {
-    nameVal.classList.remove('error');
-    document.getElementById('addErrBizName').style.display = 'none';
+function closeAddBusinessModal() {
+  if (!addBusinessModal) return;
+  addBusinessModal.classList.remove('open');
+  document.body.style.overflow = '';
+  if (addBusinessForm) {
+    addBusinessForm.reset();
+    addBusinessForm.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+    addBusinessForm.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
   }
+}
 
-  if (ownerVal.value.trim() === '') {
-    ownerVal.classList.add('error');
-    document.getElementById('addErrOwnerName').style.display = 'block';
-    isValid = false;
-  } else {
-    ownerVal.classList.remove('error');
-    document.getElementById('addErrOwnerName').style.display = 'none';
-  }
+if (btnCloseAddBusiness) btnCloseAddBusiness.addEventListener('click', closeAddBusinessModal);
+if (btnCancelAddBusiness) btnCancelAddBusiness.addEventListener('click', closeAddBusinessModal);
 
-  if (industryVal.value === '') {
-    industryVal.classList.add('error');
-    document.getElementById('addErrIndustry').style.display = 'block';
-    isValid = false;
-  } else {
-    industryVal.classList.remove('error');
-    document.getElementById('addErrIndustry').style.display = 'none';
-  }
+if (addBusinessModal) {
+  addBusinessModal.addEventListener('click', (e) => {
+    if (e.target === addBusinessModal) closeAddBusinessModal();
+  });
+}
 
-  if (phoneVal.value.trim() === '') {
-    phoneVal.classList.add('error');
-    document.getElementById('addErrPhone').style.display = 'block';
-    isValid = false;
-  } else {
-    phoneVal.classList.remove('error');
-    document.getElementById('addErrPhone').style.display = 'none';
-  }
+if (addBusinessForm) {
+  addBusinessForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    let isValid = true;
+    
+    // Validation checks
+    const nameVal = document.getElementById('addBizName');
+    const ownerVal = document.getElementById('addOwnerName');
+    const industryVal = document.getElementById('addIndustry');
+    const phoneVal = document.getElementById('addPhone');
+    const emailVal = document.getElementById('addEmail');
+    const descVal = document.getElementById('addDescription');
+    
+    if (!nameVal || nameVal.value.trim() === '') {
+      if (nameVal) nameVal.classList.add('error');
+      const err = document.getElementById('addErrBizName');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      nameVal.classList.remove('error');
+      const err = document.getElementById('addErrBizName');
+      if (err) err.style.display = 'none';
+    }
 
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailPattern.test(emailVal.value.trim())) {
-    emailVal.classList.add('error');
-    document.getElementById('addErrEmail').style.display = 'block';
-    isValid = false;
-  } else {
-    emailVal.classList.remove('error');
-    document.getElementById('addErrEmail').style.display = 'none';
-  }
+    if (!ownerVal || ownerVal.value.trim() === '') {
+      if (ownerVal) ownerVal.classList.add('error');
+      const err = document.getElementById('addErrOwnerName');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      ownerVal.classList.remove('error');
+      const err = document.getElementById('addErrOwnerName');
+      if (err) err.style.display = 'none';
+    }
 
-  if (descVal.value.trim() === '') {
-    descVal.classList.add('error');
-    document.getElementById('addErrDesc').style.display = 'block';
-    isValid = false;
-  } else {
-    descVal.classList.remove('error');
-    document.getElementById('addErrDesc').style.display = 'none';
-  }
+    if (!industryVal || industryVal.value === '') {
+      if (industryVal) industryVal.classList.add('error');
+      const err = document.getElementById('addErrIndustry');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      industryVal.classList.remove('error');
+      const err = document.getElementById('addErrIndustry');
+      if (err) err.style.display = 'none';
+    }
 
-  if (!isValid) {
-    const cardBox = document.getElementById('addBusinessModalBox');
-    cardBox.classList.add('animate-shake');
-    setTimeout(() => cardBox.classList.remove('animate-shake'), 400);
-    return;
-  }
+    if (!phoneVal || phoneVal.value.trim() === '') {
+      if (phoneVal) phoneVal.classList.add('error');
+      const err = document.getElementById('addErrPhone');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      phoneVal.classList.remove('error');
+      const err = document.getElementById('addErrPhone');
+      if (err) err.style.display = 'none';
+    }
 
-  // Construct new listing
-  const newBiz = {
-    id: `biz-${Date.now()}`,
-    name: nameVal.value.trim(),
-    owner: ownerVal.value.trim(),
-    title: "Owner",
-    category: industryVal.value,
-    phone: phoneVal.value.trim(),
-    email: emailVal.value.trim(),
-    website: document.getElementById('addWebsite').value.trim() || "",
-    address: document.getElementById('addAddress').value.trim() || "",
-    established: today.getFullYear(),
-    description: descVal.value.trim(),
-    interests: []
-  };
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailVal || !emailPattern.test(emailVal.value.trim())) {
+      if (emailVal) emailVal.classList.add('error');
+      const err = document.getElementById('addErrEmail');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      emailVal.classList.remove('error');
+      const err = document.getElementById('addErrEmail');
+      if (err) err.style.display = 'none';
+    }
 
-  // Submit to Supabase if connected
-  if (useSupabase) {
-    const { error } = await supabase.from('businesses').insert([newBiz]);
-    if (error) {
-      console.error("Supabase write failed:", error);
-      alert("Failed to write to database: " + error.message);
+    if (!descVal || descVal.value.trim() === '') {
+      if (descVal) descVal.classList.add('error');
+      const err = document.getElementById('addErrDesc');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      descVal.classList.remove('error');
+      const err = document.getElementById('addErrDesc');
+      if (err) err.style.display = 'none';
+    }
+
+    if (!isValid) {
+      const cardBox = document.getElementById('addBusinessModalBox');
+      if (cardBox) {
+        cardBox.classList.add('animate-shake');
+        setTimeout(() => cardBox.classList.remove('animate-shake'), 400);
+      }
       return;
     }
-  }
 
-  businesses.push(newBiz);
-  if (!useSupabase) {
-    localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
-  }
-  
-  closeAddBusinessModal();
-  renderDirectory();
-  alert("Success! Your business has been submitted to the HACONET directory.");
-});
+    // Construct new listing
+    const newBiz = {
+      id: `biz-${Date.now()}`,
+      name: nameVal.value.trim(),
+      owner: ownerVal.value.trim(),
+      title: "Owner",
+      category: industryVal.value,
+      phone: phoneVal.value.trim(),
+      email: emailVal.value.trim(),
+      website: (document.getElementById('addWebsite') ? document.getElementById('addWebsite').value.trim() : "") || "",
+      address: (document.getElementById('addAddress') ? document.getElementById('addAddress').value.trim() : "") || "",
+      established: today.getFullYear(),
+      description: descVal.value.trim(),
+      interests: []
+    };
+
+    // Submit to Supabase if connected
+    if (useSupabase) {
+      const { error } = await supabase.from('businesses').insert([newBiz]);
+      if (error) {
+        console.error("Supabase write failed:", error);
+        alert("Failed to write to database: " + error.message);
+        return;
+      }
+    }
+
+    businesses.push(newBiz);
+    if (!useSupabase) {
+      localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+    }
+    
+    closeAddBusinessModal();
+    renderDirectory();
+    alert("Success! Your business has been submitted to the HACONET directory.");
+  });
+}
 
 // Add visual focus class changes to Custom radio/checkbox cards
 document.querySelectorAll('.check-item input').forEach(input => {
@@ -743,7 +832,8 @@ document.querySelectorAll('.check-item input').forEach(input => {
 // Ensure checkboxes load correctly if checked by default on page boot
 document.querySelectorAll('.check-item input').forEach(input => {
   if (input.checked) {
-    input.closest('.check-item').classList.add('selected');
+    const parent = input.closest('.check-item');
+    if (parent) parent.classList.add('selected');
   }
 });
 
@@ -751,6 +841,8 @@ document.querySelectorAll('.check-item input').forEach(input => {
 // 9. Multi-step Wizard Event Registration Flow
 // ==========================================================================
 function updateWizardProgress() {
+  if (!progressBarFill) return;
+
   // Update step visibility
   formSteps.forEach(step => {
     step.classList.remove('active');
@@ -776,19 +868,23 @@ function updateWizardProgress() {
   progressBarFill.style.width = `${progressPercentage}%`;
 
   // Wizard Nav Button visibility
-  if (currentStep === 1) {
-    btnPrevStep.style.visibility = 'hidden';
-  } else {
-    btnPrevStep.style.visibility = 'visible';
+  if (btnPrevStep) {
+    if (currentStep === 1) {
+      btnPrevStep.style.visibility = 'hidden';
+    } else {
+      btnPrevStep.style.visibility = 'visible';
+    }
   }
 
-  if (currentStep === progressSteps.length) {
-    btnNextStep.style.display = 'none';
-    btnSubmitForm.style.display = 'inline-flex';
-    compileSummaryReview();
-  } else {
-    btnNextStep.style.display = 'inline-flex';
-    btnSubmitForm.style.display = 'none';
+  if (btnNextStep && btnSubmitForm) {
+    if (currentStep === progressSteps.length) {
+      btnNextStep.style.display = 'none';
+      btnSubmitForm.style.display = 'inline-flex';
+      compileSummaryReview();
+    } else {
+      btnNextStep.style.display = 'inline-flex';
+      btnSubmitForm.style.display = 'none';
+    }
   }
 }
 
@@ -802,65 +898,77 @@ function validateWizardStep(step) {
     const phone = document.getElementById('regPhone');
     const email = document.getElementById('regEmail');
 
-    if (bizName.value.trim() === '') {
+    if (bizName && bizName.value.trim() === '') {
       bizName.classList.add('error');
-      document.getElementById('errBizName').style.display = 'block';
+      const err = document.getElementById('errBizName');
+      if (err) err.style.display = 'block';
       stepValid = false;
-    } else {
+    } else if (bizName) {
       bizName.classList.remove('error');
-      document.getElementById('errBizName').style.display = 'none';
+      const err = document.getElementById('errBizName');
+      if (err) err.style.display = 'none';
     }
 
-    if (ownerName.value.trim() === '') {
+    if (ownerName && ownerName.value.trim() === '') {
       ownerName.classList.add('error');
-      document.getElementById('errOwnerName').style.display = 'block';
+      const err = document.getElementById('errOwnerName');
+      if (err) err.style.display = 'block';
       stepValid = false;
-    } else {
+    } else if (ownerName) {
       ownerName.classList.remove('error');
-      document.getElementById('errOwnerName').style.display = 'none';
+      const err = document.getElementById('errOwnerName');
+      if (err) err.style.display = 'none';
     }
 
-    if (phone.value.trim() === '') {
+    if (phone && phone.value.trim() === '') {
       phone.classList.add('error');
-      document.getElementById('errPhone').style.display = 'block';
+      const err = document.getElementById('errPhone');
+      if (err) err.style.display = 'block';
       stepValid = false;
-    } else {
+    } else if (phone) {
       phone.classList.remove('error');
-      document.getElementById('errPhone').style.display = 'none';
+      const err = document.getElementById('errPhone');
+      if (err) err.style.display = 'none';
     }
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email.value.trim())) {
+    if (email && !emailPattern.test(email.value.trim())) {
       email.classList.add('error');
-      document.getElementById('errEmail').style.display = 'block';
+      const err = document.getElementById('errEmail');
+      if (err) err.style.display = 'block';
       stepValid = false;
-    } else {
+    } else if (email) {
       email.classList.remove('error');
-      document.getElementById('errEmail').style.display = 'none';
+      const err = document.getElementById('errEmail');
+      if (err) err.style.display = 'none';
     }
   } 
   
   else if (step === 2) {
     const industry = document.getElementById('regIndustry');
-    if (industry.value === '') {
+    if (industry && industry.value === '') {
       industry.classList.add('error');
-      document.getElementById('errIndustry').style.display = 'block';
+      const err = document.getElementById('errIndustry');
+      if (err) err.style.display = 'block';
       stepValid = false;
-    } else {
+    } else if (industry) {
       industry.classList.remove('error');
-      document.getElementById('errIndustry').style.display = 'none';
+      const err = document.getElementById('errIndustry');
+      if (err) err.style.display = 'none';
     }
   }
 
   else if (step === 4) {
     const signature = document.getElementById('regSignature');
-    if (signature.value.trim() === '') {
+    if (signature && signature.value.trim() === '') {
       signature.classList.add('error');
-      document.getElementById('errSignature').style.display = 'block';
+      const err = document.getElementById('errSignature');
+      if (err) err.style.display = 'block';
       stepValid = false;
-    } else {
+    } else if (signature) {
       signature.classList.remove('error');
-      document.getElementById('errSignature').style.display = 'none';
+      const err = document.getElementById('errSignature');
+      if (err) err.style.display = 'none';
     }
   }
 
@@ -869,24 +977,29 @@ function validateWizardStep(step) {
 
 // Compile information to review page
 function compileSummaryReview() {
-  const bizName = document.getElementById('regBizName').value;
-  const ownerName = document.getElementById('regOwnerName').value;
-  const title = document.getElementById('regTitle').value || 'Owner';
-  const phone = document.getElementById('regPhone').value;
-  const email = document.getElementById('regEmail').value;
-  const industry = document.getElementById('regIndustry').value;
+  if (!reviewSummaryContainer) return;
+
+  const bizName = document.getElementById('regBizName') ? document.getElementById('regBizName').value : '';
+  const ownerName = document.getElementById('regOwnerName') ? document.getElementById('regOwnerName').value : '';
+  const title = (document.getElementById('regTitle') && document.getElementById('regTitle').value) || 'Owner';
+  const phone = document.getElementById('regPhone') ? document.getElementById('regPhone').value : '';
+  const email = document.getElementById('regEmail') ? document.getElementById('regEmail').value : '';
+  const industry = document.getElementById('regIndustry') ? document.getElementById('regIndustry').value : '';
   
-  // Selected networking interests
   const interests = [];
   document.querySelectorAll('input[name="regInterests"]:checked').forEach(c => {
     interests.push(c.value);
   });
   const interestsText = interests.length > 0 ? interests.join(', ') : 'None selected';
   
-  // Exhibitor Info
-  const exhibitor = document.querySelector('input[name="regExhibitor"]:checked').value;
-  const electricity = document.querySelector('input[name="regElectricity"]:checked').value;
-  const directoryConsent = document.getElementById('regDirectoryConsent').checked ? 'Yes' : 'No';
+  const exhibitorEl = document.querySelector('input[name="regExhibitor"]:checked');
+  const exhibitor = exhibitorEl ? exhibitorEl.value : 'No';
+
+  const electricityEl = document.querySelector('input[name="regElectricity"]:checked');
+  const electricity = electricityEl ? electricityEl.value : 'No';
+
+  const consentEl = document.getElementById('regDirectoryConsent');
+  const directoryConsent = consentEl && consentEl.checked ? 'Yes' : 'No';
 
   reviewSummaryContainer.innerHTML = `
     <div class="summary-block" id="summaryBlockBiz">
@@ -925,205 +1038,245 @@ function compileSummaryReview() {
 }
 
 // Next Step Click handler
-btnNextStep.addEventListener('click', () => {
-  if (validateWizardStep(currentStep)) {
-    currentStep++;
-    updateWizardProgress();
-  } else {
-    // Shake animation
-    wizardCard.classList.add('animate-shake');
-    setTimeout(() => wizardCard.classList.remove('animate-shake'), 400);
-  }
-});
+if (btnNextStep) {
+  btnNextStep.addEventListener('click', () => {
+    console.log("Next button clicked. Current step:", currentStep);
+    const isValid = validateWizardStep(currentStep);
+    console.log("Validation result for step", currentStep, "is", isValid);
+
+    if (isValid) {
+      currentStep++;
+      updateWizardProgress();
+      console.log("Incremented to step", currentStep);
+    } else {
+      console.warn("Validation failed for step", currentStep);
+      if (wizardCard) {
+        wizardCard.classList.add('animate-shake');
+        setTimeout(() => wizardCard.classList.remove('animate-shake'), 400);
+      }
+    }
+  });
+}
 
 // Previous Step Click handler
-btnPrevStep.addEventListener('click', () => {
-  if (currentStep > 1) {
-    currentStep--;
-    updateWizardProgress();
-  }
-});
+if (btnPrevStep) {
+  btnPrevStep.addEventListener('click', () => {
+    if (currentStep > 1) {
+      currentStep--;
+      updateWizardProgress();
+    }
+  });
+}
 
 // Registration Form Submission Handler
-regForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  if (!validateWizardStep(4)) {
-    wizardCard.classList.add('animate-shake');
-    setTimeout(() => wizardCard.classList.remove('animate-shake'), 400);
-    return;
-  }
-
-  // Construct registration object
-  const bizName = document.getElementById('regBizName').value.trim();
-  const ownerName = document.getElementById('regOwnerName').value.trim();
-  const title = document.getElementById('regTitle').value.trim();
-  const address = document.getElementById('regAddress').value.trim();
-  const city = document.getElementById('regCity').value.trim() || "Columbus";
-  const state = document.getElementById('regState').value.trim() || "OH";
-  const zip = document.getElementById('regZip').value.trim();
-  const phone = document.getElementById('regPhone').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const website = document.getElementById('regWebsite').value.trim();
-  const industry = document.getElementById('regIndustry').value;
-  const established = document.getElementById('regYearEst').value || today.getFullYear();
-  const description = document.getElementById('regDescription').value.trim() || "No description provided.";
-  
-  const interests = [];
-  document.querySelectorAll('input[name="regInterests"]:checked').forEach(c => {
-    interests.push(c.value);
-  });
-
-  const exhibitor = document.querySelector('input[name="regExhibitor"]:checked').value;
-  const electricity = document.querySelector('input[name="regElectricity"]:checked').value;
-  const directoryConsent = document.getElementById('regDirectoryConsent').checked ? 'Yes' : 'No';
-  const accommodations = document.getElementById('regAccommodations').value.trim();
-  const signature = document.getElementById('regSignature').value.trim();
-
-  // Generate Unique Registration ID
-  const randNum = Math.floor(1000 + Math.random() * 9000);
-  const regId = `HAC-2026-${randNum}`;
-
-  const newRegistration = {
-    regId,
-    bizName,
-    ownerName,
-    title,
-    address,
-    city,
-    state,
-    zip,
-    phone,
-    email,
-    website,
-    industry,
-    established,
-    description,
-    interests,
-    exhibitor,
-    electricity,
-    directoryConsent,
-    accommodations,
-    signature,
-    dateSigned: regDateField.value
-  };
-
-  // 1. Add to Registrations Table in database
-  if (useSupabase) {
-    const { error } = await supabase.from('registrations').insert([newRegistration]);
-    if (error) {
-      console.error("Supabase write failed:", error);
-      alert("Failed to submit registration: " + error.message);
+if (regForm) {
+  regForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    if (!validateWizardStep(4)) {
+      if (wizardCard) {
+        wizardCard.classList.add('animate-shake');
+        setTimeout(() => wizardCard.classList.remove('animate-shake'), 400);
+      }
       return;
     }
-  }
 
-  registrations.push(newRegistration);
-  if (!useSupabase) {
-    localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
-  }
+    // Construct registration object
+    const bizName = document.getElementById('regBizName').value.trim();
+    const ownerName = document.getElementById('regOwnerName').value.trim();
+    const title = document.getElementById('regTitle') ? document.getElementById('regTitle').value.trim() : '';
+    const address = document.getElementById('regAddress') ? document.getElementById('regAddress').value.trim() : '';
+    const city = (document.getElementById('regCity') && document.getElementById('regCity').value.trim()) || "Columbus";
+    const state = (document.getElementById('regState') && document.getElementById('regState').value.trim()) || "OH";
+    const zip = document.getElementById('regZip') ? document.getElementById('regZip').value.trim() : '';
+    const phone = document.getElementById('regPhone').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const website = document.getElementById('regWebsite') ? document.getElementById('regWebsite').value.trim() : '';
+    const industry = document.getElementById('regIndustry').value;
+    const established = (document.getElementById('regYearEst') && document.getElementById('regYearEst').value) || today.getFullYear();
+    const description = (document.getElementById('regDescription') && document.getElementById('regDescription').value.trim()) || "No description provided.";
+    
+    const interests = [];
+    document.querySelectorAll('input[name="regInterests"]:checked').forEach(c => {
+      interests.push(c.value);
+    });
 
-  // 2. Add to Public Directory if Consent given and doesn't already exist
-  if (directoryConsent === 'Yes') {
-    const exists = businesses.some(b => b.name.toLowerCase() === bizName.toLowerCase());
-    if (!exists) {
-      const newBizEntry = {
-        id: `biz-${Date.now()}`,
-        name: bizName,
-        owner: ownerName,
-        title: title || "Representative",
-        category: industry,
-        phone: phone,
-        email: email,
-        website: website,
-        address: address ? `${address}, ${city}, ${state} ${zip}` : `${city}, ${state}`,
-        established: parseInt(established),
-        description: description,
-        interests: interests
-      };
+    const exhibitorEl = document.querySelector('input[name="regExhibitor"]:checked');
+    const exhibitor = exhibitorEl ? exhibitorEl.value : 'No';
 
-      if (useSupabase) {
-        const { error } = await supabase.from('businesses').insert([newBizEntry]);
-        if (error) {
-          console.error("Directory sync write to Supabase failed:", error);
-        }
+    const electricityEl = document.querySelector('input[name="regElectricity"]:checked');
+    const electricity = electricityEl ? electricityEl.value : 'No';
+
+    const consentEl = document.getElementById('regDirectoryConsent');
+    const directoryConsent = consentEl && consentEl.checked ? 'Yes' : 'No';
+
+    const accommodations = document.getElementById('regAccommodations') ? document.getElementById('regAccommodations').value.trim() : '';
+    const signature = document.getElementById('regSignature').value.trim();
+
+    // Generate Unique Registration ID
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    const regId = `HAC-2026-${randNum}`;
+
+    const newRegistration = {
+      regId,
+      bizName,
+      ownerName,
+      title,
+      address,
+      city,
+      state,
+      zip,
+      phone,
+      email,
+      website,
+      industry,
+      established,
+      description,
+      interests,
+      exhibitor,
+      electricity,
+      directoryConsent,
+      accommodations,
+      signature,
+      dateSigned: regDateField ? regDateField.value : ''
+    };
+
+    // 1. Add to Registrations Table in database
+    if (useSupabase) {
+      const { error } = await supabase.from('registrations').insert([newRegistration]);
+      if (error) {
+        console.error("Supabase write failed:", error);
+        alert("Failed to submit registration: " + error.message);
+        return;
       }
-
-      businesses.push(newBizEntry);
-      if (!useSupabase) {
-        localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
-      }
-      renderDirectory();
     }
-  }
 
-  // 3. Reset form states
-  regForm.reset();
-  currentStep = 1;
-  updateWizardProgress();
-  
-  // Uncheck selects
-  document.querySelectorAll('.check-item').forEach(c => c.classList.remove('selected'));
-  // Set date field again
-  regDateField.value = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+    registrations.push(newRegistration);
+    if (!useSupabase) {
+      localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+    }
 
-  // 4. Open Ticket Modal
-  renderTicketStub(newRegistration);
-});
+    // 2. Add to Public Directory if Consent given and doesn't already exist
+    if (directoryConsent === 'Yes') {
+      const exists = businesses.some(b => b.name && b.name.toLowerCase() === bizName.toLowerCase());
+      if (!exists) {
+        const newBizEntry = {
+          id: `biz-${Date.now()}`,
+          name: bizName,
+          owner: ownerName,
+          title: title || "Representative",
+          category: industry,
+          phone: phone,
+          email: email,
+          website: website,
+          address: address ? `${address}, ${city}, ${state} ${zip}` : `${city}, ${state}`,
+          established: parseInt(established),
+          description: description,
+          interests: interests
+        };
+
+        if (useSupabase) {
+          const { error } = await supabase.from('businesses').insert([newBizEntry]);
+          if (error) {
+            console.error("Directory sync write to Supabase failed:", error);
+          }
+        }
+
+        businesses.push(newBizEntry);
+        if (!useSupabase) {
+          localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+        }
+        renderDirectory();
+      }
+    }
+
+    // 3. Reset form states
+    regForm.reset();
+    currentStep = 1;
+    updateWizardProgress();
+    
+    // Uncheck selects
+    document.querySelectorAll('.check-item').forEach(c => c.classList.remove('selected'));
+    // Set date field again
+    if (regDateField) {
+      regDateField.value = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
+    }
+
+    // 4. Open Ticket Modal
+    renderTicketStub(newRegistration);
+  });
+}
 
 // Render dynamic elements of the printable registration ticket badge
 function renderTicketStub(reg) {
-  document.getElementById('tRegId').innerText = reg.regId;
-  document.getElementById('tBizName').innerText = reg.bizName;
-  document.getElementById('tOwner').innerText = reg.ownerName;
-  document.getElementById('tIndustry').innerText = reg.industry;
-  document.getElementById('tExhibitor').innerText = reg.exhibitor === 'Yes' ? 'YES (Display Table)' : 'NO (General Entry)';
-  document.getElementById('tPower').innerText = reg.exhibitor === 'Yes' 
-    ? (reg.electricity === 'Yes' ? 'Electricity Required' : 'Electricity Not Needed')
-    : 'Not Applicable';
+  if (!ticketModal) return;
 
-  const tableEx = document.getElementById('tExhibitor');
-  if (reg.exhibitor === 'Yes') {
-    tableEx.className = 't-info-val highlight';
-    tableEx.style.color = 'var(--accent-red)';
-  } else {
-    tableEx.className = 't-info-val';
-    tableEx.style.color = '#030812';
+  const tRegId = document.getElementById('tRegId');
+  const tBizName = document.getElementById('tBizName');
+  const tOwner = document.getElementById('tOwner');
+  const tIndustry = document.getElementById('tIndustry');
+  const tExhibitor = document.getElementById('tExhibitor');
+  const tPower = document.getElementById('tPower');
+
+  if (tRegId) tRegId.innerText = reg.regId;
+  if (tBizName) tBizName.innerText = reg.bizName;
+  if (tOwner) tOwner.innerText = reg.ownerName;
+  if (tIndustry) tIndustry.innerText = reg.industry;
+  if (tExhibitor) tExhibitor.innerText = reg.exhibitor === 'Yes' ? 'YES (Display Table)' : 'NO (General Entry)';
+  if (tPower) {
+    tPower.innerText = reg.exhibitor === 'Yes' 
+      ? (reg.electricity === 'Yes' ? 'Electricity Required' : 'Electricity Not Needed')
+      : 'Not Applicable';
+  }
+
+  if (tExhibitor) {
+    if (reg.exhibitor === 'Yes') {
+      tExhibitor.className = 't-info-val highlight';
+      tExhibitor.style.color = 'var(--accent-red)';
+    } else {
+      tExhibitor.className = 't-info-val';
+      tExhibitor.style.color = '#030812';
+    }
   }
 
   // Open the Modal
   ticketModal.classList.add('open');
   document.body.style.overflow = 'hidden';
-  
-  // Scroll to ticket modal viewport center
   ticketModal.scrollTop = 0;
   
   // Synchronize admin table if active
-  if (adminDashboard.style.display === 'block') {
+  if (adminDashboard && adminDashboard.style.display === 'block') {
     renderAdminAttendeeList();
   }
 }
 
 // Close Ticket modal buttons
-btnDismissTicket.addEventListener('click', () => {
-  ticketModal.classList.remove('open');
-  document.body.style.overflow = '';
-});
+if (btnDismissTicket) {
+  btnDismissTicket.addEventListener('click', () => {
+    ticketModal.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+}
 
-btnCloseTicketModal.addEventListener('click', () => {
-  ticketModal.classList.remove('open');
-  document.body.style.overflow = '';
-});
+if (btnCloseTicketModal) {
+  btnCloseTicketModal.addEventListener('click', () => {
+    ticketModal.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+}
 
 // Print ticket handler
-btnPrintTicket.addEventListener('click', () => {
-  window.print();
-});
+if (btnPrintTicket) {
+  btnPrintTicket.addEventListener('click', () => {
+    window.print();
+  });
+}
 
 // ==========================================================================
 // 10. Staff Administration Portal Logic
 // ==========================================================================
 function renderAdminAttendeeList() {
+  if (!adminTableBody) return;
   adminTableBody.innerHTML = '';
   
   let totalEx = 0;
@@ -1140,10 +1293,10 @@ function renderAdminAttendeeList() {
     `;
     
     // Update stats counters
-    statTotalRegistrations.innerText = '0';
-    statTotalExhibitors.innerText = '0';
-    statTotalElectricity.innerText = '0';
-    statTotalConsent.innerText = '0';
+    if (statTotalRegistrations) statTotalRegistrations.innerText = '0';
+    if (statTotalExhibitors) statTotalExhibitors.innerText = '0';
+    if (statTotalElectricity) statTotalElectricity.innerText = '0';
+    if (statTotalConsent) statTotalConsent.innerText = '0';
     return;
   }
 
@@ -1153,18 +1306,23 @@ function renderAdminAttendeeList() {
     if (reg.electricity === 'Yes') totalElec++;
     if (reg.directoryConsent === 'Yes') totalDir++;
 
+    // Safe lowercasing
+    const exhibitorClass = (reg.exhibitor || 'no').toLowerCase();
+    const electricityClass = (reg.electricity || 'no').toLowerCase();
+    const consentClass = (reg.directoryConsent || 'no').toLowerCase();
+
     const row = document.createElement('tr');
     row.id = `adminRow-${reg.regId}`;
     row.innerHTML = `
       <td><strong>${reg.regId}</strong></td>
-      <td>${reg.bizName}</td>
-      <td>${reg.ownerName}</td>
-      <td>${reg.phone}</td>
-      <td>${reg.email}</td>
-      <td>${reg.industry}</td>
-      <td><span class="badge-status ${reg.exhibitor.toLowerCase()}">${reg.exhibitor}</span></td>
-      <td><span class="badge-status ${reg.electricity.toLowerCase()}">${reg.electricity}</span></td>
-      <td><span class="badge-status ${reg.directoryConsent.toLowerCase()}">${reg.directoryConsent}</span></td>
+      <td>${reg.bizName || ''}</td>
+      <td>${reg.ownerName || ''}</td>
+      <td>${reg.phone || ''}</td>
+      <td>${reg.email || ''}</td>
+      <td>${reg.industry || ''}</td>
+      <td><span class="badge-status ${exhibitorClass}">${reg.exhibitor || 'No'}</span></td>
+      <td><span class="badge-status ${electricityClass}">${reg.electricity || 'No'}</span></td>
+      <td><span class="badge-status ${consentClass}">${reg.directoryConsent || 'No'}</span></td>
       <td style="display: flex; gap: 0.5rem;">
         <button class="admin-action-btn btn-view-reg-ticket" data-id="${reg.regId}" title="View Ticket"><i class="fa-solid fa-ticket"></i></button>
         <button class="admin-action-btn btn-delete-reg" data-id="${reg.regId}" title="Delete Registration"><i class="fa-solid fa-trash"></i></button>
@@ -1205,85 +1363,84 @@ function renderAdminAttendeeList() {
   });
 
   // Update stats UI
-  statTotalRegistrations.innerText = registrations.length;
-  statTotalExhibitors.innerText = totalEx;
-  statTotalElectricity.innerText = totalElec;
-  statTotalConsent.innerText = totalDir;
+  if (statTotalRegistrations) statTotalRegistrations.innerText = registrations.length;
+  if (statTotalExhibitors) statTotalExhibitors.innerText = totalEx;
+  if (statTotalElectricity) statTotalElectricity.innerText = totalElec;
+  if (statTotalConsent) statTotalConsent.innerText = totalDir;
   
-  document.getElementById('adminTableCountLabel').innerText = `Displaying ${registrations.length} registration record(s)`;
+  const countLabel = document.getElementById('adminTableCountLabel');
+  if (countLabel) countLabel.innerText = `Displaying ${registrations.length} registration record(s)`;
 }
 
 // Toggle Administration Panel section via Staff login footer button
-toggleAdminBtn.addEventListener('click', () => {
-  if (adminDashboard.style.display === 'block') {
-    adminDashboard.style.display = 'none';
-    toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Staff Login';
-  } else {
-    adminDashboard.style.display = 'block';
-    renderAdminAttendeeList();
-    toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock-open" style="color: var(--accent-gold);"></i> Close Admin Portal';
-    
-    // Smooth scroll to admin
-    setTimeout(() => {
-      adminDashboard.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  }
-});
+if (toggleAdminBtn) {
+  toggleAdminBtn.addEventListener('click', () => {
+    if (adminDashboard.style.display === 'block') {
+      adminDashboard.style.display = 'none';
+      toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Staff Login';
+    } else {
+      adminDashboard.style.display = 'block';
+      renderAdminAttendeeList();
+      toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock-open" style="color: var(--accent-gold);"></i> Close Admin Portal';
+      
+      setTimeout(() => {
+        adminDashboard.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  });
+}
 
 // CSV Export functionality
-btnExportCSV.addEventListener('click', () => {
-  if (registrations.length === 0) {
-    alert("No registrations available to export.");
-    return;
-  }
-
-  // Define CSV Header
-  let csvContent = "Registration ID,Business Name,Representative,Title,Address,City,State,Zip,Phone,Email,Website,Industry,Year Established,Description,Exhibitor,Electricity Needed,Directory Consent,Special Accommodations,Signature,Date Signed\n";
-
-  // Loop through items
-  registrations.forEach(r => {
-    // Format interests for CSV columns safely
-    let formattedInterests = r.interests;
-    if (typeof formattedInterests !== 'string') {
-      formattedInterests = Array.isArray(formattedInterests) ? formattedInterests.join(', ') : '';
+if (btnExportCSV) {
+  btnExportCSV.addEventListener('click', () => {
+    if (registrations.length === 0) {
+      alert("No registrations available to export.");
+      return;
     }
 
-    // Wrap values in quotes to escape commas
-    const row = [
-      r.regId,
-      `"${r.bizName.replace(/"/g, '""')}"`,
-      `"${r.ownerName.replace(/"/g, '""')}"`,
-      `"${(r.title || '').replace(/"/g, '""')}"`,
-      `"${(r.address || '').replace(/"/g, '""')}"`,
-      `"${(r.city || '').replace(/"/g, '""')}"`,
-      `"${(r.state || '').replace(/"/g, '""')}"`,
-      `"${(r.zip || '').replace(/"/g, '""')}"`,
-      `"${r.phone}"`,
-      `"${r.email}"`,
-      `"${(r.website || '').replace(/"/g, '""')}"`,
-      `"${r.industry}"`,
-      r.established,
-      `"${(r.description || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
-      r.exhibitor,
-      r.electricity,
-      r.directoryConsent,
-      `"${(r.accommodations || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
-      `"${r.signature.replace(/"/g, '""')}"`,
-      r.dateSigned
-    ];
-    csvContent += row.join(",") + "\n";
-  });
+    let csvContent = "Registration ID,Business Name,Representative,Title,Address,City,State,Zip,Phone,Email,Website,Industry,Year Established,Description,Exhibitor,Electricity Needed,Directory Consent,Special Accommodations,Signature,Date Signed\n";
 
-  // Create Download Trigger
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.setAttribute("href", url);
-  link.setAttribute("download", "haconet_event_registrations_2026.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-});
+    registrations.forEach(r => {
+      let formattedInterests = r.interests;
+      if (typeof formattedInterests !== 'string') {
+        formattedInterests = Array.isArray(formattedInterests) ? formattedInterests.join(', ') : '';
+      }
+
+      const row = [
+        r.regId,
+        `"${(r.bizName || '').replace(/"/g, '""')}"`,
+        `"${(r.ownerName || '').replace(/"/g, '""')}"`,
+        `"${(r.title || '').replace(/"/g, '""')}"`,
+        `"${(r.address || '').replace(/"/g, '""')}"`,
+        `"${(r.city || '').replace(/"/g, '""')}"`,
+        `"${(r.state || '').replace(/"/g, '""')}"`,
+        `"${(r.zip || '').replace(/"/g, '""')}"`,
+        `"${r.phone || ''}"`,
+        `"${r.email || ''}"`,
+        `"${(r.website || '').replace(/"/g, '""')}"`,
+        `"${r.industry || ''}"`,
+        r.established || '',
+        `"${(r.description || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+        r.exhibitor || 'No',
+        r.electricity || 'No',
+        r.directoryConsent || 'No',
+        `"${(r.accommodations || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+        `"${(r.signature || '').replace(/"/g, '""')}"`,
+        r.dateSigned || ''
+      ];
+      csvContent += row.join(",") + "\n";
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "haconet_event_registrations_2026.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+}
 
 // Start database fetch and initialization
 initDatabase();
