@@ -24,6 +24,110 @@
 </head>
 <body>
 
+  <!-- Live On-Screen Debug Console for diagnosing deployment errors -->
+  <script>
+    (function() {
+      var queue = [];
+      function pushLog(type, args) {
+        var msg = Array.from(args).map(function(arg) {
+          if (arg && typeof arg === 'object') {
+            try { return JSON.stringify(arg); } catch(e) { return String(arg); }
+          }
+          return String(arg);
+        }).join(' ');
+        
+        var container = document.getElementById('debug-logs-container');
+        if (container) {
+          appendLog(type, msg);
+        } else {
+          queue.push({ type: type, msg: msg });
+        }
+      }
+
+      function appendLog(type, msg) {
+        var container = document.getElementById('debug-logs-container');
+        if (!container) return;
+        var logLine = document.createElement('div');
+        logLine.style.cssText = 'padding: 4px 6px; border-radius: 4px; margin-bottom: 4px; font-family: monospace; font-size: 11px; word-break: break-all;';
+        if (type === 'error') {
+          logLine.style.cssText += 'background: rgba(210, 16, 52, 0.15); border-left: 3px solid #d21034; color: #ff6b81;';
+          logLine.innerText = '🔴 [ERROR] ' + msg;
+        } else if (type === 'warn') {
+          logLine.style.cssText += 'background: rgba(241, 196, 15, 0.15); border-left: 3px solid #f1c40f; color: #ffe066;';
+          logLine.innerText = '🟡 [WARN] ' + msg;
+        } else {
+          logLine.style.cssText += 'background: rgba(255, 255, 255, 0.03); border-left: 3px solid #64748b; color: #cbd5e1;';
+          logLine.innerText = '🟢 [LOG] ' + msg;
+        }
+        container.appendChild(logLine);
+        container.scrollTop = container.scrollHeight;
+      }
+
+      // Intercept console functions
+      var origLog = console.log;
+      var origWarn = console.warn;
+      var origError = console.error;
+
+      console.log = function() { origLog.apply(console, arguments); pushLog('log', arguments); };
+      console.warn = function() { origWarn.apply(console, arguments); pushLog('warn', arguments); };
+      console.error = function() { origError.apply(console, arguments); pushLog('error', arguments); };
+
+      window.addEventListener('error', function(e) {
+        pushLog('error', [e.message, 'at', (e.filename || 'unknown') + ':' + (e.lineno || 0)]);
+      });
+      window.addEventListener('unhandledrejection', function(e) {
+        pushLog('error', ['Unhandled promise rejection:', e.reason]);
+      });
+
+      // Create UI on load
+      window.addEventListener('DOMContentLoaded', function() {
+        var debugBox = document.createElement('div');
+        debugBox.id = 'debug-console-box';
+        debugBox.style.cssText = 'position: fixed; bottom: 80px; right: 20px; width: 340px; height: 300px; background: rgba(5, 12, 24, 0.95); border: 1px solid var(--accent-gold, #f1c40f); border-radius: 12px; z-index: 99999; display: none; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;';
+        
+        debugBox.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0, 0, 0, 0.3); padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <span style="font-weight: 700; font-size: 12px; color: #f1c40f; letter-spacing: 0.05em;">🔍 SYSTEM DEBUG CONSOLE</span>
+            <button id="btn-close-debug" style="background: none; border: none; color: #64748b; font-size: 16px; cursor: pointer; transition: 0.2s;">✕</button>
+          </div>
+          <div id="debug-logs-container" style="flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column;"></div>
+          <div style="background: rgba(0,0,0,0.2); padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between;">
+            <button id="btn-clear-debug" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); color: #cbd5e1; font-size: 10px; padding: 4px 8px; border-radius: 4px; cursor: pointer;">Clear Logs</button>
+            <span style="color: #64748b; font-size: 10px;">HACONET Client Logger</span>
+          </div>
+        `;
+        
+        var toggleBtn = document.createElement('button');
+        toggleBtn.id = 'btn-toggle-debug';
+        toggleBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 8px 14px; background: #0f4c81; color: white; border: 1px solid #f1c40f; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; z-index: 99998; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;';
+        toggleBtn.innerText = '⚙️ SHOW LOGS';
+        
+        document.body.appendChild(debugBox);
+        document.body.appendChild(toggleBtn);
+
+        toggleBtn.addEventListener('click', function() {
+          debugBox.style.display = 'flex';
+          toggleBtn.style.display = 'none';
+        });
+
+        document.getElementById('btn-close-debug').addEventListener('click', function() {
+          debugBox.style.display = 'none';
+          toggleBtn.style.display = 'block';
+        });
+
+        document.getElementById('btn-clear-debug').addEventListener('click', function() {
+          document.getElementById('debug-logs-container').innerHTML = '';
+        });
+
+        // Flush queued logs
+        queue.forEach(function(item) {
+          appendLog(item.type, item.msg);
+        });
+        queue = [];
+      });
+    })();
+  </script>
+
   <!-- ==========================================================================
        Navigation Bar
        ========================================================================== -->
