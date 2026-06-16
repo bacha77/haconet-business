@@ -178,7 +178,7 @@ const SEED_REGISTRATIONS = [
 // Supabase Configuration
 const supabaseUrl = 'https://ntjbyhwnxlloytzsznio.supabase.co';
 const supabaseKey = 'sb_publishable_Il4YPdgf9HIY37KIfhO32w_XDmUVdjm';
-let supabase = null;
+let supabaseClient = null;
 let useSupabase = false;
 
 // Global Data Arrays
@@ -187,7 +187,7 @@ let registrations = [];
 
 try {
   if (window.supabase) {
-    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
   }
 } catch (e) {
   console.warn("Supabase SDK failed to initialize. Falling back to local storage.", e);
@@ -274,10 +274,10 @@ let currentStep = 1;
 // ==========================================================================
 async function initDatabase() {
   console.log("Initializing HACONET database...");
-  if (supabase) {
+  if (supabaseClient) {
     try {
       // 1. Fetch businesses
-      let { data: bData, error: bError } = await supabase.from('businesses').select('*');
+      let { data: bData, error: bError } = await supabaseClient.from('businesses').select('*');
       
       if (bError) {
         throw bError;
@@ -289,7 +289,7 @@ async function initDatabase() {
       if (!bData || bData.length === 0) {
         // Table is empty, seed it
         console.log("Seeding businesses table...");
-        const { error: seedError } = await supabase.from('businesses').insert(SEED_BUSINESSES);
+        const { error: seedError } = await supabaseClient.from('businesses').insert(SEED_BUSINESSES);
         if (seedError) console.error("Seeding businesses failed:", seedError);
         businesses = SEED_BUSINESSES;
       } else {
@@ -297,11 +297,11 @@ async function initDatabase() {
       }
 
       // 2. Fetch registrations
-      let { data: rData, error: rError } = await supabase.from('registrations').select('*');
+      let { data: rData, error: rError } = await supabaseClient.from('registrations').select('*');
       if (!rError) {
         if (!rData || rData.length === 0) {
           console.log("Seeding registrations table...");
-          const { error: seedError } = await supabase.from('registrations').insert(SEED_REGISTRATIONS);
+          const { error: seedError } = await supabaseClient.from('registrations').insert(SEED_REGISTRATIONS);
           if (seedError) console.error("Seeding registrations failed:", seedError);
           registrations = SEED_REGISTRATIONS;
         } else {
@@ -791,7 +791,7 @@ if (addBusinessForm) {
 
     // Submit to Supabase if connected
     if (useSupabase) {
-      const { error } = await supabase.from('businesses').insert([newBiz]);
+      const { error } = await supabaseClient.from('businesses').insert([newBiz]);
       if (error) {
         console.error("Supabase write failed:", error);
         alert("Failed to write to database: " + error.message);
@@ -1171,7 +1171,7 @@ if (regForm) {
 
     // 1. Add to Registrations Table in database
     if (useSupabase) {
-      const { error } = await supabase.from('registrations').insert([newRegistration]);
+      const { error } = await supabaseClient.from('registrations').insert([newRegistration]);
       if (error) {
         console.error("Supabase write failed:", error);
         alert("Failed to submit registration: " + error.message);
@@ -1204,7 +1204,7 @@ if (regForm) {
         };
 
         if (useSupabase) {
-          const { error } = await supabase.from('businesses').insert([newBizEntry]);
+          const { error } = await supabaseClient.from('businesses').insert([newBizEntry]);
           if (error) {
             console.error("Directory sync write to Supabase failed:", error);
           }
@@ -1373,7 +1373,7 @@ function renderAdminAttendeeList() {
       const id = btn.getAttribute('data-id');
       if (confirm(`Are you sure you want to delete registration ${id}?`)) {
         if (useSupabase) {
-          const { error } = await supabase.from('registrations').delete().eq('regId', id);
+          const { error } = await supabaseClient.from('registrations').delete().eq('regId', id);
           if (error) {
             console.error("Supabase deletion failed:", error);
             alert("Failed to delete record: " + error.message);
