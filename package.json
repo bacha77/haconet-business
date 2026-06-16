@@ -1,0 +1,9 @@
+{
+  "name": "haconet-business",
+  "version": "1.0.0",
+  "description": "HACONET Haitian-American business showcase platform",
+  "scripts": {
+    "start": "npx http-server -p 3000",
+    "deploy": "git push origin main"
+  }
+}
