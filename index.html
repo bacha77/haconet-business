@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- SEO Meta Tags -->
+  <title>HACONET - Haitian Community Network | Columbus Business Directory & Events</title>
+  <meta name="description" content="Showcasing Haitian-American businesses in the Greater Columbus area and hosting the Haitian Business Meet & Greet on August 6, 2026. Join the network, explore the directory, and register today!">
+  <meta name="keywords" content="Haitian business, Columbus Ohio, Haitian-American, business directory, networking event, Meet & Greet, HACONET">
+  <meta name="author" content="Haitian Community Network (HACONET)">
+  
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="assets/logo.png" type="image/png">
+  
+  <!-- FontAwesome Icons & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       Navigation Bar
+       ========================================================================== -->
+  <header class="header-nav" id="mainHeader">
+    <div class="container nav-wrapper">
+      <a href="#home" class="logo-link" id="navLogoLink">
+        <img src="assets/logo.png" alt="HACONET Logo" class="logo-img" id="navLogoImg">
+        <div class="logo-text" id="navLogoText">
+          HACONET
+          <span>HAITIAN COMMUNITY NETWORK</span>
+        </div>
+      </a>
+      
+      <button class="menu-toggle" id="menuToggleBtn" aria-label="Toggle Navigation Menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      
+      <ul class="nav-links" id="navLinksList">
+        <li><a href="#home" class="nav-link active" id="navLinkHome">Home</a></li>
+        <li><a href="#about" class="nav-link" id="navLinkAbout">About Us</a></li>
+        <li><a href="#directory" class="nav-link" id="navLinkDirectory">Directory</a></li>
+        <li><a href="#event" class="nav-link" id="navLinkEvent">Meet & Greet</a></li>
+        <li><a href="#register" class="btn btn-primary btn-sm nav-cta-btn" id="navCtaRegister">Register Now</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       Hero Section
+       ========================================================================== -->
+  <section class="hero-section" id="home">
+    <div class="container hero-grid">
+      <div class="hero-content" id="heroContentBlock">
+        <div class="hero-badge" id="heroEventBadge">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Annual Networking Event &bull; Aug 6, 2026</span>
+        </div>
+        <h1 class="hero-title serif-font text-gradient" id="heroMainTitle">
+          Haitian Business <br>Meet & Greet
+        </h1>
+        <p class="hero-desc" id="heroSubtitle">
+          Connecting, Collaborating, and Growing Haitian-Owned Businesses in the Greater Columbus area. Empowering excellence through leadership, business, and community partnership.
+        </p>
+        <div class="hero-btns" id="heroActionBtns">
+          <a href="#register" class="btn btn-primary" id="heroBtnRegister">
+            <i class="fa-solid fa-ticket"></i> Register for Event
+          </a>
+          <a href="#directory" class="btn btn-secondary" id="heroBtnExplore">
+            <i class="fa-solid fa-magnifying-glass"></i> Explore Directory
+          </a>
+        </div>
+      </div>
+      
+      <div class="countdown-card" id="countdownCard">
+        <h3 class="countdown-title" id="countdownCardTitle">Countdown to Event</h3>
+        <div class="countdown-timer" id="timerClock">
+          <div class="countdown-item" id="timerDaysCard">
+            <div class="countdown-val" id="daysVal">00</div>
+            <div class="countdown-unit">Days</div>
+          </div>
+          <div class="countdown-item" id="timerHoursCard">
+            <div class="countdown-val" id="hoursVal">00</div>
+            <div class="countdown-unit">Hours</div>
+          </div>
+          <div class="countdown-item" id="timerMinutesCard">
+            <div class="countdown-val" id="minutesVal">00</div>
+            <div class="countdown-unit">Mins</div>
+          </div>
+          <div class="countdown-item" id="timerSecondsCard">
+            <div class="countdown-val" id="secondsVal">00</div>
+            <div class="countdown-unit">Secs</div>
+          </div>
+        </div>
+        
+        <div class="countdown-event-details" id="countdownDetailsBlock">
+          <div class="c-detail" id="cDetailDate">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span><strong>Saturday, August 6, 2026</strong></span>
+          </div>
+          <div class="c-detail" id="cDetailTime">
+            <i class="fa-solid fa-clock"></i>
+            <span>5:00 PM - 9:00 PM EST</span>
+          </div>
+          <div class="c-detail" id="cDetailLoc">
+            <i class="fa-solid fa-location-dot"></i>
+            <span>Columbus, OH (Details upon registration)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       About & Mission Section
+       ========================================================================== -->
+  <section class="about-section" id="about">
+    <div class="container">
+      <div class="about-grid" id="aboutIntroGrid">
+        <div class="about-img-container" id="aboutVisualFrame">
+          <div class="about-img-frame" id="aboutImgWrapper">
+            <img src="assets/event_banner.png" alt="Business professionals networking at HACONET event" id="aboutMockImg">
+          </div>
+          <div class="about-img-overlay" id="aboutImgFrameOutline"></div>
+          <div class="about-badge" id="aboutYearsBadge">
+            <span class="num">2026</span>
+            <span class="lbl">Community Power</span>
+          </div>
+        </div>
+        
+        <div class="about-content" id="aboutContentTextBlock">
+          <h2 class="serif-font text-gradient" id="aboutMainHeading">Our Vision & Mission</h2>
+          <h3 id="aboutSubheading">Empowering Haitian Excellence</h3>
+          <p>
+            The Haitian Community Network (HACONET) serves as the primary bridge connecting Haitian-American entrepreneurs, professionals, and community leaders in the Greater Columbus area.
+          </p>
+          <p>
+            Our objective is to create a thriving economic ecosystem by offering tools for training, strategic partnership development, and visibility. The Haitian Business Meet & Greet is our signature annual gathering designed to spotlight business ingenuity, create pathways to capital, and construct lasting community networks.
+          </p>
+          <div class="about-quote" id="aboutLeadershipQuote">
+            "Stronger Businesses. Stronger Community. Stronger Future."
+          </div>
+        </div>
+      </div>
+      
+      <div class="section-header" id="pillarsSectionHeader">
+        <h2 class="serif-font" id="pillarsTitle">Our Core Pillars</h2>
+        <p id="pillarsSubtitle">We build initiatives around five major focal points designed to empower attendees and directory listings alike.</p>
+      </div>
+      
+      <div class="pillars-grid" id="pillarsCardsGrid">
+        <div class="pillar-card" id="pillarCardNetwork">
+          <div class="pillar-icon" id="pillarIconNetwork"><i class="fa-solid fa-people-group"></i></div>
+          <h4>Network</h4>
+          <p>Build valuable relationships, expand your professional circle, and discover peer mentoring opportunities.</p>
+        </div>
+        <div class="pillar-card" id="pillarCardShowcase">
+          <div class="pillar-icon" id="pillarIconShowcase"><i class="fa-solid fa-bullhorn"></i></div>
+          <h4>Showcase</h4>
+          <p>Promote your business, products, and services directly to the local community and key corporate sponsors.</p>
+        </div>
+        <div class="pillar-card" id="pillarCardLearn">
+          <div class="pillar-icon" id="pillarIconLearn"><i class="fa-solid fa-chalkboard-user"></i></div>
+          <h4>Learn</h4>
+          <p>Gain vital technical insights from industry leaders, resource experts, and business development panels.</p>
+        </div>
+        <div class="pillar-card" id="pillarCardCollaborate">
+          <div class="pillar-icon" id="pillarIconCollaborate"><i class="fa-solid fa-handshake"></i></div>
+          <h4>Collaborate</h4>
+          <p>Discover corporate partnerships, joint ventures, and strategic opportunities to grow together.</p>
+        </div>
+        <div class="pillar-card" id="pillarCardCelebrate">
+          <div class="pillar-icon" id="pillarIconCelebrate"><i class="fa-solid fa-award"></i></div>
+          <h4>Celebrate</h4>
+          <p>Recognize entrepreneurial excellence and celebrate the positive social impact of Haitian-American businesses.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Business Directory Section
+       ========================================================================== -->
+  <section class="directory-section" id="directory">
+    <div class="container">
+      <div class="section-header" id="directorySectionHeader">
+        <h2 class="serif-font text-gradient" id="directoryTitle">Haitian Business Directory</h2>
+        <p id="directorySubtitle">Explore, connect, and support Haitian-American businesses in the Greater Columbus area. Register your business to join the network.</p>
+      </div>
+      
+      <div class="directory-controls" id="directoryControlsBox">
+        <div class="search-filter-row" id="searchFilterRow">
+          <div class="search-box" id="searchBoxWrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" class="search-input" id="directorySearchInput" placeholder="Search by business name, owner, keywords...">
+          </div>
+          <button class="btn btn-outline-gold" id="btnOpenAddBusiness">
+            <i class="fa-solid fa-plus"></i> Add Your Business
+          </button>
+        </div>
+        
+        <div class="category-pills" id="directoryCategoryPills">
+          <span class="category-pill active" data-category="all" id="pillAll">All Industries</span>
+          <span class="category-pill" data-category="Retail" id="pillRetail">Retail</span>
+          <span class="category-pill" data-category="Healthcare" id="pillHealthcare">Healthcare</span>
+          <span class="category-pill" data-category="Technology" id="pillTechnology">Technology</span>
+          <span class="category-pill" data-category="Construction" id="pillConstruction">Construction</span>
+          <span class="category-pill" data-category="Financial Services" id="pillFinancial">Financial Services</span>
+          <span class="category-pill" data-category="Food & Beverage" id="pillFood">Food & Beverage</span>
+          <span class="category-pill" data-category="Professional Services" id="pillProfessional">Professional Services</span>
+          <span class="category-pill" data-category="Nonprofit" id="pillNonprofit">Nonprofit / Other</span>
+        </div>
+      </div>
+      
+      <div class="directory-grid" id="directoryGrid">
+        <!-- JS inserts cards dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Meet & Greet Details Section
+       ========================================================================== -->
+  <section class="event-details-section" id="event">
+    <div class="container">
+      <div class="section-header" id="eventSectionHeader">
+        <h2 class="serif-font text-gradient" id="eventMainTitleText">Meet & Greet Event Details</h2>
+        <p id="eventSubtitleText">A Night of Connection, Opportunity & Growth! Mark your calendar for August 6, 2026.</p>
+      </div>
+      
+      <div class="event-intro-grid" id="eventIntroGrid">
+        <div class="event-main" id="eventMainTextBlock">
+          <h3>Annual Haitian Business Meet & Greet</h3>
+          <p>
+            The HACONET Annual Business Meet & Greet is the premier gathering for Caribbean-American business owners, investors, and local organizations. This high-profile event is structured to amplify local entrepreneurship and provide direct access to crucial resources.
+          </p>
+          <p>
+            Whether you are an established business owner looking for exposure, a budding entrepreneur searching for guidance, or a corporate leader hoping to partner with Haitian businesses, this event will unlock strategic opportunities.
+          </p>
+          
+          <div class="event-highlights-box" id="eventHighlightsBox">
+            <h4>Who Should Attend?</h4>
+            <div class="checkbox-grid" style="grid-template-columns: 1fr 1fr; gap: 0.5rem 1.5rem; text-align: left; font-size: 0.95rem; color: var(--text-secondary);">
+              <div><i class="fa-solid fa-check text-gold" style="margin-right: 8px;"></i> Business Owners</div>
+              <div><i class="fa-solid fa-check text-gold" style="margin-right: 8px;"></i> Entrepreneurs</div>
+              <div><i class="fa-solid fa-check text-gold" style="margin-right: 8px;"></i> Professionals</div>
+              <div><i class="fa-solid fa-check text-gold" style="margin-right: 8px;"></i> Investors & VCs</div>
+              <div><i class="fa-solid fa-check text-gold" style="margin-right: 8px;"></i> Nonprofit Leaders</div>
+              <div><i class="fa-solid fa-check text-gold" style="margin-right: 8px;"></i> Emerging Leaders</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="event-highlights-box" id="eventHighlightsListCard">
+          <h4>Event Highlights</h4>
+          <ul class="highlight-list" id="eventHighlightsList">
+            <li>
+              <i class="fa-solid fa-microphone-lines"></i>
+              <div>
+                <strong>Keynote Speaker Presentation</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Inspirational talk by a renowned Haitian-American executive.</p>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-comments"></i>
+              <div>
+                <strong>Business Success Stories Panel</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Insights from Columbus business owners on scaling locally.</p>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-lightbulb"></i>
+              <div>
+                <strong>Business Pitch Showcase</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">New startups presenting their projects to potential investors.</p>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-hands-holding-circle"></i>
+              <div>
+                <strong>Resource & Partnership Session</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Connect with city officials, chambers of commerce, and lenders.</p>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-trophy"></i>
+              <div>
+                <strong>Haitian Business Excellence Awards</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Honoring outstanding contributions to the Columbus community.</p>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-store"></i>
+              <div>
+                <strong>Business Expo & Vendor Showcase</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted);">Visit business display tables and support local services.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="event-meta-cards" id="eventMetaCardsGrid">
+        <div class="meta-card" id="eventMetaCardDate">
+          <i class="fa-regular fa-calendar-check"></i>
+          <h5>Date</h5>
+          <p>Saturday, August 6, 2026</p>
+        </div>
+        <div class="meta-card" id="eventMetaCardTime">
+          <i class="fa-regular fa-clock"></i>
+          <h5>Time</h5>
+          <p>5:00 PM - 9:00 PM EST</p>
+        </div>
+        <div class="meta-card" id="eventMetaCardLoc">
+          <i class="fa-solid fa-map-location-dot"></i>
+          <h5>Location</h5>
+          <p>Greater Columbus Area (Details provided in ticket)</p>
+        </div>
+      </div>
+      
+      <div class="cta-register-block" id="eventCtaRegisterBlock">
+        <h4 class="serif-font text-gradient">Secure Your Entry Today</h4>
+        <p>Register as an attendee or reserve a business display table. Join the movement to build a stronger Haitian business community.</p>
+        <a href="#register" class="btn btn-gold" id="eventCtaBtn">
+          <i class="fa-solid fa-pen-to-square"></i> Open Event Registration Form
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Event Registration Wizard
+       ========================================================================== -->
+  <section class="registration-section" id="register" style="background: rgba(13, 27, 49, 0.3);">
+    <div class="container registration-container" id="regFormContainer">
+      <div class="section-header" id="regSectionHeader">
+        <h2 class="serif-font text-gradient" id="regMainTitle">Event Registration Form</h2>
+        <p id="regSubtitle">Complete the interactive wizard to register for the Haitian Business Meet & Greet on August 6, 2026.</p>
+      </div>
+      
+      <div class="wizard-card" id="registrationWizard">
+        <div class="wizard-header" id="wizardHeaderBlock">
+          <h3>Meet & Greet Registration</h3>
+          <p>Please enter your information to proceed</p>
+          
+          <div class="wizard-progress" id="wizardProgressBar">
+            <div class="progress-bar-fill" id="progressBarFill"></div>
+            <div class="progress-step completed" data-step="1" id="stepIndicator1">
+              1
+              <span class="progress-step-label">Business Info</span>
+            </div>
+            <div class="progress-step" data-step="2" id="stepIndicator2">
+              2
+              <span class="progress-step-label">Details</span>
+            </div>
+            <div class="progress-step" data-step="3" id="stepIndicator3">
+              3
+              <span class="progress-step-label">Interests</span>
+            </div>
+            <div class="progress-step" data-step="4" id="stepIndicator4">
+              4
+              <span class="progress-step-label">Review</span>
+            </div>
+          </div>
+        </div>
+        
+        <form id="eventRegistrationForm" novalidate>
+          <div class="wizard-form-body" id="wizardFormBody">
+            
+            <!-- STEP 1: BUSINESS INFORMATION -->
+            <div class="form-step active" data-step="1" id="formStep1">
+              <h4 class="form-step-title" id="formStep1Title">Business Information</h4>
+              <div class="form-grid" id="formStep1Grid">
+                
+                <div class="form-group" id="groupBizName">
+                  <label for="regBizName">Business Name <span class="required">*</span></label>
+                  <input type="text" id="regBizName" class="form-control" placeholder="Enter business name" required>
+                  <span class="form-error-msg" id="errBizName">Business name is required.</span>
+                </div>
+                
+                <div class="form-group" id="groupOwnerName">
+                  <label for="regOwnerName">Business Owner/Representative <span class="required">*</span></label>
+                  <input type="text" id="regOwnerName" class="form-control" placeholder="Representative name" required>
+                  <span class="form-error-msg" id="errOwnerName">Owner or representative name is required.</span>
+                </div>
+                
+                <div class="form-group" id="groupTitle">
+                  <label for="regTitle">Title / Position</label>
+                  <input type="text" id="regTitle" class="form-control" placeholder="e.g. Founder, CEO, Manager">
+                </div>
+                
+                <div class="form-group" id="groupBizAddress">
+                  <label for="regAddress">Business Address</label>
+                  <input type="text" id="regAddress" class="form-control" placeholder="Street Address">
+                </div>
+                
+                <div class="form-group" id="groupCity">
+                  <label for="regCity">City</label>
+                  <input type="text" id="regCity" class="form-control" placeholder="Columbus">
+                </div>
+                
+                <div class="form-group" id="groupStateZip" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                  <div>
+                    <label for="regState">State</label>
+                    <input type="text" id="regState" class="form-control" placeholder="OH" value="OH">
+                  </div>
+                  <div>
+                    <label for="regZip">Zip Code</label>
+                    <input type="text" id="regZip" class="form-control" placeholder="43215">
+                  </div>
+                </div>
+                
+                <div class="form-group" id="groupPhone">
+                  <label for="regPhone">Phone Number <span class="required">*</span></label>
+                  <input type="tel" id="regPhone" class="form-control" placeholder="614-XXX-XXXX" required>
+                  <span class="form-error-msg" id="errPhone">Please enter a valid phone number.</span>
+                </div>
+                
+                <div class="form-group" id="groupEmail">
+                  <label for="regEmail">Email Address <span class="required">*</span></label>
+                  <input type="email" id="regEmail" class="form-control" placeholder="contact@business.com" required>
+                  <span class="form-error-msg" id="errEmail">Please enter a valid email address.</span>
+                </div>
+                
+                <div class="form-group full-width" id="groupWebsite">
+                  <label for="regWebsite">Website / Social Media Link</label>
+                  <input type="url" id="regWebsite" class="form-control" placeholder="https://www.mybusiness.com">
+                </div>
+                
+              </div>
+            </div>
+            
+            <!-- STEP 2: BUSINESS DETAILS -->
+            <div class="form-step" data-step="2" id="formStep2">
+              <h4 class="form-step-title" id="formStep2Title">Business Details</h4>
+              <div class="form-grid" id="formStep2Grid">
+                
+                <div class="form-group full-width" id="groupIndustry">
+                  <label for="regIndustry">Type of Business / Industry <span class="required">*</span></label>
+                  <select id="regIndustry" class="form-control" required>
+                    <option value="" disabled selected>Select an industry...</option>
+                    <option value="Retail">Retail</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Construction">Construction</option>
+                    <option value="Financial Services">Financial Services</option>
+                    <option value="Education">Education</option>
+                    <option value="Hospitality">Hospitality</option>
+                    <option value="Nonprofit">Nonprofit</option>
+                    <option value="Professional Services">Professional Services</option>
+                    <option value="Real Estate">Real Estate</option>
+                    <option value="Food & Beverage">Food & Beverage</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <span class="form-error-msg" id="errIndustry">Please select an industry.</span>
+                </div>
+                
+                <div class="form-group full-width" id="groupYearEst">
+                  <label for="regYearEst">Year Business Established</label>
+                  <input type="number" id="regYearEst" class="form-control" placeholder="e.g. 2020" min="1800" max="2027">
+                </div>
+                
+                <div class="form-group full-width" id="groupDescription">
+                  <label for="regDescription">Brief Description of Business</label>
+                  <textarea id="regDescription" class="form-control" placeholder="Tell us about your services, products, and vision..."></textarea>
+                </div>
+                
+              </div>
+            </div>
+            
+            <!-- STEP 3: NETWORKING INTERESTS & OPTIONS -->
+            <div class="form-step" data-step="3" id="formStep3">
+              <h4 class="form-step-title" id="formStep3Title">Networking Interests & Setup</h4>
+              
+              <div class="form-group" id="groupInterests">
+                <label>Networking Interests (Select all that apply)</label>
+                <div class="checkbox-grid" id="interestsGrid">
+                  <label class="check-item" id="checkInterestRelationships">
+                    <input type="checkbox" name="regInterests" value="Build business relationships">
+                    <span>Build relationships</span>
+                  </label>
+                  <label class="check-item" id="checkInterestClients">
+                    <input type="checkbox" name="regInterests" value="Find potential clients/customers">
+                    <span>Find clients</span>
+                  </label>
+                  <label class="check-item" id="checkInterestLeaders">
+                    <input type="checkbox" name="regInterests" value="Meet community leaders">
+                    <span>Meet leaders</span>
+                  </label>
+                  <label class="check-item" id="checkInterestPartnerships">
+                    <input type="checkbox" name="regInterests" value="Explore partnerships">
+                    <span>Explore partnerships</span>
+                  </label>
+                  <label class="check-item" id="checkInterestResources">
+                    <input type="checkbox" name="regInterests" value="Learn about resources and funding opportunities">
+                    <span>Funding & Resources</span>
+                  </label>
+                  <label class="check-item" id="checkInterestPromote">
+                    <input type="checkbox" name="regInterests" value="Promote products/services">
+                    <span>Promote services</span>
+                  </label>
+                  <label class="check-item" id="checkInterestConnect">
+                    <input type="checkbox" name="regInterests" value="Connect with other entrepreneurs">
+                    <span>Connect peers</span>
+                  </label>
+                  <label class="check-item" id="checkInterestRecruiting">
+                    <input type="checkbox" name="regInterests" value="Recruitment and hiring">
+                    <span>Recruiting/Hiring</span>
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-grid" id="optionsFormGrid" style="margin-top: 1.5rem;">
+                
+                <div class="form-group" id="groupExhibitor">
+                  <label>Would you like a vendor/display table? <span class="required">*</span></label>
+                  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <label class="check-item" style="flex: 1;" id="radioExhibitorYes">
+                      <input type="radio" name="regExhibitor" value="Yes" required> Yes
+                    </label>
+                    <label class="check-item" style="flex: 1;" id="radioExhibitorNo">
+                      <input type="radio" name="regExhibitor" value="No" checked required> No
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="form-group" id="groupElectricity">
+                  <label>Do you require electricity? <span class="required">*</span></label>
+                  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <label class="check-item" style="flex: 1;" id="radioElectricityYes">
+                      <input type="radio" name="regElectricity" value="Yes" required> Yes
+                    </label>
+                    <label class="check-item" style="flex: 1;" id="radioElectricityNo">
+                      <input type="radio" name="regElectricity" value="No" checked required> No
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="form-group full-width" id="groupConsent">
+                  <label>Event Directory Consent <span class="required">*</span></label>
+                  <div style="margin-top: 0.5rem;">
+                    <label class="check-item" id="checkboxConsent">
+                      <input type="checkbox" id="regDirectoryConsent" value="Yes" checked required>
+                      <span>May we include your business information in the directory distributed to attendees?</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div class="form-group full-width" id="groupAccommodations">
+                  <label for="regAccommodations">Special Accommodations</label>
+                  <textarea id="regAccommodations" class="form-control" placeholder="Please list any accessibility requests, food allergies, or specific requirements..."></textarea>
+                </div>
+                
+              </div>
+            </div>
+            
+            <!-- STEP 4: REVIEW & AGREEMENT -->
+            <div class="form-step" data-step="4" id="formStep4">
+              <h4 class="form-step-title" id="formStep4Title">Review & Agreement</h4>
+              
+              <div id="reviewSummaryContainer">
+                <!-- Javascript will render details here -->
+              </div>
+              
+              <div class="agreement-terms" id="agreementTermsText">
+                <i class="fa-solid fa-circle-info" style="margin-right: 6px; color: var(--accent-red);"></i>
+                <strong>Agreement:</strong> I certify that the information provided is accurate and understand that submission of this registration form does not guarantee participation until confirmation is received from the event organizers.
+              </div>
+              
+              <div class="form-grid" id="agreementSignGrid">
+                
+                <div class="form-group" id="groupSignature">
+                  <label for="regSignature">Digital Signature (Type Full Name) <span class="required">*</span></label>
+                  <input type="text" id="regSignature" class="form-control" placeholder="Type name to sign" required>
+                  <span class="form-error-msg" id="errSignature">Signature is required to submit.</span>
+                </div>
+                
+                <div class="form-group" id="groupDate">
+                  <label for="regDate">Date of Signature</label>
+                  <input type="text" id="regDate" class="form-control" readonly>
+                </div>
+                
+              </div>
+            </div>
+            
+          </div>
+          
+          <div class="wizard-footer" id="wizardFooterBlock">
+            <button type="button" class="btn btn-secondary" id="btnPrevStep" style="visibility: hidden;">
+              <i class="fa-solid fa-arrow-left"></i> Previous
+            </button>
+            <div class="right-btns" id="footerRightBtns">
+              <button type="button" class="btn btn-gold" id="btnNextStep">
+                Next <i class="fa-solid fa-arrow-right"></i>
+              </button>
+              <button type="submit" class="btn btn-primary" id="btnSubmitForm" style="display: none;">
+                Submit Registration <i class="fa-solid fa-check"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Admin Section (Show/Hide via JS)
+       ========================================================================== -->
+  <section class="admin-section" id="adminDashboard">
+    <div class="container">
+      <div class="admin-header-row" id="adminHeaderRow">
+        <div>
+          <h2 class="serif-font text-gradient" id="adminTitle">HACONET Admin Portal</h2>
+          <p style="color: var(--text-secondary);" id="adminSubtitle">View registrations and download attendee database.</p>
+        </div>
+        <button class="btn btn-outline-gold" id="btnExportCSV">
+          <i class="fa-solid fa-file-csv"></i> Export Attendee Data (CSV)
+        </button>
+      </div>
+      
+      <div class="admin-stats-grid" id="adminStatsGrid">
+        <div class="admin-stat-card" id="statCardTotal">
+          <div class="admin-stat-icon blue" id="statIconTotal"><i class="fa-solid fa-users"></i></div>
+          <div class="admin-stat-info">
+            <div class="admin-stat-num" id="statTotalRegistrations">0</div>
+            <div class="admin-stat-lbl">Registrations</div>
+          </div>
+        </div>
+        
+        <div class="admin-stat-card" id="statCardExhibitors">
+          <div class="admin-stat-icon" id="statIconExhibitors"><i class="fa-solid fa-store"></i></div>
+          <div class="admin-stat-info">
+            <div class="admin-stat-num" id="statTotalExhibitors">0</div>
+            <div class="admin-stat-lbl">Exhibitors</div>
+          </div>
+        </div>
+        
+        <div class="admin-stat-card" id="statCardPower">
+          <div class="admin-stat-icon red" id="statIconPower"><i class="fa-solid fa-plug"></i></div>
+          <div class="admin-stat-info">
+            <div class="admin-stat-num" id="statTotalElectricity">0</div>
+            <div class="admin-stat-lbl">Need Power</div>
+          </div>
+        </div>
+        
+        <div class="admin-stat-card" id="statCardConsent">
+          <div class="admin-stat-icon blue" id="statIconConsent"><i class="fa-solid fa-check-double"></i></div>
+          <div class="admin-stat-info">
+            <div class="admin-stat-num" id="statTotalConsent">0</div>
+            <div class="admin-stat-lbl">In Directory</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="admin-table-card" id="adminTableCard">
+        <div class="admin-table-header" id="adminTableHeader">
+          <h3 id="adminTableTitle">Registered Attendees</h3>
+          <span style="font-size: 0.85rem; color: var(--text-muted);" id="adminTableCountLabel">Showing all listings</span>
+        </div>
+        
+        <div class="admin-table-container" id="adminTableContainer">
+          <table class="admin-table" id="adminAttendeeTable">
+            <thead>
+              <tr>
+                <th>Registration ID</th>
+                <th>Business Name</th>
+                <th>Representative</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Industry</th>
+                <th>Exhibitor</th>
+                <th>Power</th>
+                <th>Consent</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAttendeeTableBody">
+              <!-- JS populates rows dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       Footer Section
+       ========================================================================== -->
+  <footer class="footer-section" id="mainFooter">
+    <div class="container">
+      <div class="footer-grid" id="footerGrid">
+        <div class="footer-logo-block" id="footerLogoBlock">
+          <a href="#home" class="logo-link" id="footerLogoLink">
+            <img src="assets/logo.png" alt="HACONET Logo" class="logo-img" id="footerLogoImg">
+            <div class="logo-text" id="footerLogoText">
+              HACONET
+              <span>HAITIAN COMMUNITY NETWORK</span>
+            </div>
+          </a>
+          <p>Connecting, Collaborating, and Growing Haitian-Owned Businesses in Ohio.</p>
+          <div class="footer-socials" id="footerSocialsBlock">
+            <a href="https://facebook.com" class="social-link" id="socialFb" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="https://instagram.com" class="social-link" id="socialInsta" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://linkedin.com" class="social-link" id="socialLi" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://twitter.com" class="social-link" id="socialTw" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+          </div>
+        </div>
+        
+        <div class="footer-nav-block" id="footerNavBlock">
+          <h4>Navigation</h4>
+          <ul class="footer-nav-links" id="footerNavLinks">
+            <li><a href="#home" id="footerLinkHome">Home</a></li>
+            <li><a href="#about" id="footerLinkAbout">About Us</a></li>
+            <li><a href="#directory" id="footerLinkDirectory">Business Directory</a></li>
+            <li><a href="#event" id="footerLinkEvent">Meet & Greet</a></li>
+            <li><a href="#register" id="footerLinkRegister">Registration Form</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-nav-block" id="footerIndustriesBlock">
+          <h4>Key Sectors</h4>
+          <ul class="footer-nav-links" id="footerIndustriesLinks">
+            <li><a href="#directory" class="footer-sector-link" data-cat="Food & Beverage">Food & Beverage</a></li>
+            <li><a href="#directory" class="footer-sector-link" data-cat="Healthcare">Healthcare Services</a></li>
+            <li><a href="#directory" class="footer-sector-link" data-cat="Retail">Retail & Beauty</a></li>
+            <li><a href="#directory" class="footer-sector-link" data-cat="Construction">Construction</a></li>
+            <li><a href="#directory" class="footer-sector-link" data-cat="Financial Services">Financial & Tax</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-contact-block" id="footerContactBlock">
+          <h4>Contact HACONET</h4>
+          <ul class="footer-contact-list" id="footerContactList">
+            <li>
+              <i class="fa-solid fa-phone"></i>
+              <a href="tel:6146005530" id="footerPhone">614-600-5530</a>
+            </li>
+            <li>
+              <i class="fa-solid fa-envelope"></i>
+              <a href="mailto:info@haconet.org" id="footerEmail">info@haconet.org</a>
+            </li>
+            <li>
+              <i class="fa-solid fa-globe"></i>
+              <a href="https://www.haconet.org" target="_blank" rel="noopener" id="footerWeb">www.haconet.org</a>
+            </li>
+            <li>
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Columbus, OH</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom" id="footerBottomRow">
+        <p id="copyrightText">&copy; 2026 Haitian Community Network (HACONET). All Rights Reserved.</p>
+        <div class="footer-bottom-links" id="footerBottomLinksBlock">
+          <a href="#" id="linkPrivacy">Privacy Policy</a>
+          <a href="#" id="linkTerms">Terms of Service</a>
+          <button class="admin-toggle-btn" id="toggleAdminBtn" title="Toggle Administration View">
+            <i class="fa-solid fa-lock"></i> Staff Login
+          </button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       MODALS
+       ========================================================================== -->
+  
+  <!-- 1. BUSINESS PROFILE MODAL -->
+  <div class="modal-overlay" id="businessProfileModal">
+    <div class="modal-box" id="profileModalBox">
+      <button class="modal-close-btn" id="btnCloseProfileModal" aria-label="Close Profile">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-body" id="profileModalBody">
+        <div class="profile-modal-grid" id="profileGrid">
+          
+          <div class="profile-header-info" id="pHeaderInfo">
+            <span class="profile-cat" id="pCategory">Industry</span>
+            <h3 class="profile-title serif-font" id="pBusinessName">Business Name</h3>
+            
+            <div class="profile-meta" id="pMetaBlock">
+              <div id="pOwnerItem"><i class="fa-solid fa-user-tie"></i> Owned by: <strong id="pOwner">Owner Name</strong> <span id="pOwnerTitle" style="color: var(--text-muted);"></span></div>
+              <div id="pEstItem" style="margin-top: 4px;"><i class="fa-solid fa-calendar-check"></i> Established: <span id="pYearEstablished">Year</span></div>
+            </div>
+          </div>
+          
+          <div class="profile-desc-block" id="pDescBlock">
+            <h4>About the Business</h4>
+            <p id="pDescription">Business description goes here...</p>
+          </div>
+          
+          <div class="profile-contact-block" id="pContactBlock">
+            <h4>Contact & Location</h4>
+            <div class="profile-contact-list" id="pContactList">
+              <div class="p-contact-item" id="pContactPhoneItem">
+                <i class="fa-solid fa-phone"></i>
+                <span id="pPhone">Phone Number</span>
+              </div>
+              <div class="p-contact-item" id="pContactEmailItem">
+                <i class="fa-solid fa-envelope"></i>
+                <span id="pEmail">Email Address</span>
+              </div>
+              <div class="p-contact-item full-width" id="pContactWebItem" style="grid-column: 1 / -1;">
+                <i class="fa-solid fa-globe"></i>
+                <a href="#" target="_blank" rel="noopener" id="pWebsite">Website Link</a>
+              </div>
+              <div class="p-contact-item full-width" id="pContactAddressItem" style="grid-column: 1 / -1; border-top: 1px dashed var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+                <i class="fa-solid fa-location-dot"></i>
+                <span id="pAddress">Business Address</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="profile-interests-block" id="pInterestsBlock" style="display: none;">
+            <h4>Networking Interests</h4>
+            <div class="profile-interests-list" id="pInterestsList">
+              <!-- Tags populated by JS -->
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ADD YOUR BUSINESS DIRECTORY INTAKE MODAL -->
+  <div class="modal-overlay" id="addBusinessModal">
+    <div class="modal-box" style="max-width: 600px;" id="addBusinessModalBox">
+      <button class="modal-close-btn" id="btnCloseAddBusiness" aria-label="Close Intake">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header" id="addBusinessHeader">
+        <h3>Add Your Business</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Submit your business to be listed in the public HACONET Directory.</p>
+      </div>
+      
+      <div class="modal-body" id="addBusinessModalBody">
+        <form id="addBusinessForm" novalidate>
+          <div class="form-grid" id="addBusinessFormGrid">
+            
+            <div class="form-group full-width" id="addBizNameGroup">
+              <label for="addBizName">Business Name <span class="required">*</span></label>
+              <input type="text" id="addBizName" class="form-control" required>
+              <span class="form-error-msg" id="addErrBizName">Business name is required.</span>
+            </div>
+            
+            <div class="form-group" id="addOwnerNameGroup">
+              <label for="addOwnerName">Owner / Representative <span class="required">*</span></label>
+              <input type="text" id="addOwnerName" class="form-control" required>
+              <span class="form-error-msg" id="addErrOwnerName">Owner name is required.</span>
+            </div>
+            
+            <div class="form-group" id="addIndustryGroup">
+              <label for="addIndustry">Industry / Sector <span class="required">*</span></label>
+              <select id="addIndustry" class="form-control" required>
+                <option value="" disabled selected>Select industry...</option>
+                <option value="Retail">Retail</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Technology">Technology</option>
+                <option value="Construction">Construction</option>
+                <option value="Financial Services">Financial Services</option>
+                <option value="Food & Beverage">Food & Beverage</option>
+                <option value="Professional Services">Professional Services</option>
+                <option value="Nonprofit">Nonprofit / Other</option>
+              </select>
+              <span class="form-error-msg" id="addErrIndustry">Please select an industry.</span>
+            </div>
+            
+            <div class="form-group" id="addPhoneGroup">
+              <label for="addPhone">Phone Number <span class="required">*</span></label>
+              <input type="tel" id="addPhone" class="form-control" placeholder="614-XXX-XXXX" required>
+              <span class="form-error-msg" id="addErrPhone">Valid phone number is required.</span>
+            </div>
+            
+            <div class="form-group" id="addEmailGroup">
+              <label for="addEmail">Email Address <span class="required">*</span></label>
+              <input type="email" id="addEmail" class="form-control" placeholder="info@company.com" required>
+              <span class="form-error-msg" id="addErrEmail">Valid email is required.</span>
+            </div>
+            
+            <div class="form-group full-width" id="addAddressGroup">
+              <label for="addAddress">Business Address</label>
+              <input type="text" id="addAddress" class="form-control" placeholder="123 Main St, Columbus, OH 43215">
+            </div>
+            
+            <div class="form-group full-width" id="addWebGroup">
+              <label for="addWebsite">Website URL</label>
+              <input type="url" id="addWebsite" class="form-control" placeholder="https://www.company.com">
+            </div>
+            
+            <div class="form-group full-width" id="addDescGroup">
+              <label for="addDescription">Description <span class="required">*</span></label>
+              <textarea id="addDescription" class="form-control" style="min-height: 80px;" placeholder="Tell us about your services..." required></textarea>
+              <span class="form-error-msg" id="addErrDesc">Description is required.</span>
+            </div>
+            
+          </div>
+          
+          <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;" id="addBusinessActions">
+            <button type="button" class="btn btn-secondary" id="btnCancelAddBusiness">Cancel</button>
+            <button type="submit" class="btn btn-gold" id="btnSubmitAddBusiness">List Business</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. TICKET CONFIRMATION / BADGE MODAL -->
+  <div class="modal-overlay" id="ticketModal">
+    <div class="modal-box" style="max-width: 600px;" id="ticketModalBox">
+      <button class="modal-close-btn" id="btnCloseTicketModal" aria-label="Close Ticket">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header" id="ticketModalHeader" style="padding-bottom: 0;">
+        <div style="text-align: center; color: var(--accent-gold); font-size: 2.5rem; margin-bottom: 0.5rem;" id="ticketSuccessIcon">
+          <i class="fa-solid fa-circle-check"></i>
+        </div>
+        <h3 style="text-align: center;" id="ticketModalTitle">Registration Confirmed!</h3>
+        <p style="color: var(--text-secondary); text-align: center; font-size: 0.9rem;" id="ticketModalSubtitle">Your ticket is ready. Please present it at the entrance.</p>
+      </div>
+      
+      <div class="modal-body" style="padding-top: 1rem;" id="ticketModalBody">
+        
+        <div class="ticket-wrapper" id="ticketStubElement">
+          <!-- Jagged Ticket perforated circles -->
+          <div class="ticket-edge-left"></div>
+          <div class="ticket-edge-right"></div>
+          
+          <div class="ticket-header" id="ticketHeaderBanner">
+            <img src="assets/logo.png" alt="HACONET logo" class="ticket-logo" id="ticketLogo">
+            <h4>HAITIAN BUSINESS MEET & GREET</h4>
+            <p>Annual Networking Event</p>
+          </div>
+          
+          <div class="ticket-body" id="ticketBodyDetails">
+            <div class="ticket-info" id="ticketInfoGrid">
+              
+              <div class="t-info-group full-width" style="grid-column: 1 / -1;" id="tGroupBizName">
+                <span class="t-info-lbl">Business / Organization</span>
+                <span class="t-info-val" id="tBizName">Business LLC</span>
+              </div>
+              
+              <div class="t-info-group" id="tGroupOwner">
+                <span class="t-info-lbl">Representative</span>
+                <span class="t-info-val" id="tOwner">Jean-Pierre Dupont</span>
+              </div>
+              
+              <div class="t-info-group" id="tGroupIndustry">
+                <span class="t-info-lbl">Industry</span>
+                <span class="t-info-val" id="tIndustry">Food & Beverage</span>
+              </div>
+              
+              <div class="t-info-group" id="tGroupExhibitor">
+                <span class="t-info-lbl">Exhibitor Table</span>
+                <span class="t-info-val highlight" id="tExhibitor">No</span>
+              </div>
+              
+              <div class="t-info-group" id="tGroupPower">
+                <span class="t-info-lbl">Power Setup</span>
+                <span class="t-info-val" id="tPower">Not Required</span>
+              </div>
+              
+              <div class="t-info-group full-width" style="grid-column: 1 / -1;" id="tGroupDate">
+                <span class="t-info-lbl">Date & Time</span>
+                <span class="t-info-val">Saturday, Aug 6, 2026 &bull; 5PM-9PM</span>
+              </div>
+              
+              <div class="t-info-group full-width" style="grid-column: 1 / -1;" id="tGroupLoc">
+                <span class="t-info-lbl">Location Details</span>
+                <span class="t-info-val" style="font-size: 0.85rem; font-weight: 500;">DoubleTree by Hilton Columbus Downtown, Columbus, OH</span>
+              </div>
+              
+            </div>
+            
+            <div class="ticket-qr-container" id="tQrContainer">
+              <!-- Rendered via CSS background or local mockup barcode -->
+              <div class="ticket-qr" id="tQrImgBox">
+                <!-- Simple stylized SVG QR Mock code -->
+                <svg viewBox="0 0 100 100" width="100%" height="100%" style="display: block;">
+                  <!-- Background white -->
+                  <rect width="100" height="100" fill="white"/>
+                  <!-- Position markers -->
+                  <rect x="5" y="5" width="25" height="25" fill="#002060"/>
+                  <rect x="10" y="10" width="15" height="15" fill="white"/>
+                  <rect x="13" y="13" width="9" height="9" fill="#002060"/>
+                  
+                  <rect x="70" y="5" width="25" height="25" fill="#002060"/>
+                  <rect x="75" y="10" width="15" height="15" fill="white"/>
+                  <rect x="78" y="13" width="9" height="9" fill="#002060"/>
+                  
+                  <rect x="5" y="70" width="25" height="25" fill="#002060"/>
+                  <rect x="10" y="75" width="15" height="15" fill="white"/>
+                  <rect x="13" y="78" width="9" height="9" fill="#002060"/>
+                  
+                  <!-- Random dots to mock barcode -->
+                  <rect x="35" y="10" width="5" height="10" fill="#002060"/>
+                  <rect x="45" y="5" width="10" height="5" fill="#002060"/>
+                  <rect x="45" y="20" width="15" height="5" fill="#002060"/>
+                  <rect x="40" y="30" width="15" height="10" fill="#002060"/>
+                  <rect x="10" y="45" width="5" height="15" fill="#002060"/>
+                  <rect x="20" y="40" width="10" height="5" fill="#002060"/>
+                  <rect x="5" y="60" width="15" height="5" fill="#002060"/>
+                  <rect x="35" y="50" width="5" height="15" fill="#002060"/>
+                  
+                  <rect x="70" y="35" width="10" height="5" fill="#002060"/>
+                  <rect x="85" y="40" width="5" height="15" fill="#002060"/>
+                  <rect x="75" y="50" width="15" height="5" fill="#002060"/>
+                  
+                  <rect x="35" y="70" width="5" height="20" fill="#002060"/>
+                  <rect x="45" y="80" width="15" height="5" fill="#002060"/>
+                  <rect x="40" y="90" width="15" height="5" fill="#002060"/>
+                  <rect x="55" y="60" width="10" height="10" fill="#002060"/>
+                  
+                  <rect x="70" y="70" width="10" height="5" fill="#002060"/>
+                  <rect x="85" y="75" width="10" height="10" fill="#002060"/>
+                  <rect x="80" y="90" width="15" height="5" fill="#002060"/>
+                </svg>
+              </div>
+              <span class="ticket-ref" id="tRegId">HAC-2026-9872</span>
+            </div>
+            
+          </div>
+          
+          <div class="ticket-footer" id="tFooterBlock">
+            Hosted by HACONET | Support: info@haconet.org
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;" class="print-btn-row" id="ticketActions">
+          <button class="btn btn-secondary" id="btnDismissTicket">Close</button>
+          <button class="btn btn-gold" id="btnPrintTicket">
+            <i class="fa-solid fa-print"></i> Print Ticket / Save PDF
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <!-- Javascript File -->
+  <script src="app.js"></script>
+</body>
+</html>
