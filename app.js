@@ -1383,7 +1383,7 @@ if (toggleAdminBtn) {
       const passcode = prompt("Enter HACONET Staff Passcode:");
       if (passcode === null) return; // cancelled
       
-      if (passcode.trim().toLowerCase() === 'haconet2026') {
+      if (passcode.trim().toLowerCase() === 'haconet@2026') {
         adminDashboard.style.display = 'block';
         renderAdminAttendeeList();
         toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock-open" style="color: var(--accent-gold);"></i> Close Admin Portal';
