@@ -2096,30 +2096,69 @@ let faqItems = [];
 // ==========================================================================
 // CMS — Load Content from localStorage
 // ==========================================================================
-function loadCmsContent() {
-  try { sponsors = JSON.parse(localStorage.getItem('haconet_sponsors')) || null; } catch(e) { sponsors = null; }
-  if (!Array.isArray(sponsors) || sponsors.length === 0) {
-    sponsors = [...SEED_SPONSORS];
-    localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
+async function loadCmsContent() {
+  let loadedFromSupabase = false;
+  if (useSupabase && supabaseClient) {
+    try {
+      const [resSp, resSk, resFq] = await Promise.all([
+        supabaseClient.from('sponsors').select('*'),
+        supabaseClient.from('speakers').select('*'),
+        supabaseClient.from('faqs').select('*')
+      ]);
+      if (!resSp.error && !resSk.error && !resFq.error) {
+        sponsors = resSp.data || [];
+        speakers = resSk.data || [];
+        faqItems = resFq.data || [];
+        loadedFromSupabase = true;
+        // Seed if empty on Supabase
+        if (sponsors.length === 0) { sponsors = [...SEED_SPONSORS]; await supabaseClient.from('sponsors').insert(sponsors); }
+        if (speakers.length === 0) { speakers = [...SEED_SPEAKERS]; await supabaseClient.from('speakers').insert(speakers); }
+        if (faqItems.length === 0) { faqItems = [...SEED_FAQ]; await supabaseClient.from('faqs').insert(faqItems); }
+      }
+    } catch (e) {
+      console.warn("Supabase CMS fetch failed (tables might not exist). Falling back to LocalStorage.");
+    }
   }
 
-  try { speakers = JSON.parse(localStorage.getItem('haconet_speakers')) || null; } catch(e) { speakers = null; }
-  if (!Array.isArray(speakers) || speakers.length === 0) {
-    speakers = [...SEED_SPEAKERS];
-    localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
-  }
+  if (!loadedFromSupabase) {
+    try { sponsors = JSON.parse(localStorage.getItem('haconet_sponsors')) || null; } catch(e) { sponsors = null; }
+    if (!Array.isArray(sponsors) || sponsors.length === 0) {
+      sponsors = [...SEED_SPONSORS];
+      localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
+    }
 
-  try { faqItems = JSON.parse(localStorage.getItem('haconet_faq')) || null; } catch(e) { faqItems = null; }
-  if (!Array.isArray(faqItems) || faqItems.length === 0) {
-    faqItems = [...SEED_FAQ];
-    localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+    try { speakers = JSON.parse(localStorage.getItem('haconet_speakers')) || null; } catch(e) { speakers = null; }
+    if (!Array.isArray(speakers) || speakers.length === 0) {
+      speakers = [...SEED_SPEAKERS];
+      localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
+    }
+
+    try { faqItems = JSON.parse(localStorage.getItem('haconet_faq')) || null; } catch(e) { faqItems = null; }
+    if (!Array.isArray(faqItems) || faqItems.length === 0) {
+      faqItems = [...SEED_FAQ];
+      localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+    }
   }
 }
 
-function saveCmsToLocalStorage() {
+async function saveCmsToLocalStorage() {
   localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
   localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
   localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+  
+  if (useSupabase && supabaseClient) {
+    try {
+      // Upsert data to Supabase (assuming tables exist). 
+      // Using upsert requires knowing the state, or we just delete and re-insert for simplicity on small datasets
+      await Promise.all([
+        supabaseClient.from('sponsors').upsert(sponsors),
+        supabaseClient.from('speakers').upsert(speakers),
+        supabaseClient.from('faqs').upsert(faqItems)
+      ]);
+    } catch(e) {
+      console.warn("Failed to sync CMS to Supabase.", e);
+    }
+  }
 }
 
 // ==========================================================================
@@ -2478,6 +2517,36 @@ function openSpeakerModal(id = null) {
   form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
   form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
 
+function _setSpeakerPhotoPreview(dataUrl) {
+  const previewBox = document.getElementById('speakerPhotoPreviewBox');
+  const previewImg = document.getElementById('speakerPhotoPreviewImg');
+  const uploadLabel = document.getElementById('speakerPhotoUploadLabel');
+  const photoDataInput = document.getElementById('speakerPhotoData');
+  if (!previewBox || !previewImg) return;
+  if (dataUrl) {
+    previewImg.src = dataUrl;
+    previewBox.style.display = 'block';
+    if (uploadLabel) { uploadLabel.querySelector('span') && (uploadLabel.querySelector('span').textContent = 'Change Photo'); }
+    if (photoDataInput) photoDataInput.value = dataUrl;
+  } else {
+    previewImg.src = '';
+    previewBox.style.display = 'none';
+    if (uploadLabel) { uploadLabel.querySelector('span') && (uploadLabel.querySelector('span').textContent = 'Upload Photo from Device'); }
+    if (photoDataInput) photoDataInput.value = '';
+    const fileInput = document.getElementById('speakerPhotoFile');
+    if (fileInput) fileInput.value = '';
+    const urlInput = document.getElementById('speakerPhotoUrl');
+    if (urlInput) urlInput.value = '';
+  }
+}
+
+function openSpeakerModal(id = null) {
+  const modal = document.getElementById('speakerEditorModal');
+  const title = document.getElementById('speakerModalTitle');
+  const form = document.getElementById('speakerEditorForm');
+  form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+  form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
+
   if (id) {
     const spk = speakers.find(x => x.id === id);
     if (!spk) return;
@@ -2487,17 +2556,24 @@ function openSpeakerModal(id = null) {
     document.getElementById('speakerRole').value = spk.role;
     document.getElementById('speakerCompany').value = spk.company || '';
     document.getElementById('speakerBio').value = spk.bio || '';
-    document.getElementById('speakerPhoto').value = spk.photo || '';
     document.getElementById('speakerLinkedin').value = spk.linkedin || '';
     document.getElementById('speakerWebsite').value = spk.website || '';
+    // Restore photo preview
+    _setSpeakerPhotoPreview(spk.photoData || spk.photo || '');
+    const urlInput = document.getElementById('speakerPhotoUrl');
+    if (urlInput && (spk.photoData || spk.photo) && (spk.photoData || spk.photo).startsWith('http')) {
+      urlInput.value = spk.photoData || spk.photo;
+    }
   } else {
     title.textContent = 'Add Speaker';
     document.getElementById('speakerEditId').value = '';
     form.reset();
+    _setSpeakerPhotoPreview('');
   }
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
+
 
 function closeSpeakerModal() {
   document.getElementById('speakerEditorModal').classList.remove('open');
@@ -2524,6 +2600,11 @@ function deleteSpeaker(id) {
     if (!roleEl.value) { roleEl.classList.add('error'); document.getElementById('errSpeakerRole').style.display = 'block'; valid = false; } else { roleEl.classList.remove('error'); document.getElementById('errSpeakerRole').style.display = 'none'; }
     if (!valid) return;
 
+    // Resolve final photo
+    const photoDataInput = document.getElementById('speakerPhotoData');
+    const photoUrlInput = document.getElementById('speakerPhotoUrl');
+    const photoData = (photoDataInput && photoDataInput.value) || (photoUrlInput && photoUrlInput.value.trim()) || '';
+
     const editId = document.getElementById('speakerEditId').value;
     const data = {
       id: editId || `spk-${Date.now()}`,
@@ -2531,7 +2612,8 @@ function deleteSpeaker(id) {
       role: roleEl.value,
       company: document.getElementById('speakerCompany').value.trim(),
       bio: document.getElementById('speakerBio').value.trim(),
-      photo: document.getElementById('speakerPhoto').value.trim(),
+      photo: photoData,
+      photoData: photoData, // Keep it in photoData too for consistency with sponsor
       linkedin: document.getElementById('speakerLinkedin').value.trim(),
       website: document.getElementById('speakerWebsite').value.trim()
     };
@@ -2547,6 +2629,66 @@ function deleteSpeaker(id) {
     renderSpeakersSection();
   });
 })();
+
+// Speaker photo file input handler
+(function() {
+  const fileInput = document.getElementById('speakerPhotoFile');
+  if (!fileInput) return;
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Photo file is too large. Please use an image under 2MB.');
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      _setSpeakerPhotoPreview(ev.target.result);
+      const urlInput = document.getElementById('speakerPhotoUrl');
+      if (urlInput) urlInput.value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // URL input handler
+  const urlInput = document.getElementById('speakerPhotoUrl');
+  if (urlInput) {
+    urlInput.addEventListener('blur', () => {
+      const val = urlInput.value.trim();
+      if (val && val.startsWith('http')) {
+        _setSpeakerPhotoPreview(val);
+        if (fileInput) fileInput.value = '';
+      }
+    });
+  }
+
+  // Remove photo button
+  const btnRemove = document.getElementById('btnRemoveSpeakerPhoto');
+  if (btnRemove) {
+    btnRemove.addEventListener('click', () => {
+      _setSpeakerPhotoPreview('');
+    });
+  }
+
+  // Drag & drop onto upload area
+  const uploadArea = document.getElementById('speakerPhotoUploadArea');
+  if (uploadArea) {
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      if (file.size > 2 * 1024 * 1024) { alert('Photo file is too large. Please use an image under 2MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = (ev) => { _setSpeakerPhotoPreview(ev.target.result); };
+      reader.readAsDataURL(file);
+    });
+  }
+})();
+
 
 document.getElementById('btnAddSpeaker')?.addEventListener('click', () => openSpeakerModal());
 document.getElementById('btnCloseSpeakerModal')?.addEventListener('click', closeSpeakerModal);
@@ -2689,13 +2831,9 @@ document.getElementById('btnClearInquiries')?.addEventListener('click', () => {
 // ==========================================================================
 // Initialize everything
 // ==========================================================================
-// Load CMS content first
-loadCmsContent();
-
-// Render public sections from data
-renderSponsorsSection();
-renderSpeakersSection();
-renderFaqSection();
+// ==========================================================================
+// Initialize everything
+// ==========================================================================
 
 // Init FAQ accordion listeners and inquiry form
 initFaqAccordion();
@@ -2705,5 +2843,13 @@ initInquiryForm();
 initAdminTabs();
 
 // Start database fetch and initialization
-initDatabase();
+(async function() {
+  await initDatabase(); // Connects to Supabase and loads businesses/registrations
+  await loadCmsContent(); // Now fetch CMS from Supabase if connected, or fallback
+  
+  // Render public sections from data
+  renderSponsorsSection();
+  renderSpeakersSection();
+  renderFaqSection();
+})();
 
