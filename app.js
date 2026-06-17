@@ -92,6 +92,11 @@ const statTotalRegistrations = document.getElementById('statTotalRegistrations')
 const statTotalExhibitors = document.getElementById('statTotalExhibitors');
 const statTotalElectricity = document.getElementById('statTotalElectricity');
 const statTotalConsent = document.getElementById('statTotalConsent');
+const statTotalCheckedIn = document.getElementById('statTotalCheckedIn');
+
+// Check-in modal elements
+const checkinAttendanceStatus = document.getElementById('checkinAttendanceStatus');
+const btnConfirmCheckin = document.getElementById('btnConfirmCheckin');
 
 // Navigation links inside directories
 const sectorLinks = document.querySelectorAll('.footer-sector-link');
@@ -132,7 +137,9 @@ function mapRegistrationToDb(reg) {
     directoryconsent: reg.directoryConsent,
     accommodations: reg.accommodations,
     signature: reg.signature,
-    datesigned: reg.dateSigned
+    datesigned: reg.dateSigned,
+    checked_in: reg.checkedIn === true || reg.checkedIn === 'Yes',
+    checked_in_at: reg.checkedInAt || null
   };
 }
 
@@ -167,7 +174,9 @@ function mapRegistrationFromDb(dbReg) {
     directoryConsent: dbReg.directoryconsent,
     accommodations: dbReg.accommodations,
     signature: dbReg.signature,
-    dateSigned: dbReg.datesigned
+    dateSigned: dbReg.datesigned,
+    checkedIn: dbReg.checked_in === true || dbReg.checked_in === 'Yes',
+    checkedInAt: dbReg.checked_in_at || null
   };
 }
 
@@ -1072,7 +1081,9 @@ if (regForm) {
       directoryConsent,
       accommodations,
       signature,
-      dateSigned: regDateField ? regDateField.value : ''
+      dateSigned: regDateField ? regDateField.value : '',
+      checkedIn: false,
+      checkedInAt: null
     };
 
     // 1. Add to Registrations Table in database
@@ -1223,11 +1234,12 @@ function renderAdminAttendeeList() {
   let totalEx = 0;
   let totalElec = 0;
   let totalDir = 0;
+  let totalChecked = 0;
 
   if (registrations.length === 0) {
     adminTableBody.innerHTML = `
       <tr>
-        <td colspan="10" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+        <td colspan="11" style="text-align: center; padding: 2rem; color: var(--text-muted);">
           No registrations recorded yet.
         </td>
       </tr>
@@ -1238,6 +1250,7 @@ function renderAdminAttendeeList() {
     if (statTotalExhibitors) statTotalExhibitors.innerText = '0';
     if (statTotalElectricity) statTotalElectricity.innerText = '0';
     if (statTotalConsent) statTotalConsent.innerText = '0';
+    if (statTotalCheckedIn) statTotalCheckedIn.innerText = '0';
     return;
   }
 
@@ -1246,11 +1259,22 @@ function renderAdminAttendeeList() {
     if (reg.exhibitor === 'Yes') totalEx++;
     if (reg.electricity === 'Yes') totalElec++;
     if (reg.directoryConsent === 'Yes') totalDir++;
+    
+    const isCheckedIn = reg.checkedIn === true || reg.checkedIn === 'Yes';
+    if (isCheckedIn) totalChecked++;
 
     // Safe lowercasing
     const exhibitorClass = (reg.exhibitor || 'no').toLowerCase();
     const electricityClass = (reg.electricity || 'no').toLowerCase();
     const consentClass = (reg.directoryConsent || 'no').toLowerCase();
+    
+    const checkedInBadge = isCheckedIn
+      ? `<span class="badge-status yes" title="Checked In at ${reg.checkedInAt || ''}"><i class="fa-solid fa-check"></i> Yes</span>`
+      : `<span class="badge-status no">No</span>`;
+      
+    const checkinActionBtn = isCheckedIn
+      ? `<button class="admin-action-btn btn-checkin-attendee disabled" style="opacity: 0.5; cursor: not-allowed;" title="Already Checked In"><i class="fa-solid fa-user-check"></i></button>`
+      : `<button class="admin-action-btn btn-checkin-attendee" data-id="${reg.regId}" style="border-color: #2ecc71; color: #2ecc71;" title="Confirm Attendance"><i class="fa-solid fa-user-plus"></i></button>`;
 
     const row = document.createElement('tr');
     row.id = `adminRow-${reg.regId}`;
@@ -1264,8 +1288,10 @@ function renderAdminAttendeeList() {
       <td><span class="badge-status ${exhibitorClass}">${reg.exhibitor || 'No'}</span></td>
       <td><span class="badge-status ${electricityClass}">${reg.electricity || 'No'}</span></td>
       <td><span class="badge-status ${consentClass}">${reg.directoryConsent || 'No'}</span></td>
+      <td>${checkedInBadge}</td>
       <td style="display: flex; gap: 0.5rem;">
         <button class="admin-action-btn btn-view-reg-ticket" data-id="${reg.regId}" title="View Ticket"><i class="fa-solid fa-ticket"></i></button>
+        ${checkinActionBtn}
         <button class="admin-action-btn btn-delete-reg" data-id="${reg.regId}" title="Delete Registration"><i class="fa-solid fa-trash"></i></button>
       </td>
     `;
@@ -1278,6 +1304,39 @@ function renderAdminAttendeeList() {
       const id = btn.getAttribute('data-id');
       const reg = registrations.find(r => r.regId === id);
       if (reg) renderTicketStub(reg);
+    });
+  });
+
+  adminTableBody.querySelectorAll('.btn-checkin-attendee:not(.disabled)').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.getAttribute('data-id');
+      const reg = registrations.find(r => r.regId === id);
+      if (reg) {
+        if (confirm(`Do you want to confirm attendance/check-in for ${reg.bizName || reg.ownerName}?`)) {
+          const nowStr = new Date().toLocaleString();
+          reg.checkedIn = true;
+          reg.checkedInAt = nowStr;
+          
+          if (useSupabase) {
+            try {
+              const { error } = await supabaseClient
+                .from('registrations')
+                .update({ checked_in: true, checked_in_at: nowStr })
+                .eq('regid', id);
+              if (error) throw error;
+            } catch (err) {
+              console.error("Failed to check-in attendee on Supabase:", err);
+              alert("Database error: " + err.message);
+              return;
+            }
+          } else {
+            localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+          }
+          
+          renderAdminAttendeeList();
+          alert(`Successfully checked in ${reg.bizName || reg.ownerName}!`);
+        }
+      }
     });
   });
 
@@ -1308,6 +1367,7 @@ function renderAdminAttendeeList() {
   if (statTotalExhibitors) statTotalExhibitors.innerText = totalEx;
   if (statTotalElectricity) statTotalElectricity.innerText = totalElec;
   if (statTotalConsent) statTotalConsent.innerText = totalDir;
+  if (statTotalCheckedIn) statTotalCheckedIn.innerText = totalChecked;
   
   const countLabel = document.getElementById('adminTableCountLabel');
   if (countLabel) countLabel.innerText = `Displaying ${registrations.length} registration record(s)`;
@@ -1431,14 +1491,88 @@ async function checkUrlParamsForCheckin() {
   }
   
   if (reg) {
-    // Verified
-    if (checkinStatusIcon) {
-      checkinStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i>';
+    const isCheckedIn = reg.checkedIn === true || reg.checkedIn === 'Yes';
+    
+    if (isCheckedIn) {
+      // Already Checked In
+      if (checkinStatusIcon) {
+        checkinStatusIcon.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color: #e67e22;"></i>';
+      }
+      if (checkinTitle) {
+        checkinTitle.innerText = "Already Verified!";
+        checkinTitle.style.color = "#e67e22";
+      }
+      if (checkinAttendanceStatus) {
+        checkinAttendanceStatus.innerText = `Checked In at ${reg.checkedInAt || 'N/A'}`;
+        checkinAttendanceStatus.style.color = "#2ecc71";
+      }
+      if (btnConfirmCheckin) {
+        btnConfirmCheckin.style.display = 'none';
+      }
+    } else {
+      // Verified but not checked in yet
+      if (checkinStatusIcon) {
+        checkinStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i>';
+      }
+      if (checkinTitle) {
+        checkinTitle.innerText = "Ticket Verified!";
+        checkinTitle.style.color = "var(--accent-gold)";
+      }
+      if (checkinAttendanceStatus) {
+        checkinAttendanceStatus.innerText = "Not Checked In";
+        checkinAttendanceStatus.style.color = "#e74c3c";
+      }
+      if (btnConfirmCheckin) {
+        btnConfirmCheckin.style.display = 'block';
+        btnConfirmCheckin.disabled = false;
+        btnConfirmCheckin.innerHTML = '<i class="fa-solid fa-user-check"></i> Confirm Attendance';
+        
+        btnConfirmCheckin.onclick = async () => {
+          btnConfirmCheckin.disabled = true;
+          btnConfirmCheckin.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Confirming...';
+          
+          const nowStr = new Date().toLocaleString();
+          reg.checkedIn = true;
+          reg.checkedInAt = nowStr;
+          
+          if (useSupabase) {
+            try {
+              const { error } = await supabaseClient
+                .from('registrations')
+                .update({ checked_in: true, checked_in_at: nowStr })
+                .eq('regid', reg.regId);
+              if (error) throw error;
+            } catch (err) {
+              console.error("Supabase check-in failed:", err);
+              alert("Failed to confirm check-in: " + err.message);
+              btnConfirmCheckin.disabled = false;
+              btnConfirmCheckin.innerHTML = '<i class="fa-solid fa-user-check"></i> Confirm Attendance';
+              return;
+            }
+          } else {
+            localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+          }
+          
+          // Update modal UI
+          if (checkinTitle) {
+            checkinTitle.innerText = "Check-in Confirmed!";
+            checkinTitle.style.color = "#2ecc71";
+          }
+          if (checkinStatusIcon) {
+            checkinStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #2ecc71;"></i>';
+          }
+          if (checkinAttendanceStatus) {
+            checkinAttendanceStatus.innerText = `Checked In at ${nowStr}`;
+            checkinAttendanceStatus.style.color = "#2ecc71";
+          }
+          btnConfirmCheckin.style.display = 'none';
+          
+          // Refresh Admin Portal table
+          renderAdminAttendeeList();
+        };
+      }
     }
-    if (checkinTitle) {
-      checkinTitle.innerText = "Ticket Verified!";
-      checkinTitle.style.color = "var(--accent-gold)";
-    }
+    
     if (checkinBizName) {
       checkinBizName.innerText = reg.bizName || 'No Business Name';
       checkinBizName.style.display = 'block';
@@ -1485,6 +1619,12 @@ async function checkUrlParamsForCheckin() {
     }
     if (checkinExhibitor) {
       checkinExhibitor.style.display = 'none';
+    }
+    if (checkinAttendanceStatus) {
+      checkinAttendanceStatus.innerText = "N/A";
+    }
+    if (btnConfirmCheckin) {
+      btnConfirmCheckin.style.display = 'none';
     }
     if (checkinRegId) checkinRegId.innerText = regIdToCheck;
     if (checkinPower) checkinPower.innerText = 'N/A';

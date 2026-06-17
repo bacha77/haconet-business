@@ -656,6 +656,14 @@
             <div class="admin-stat-lbl">In Directory</div>
           </div>
         </div>
+        
+        <div class="admin-stat-card" id="statCardCheckedIn">
+          <div class="admin-stat-icon blue" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71;" id="statIconCheckedIn"><i class="fa-solid fa-user-check"></i></div>
+          <div class="admin-stat-info">
+            <div class="admin-stat-num" id="statTotalCheckedIn">0</div>
+            <div class="admin-stat-lbl">Checked In</div>
+          </div>
+        </div>
       </div>
       
       <div class="admin-table-card" id="adminTableCard">
@@ -677,6 +685,7 @@
                 <th>Exhibitor</th>
                 <th>Power</th>
                 <th>Consent</th>
+                <th>Checked In</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -1041,14 +1050,23 @@
             <span style="color: var(--text-muted); display: block;">Power Requested</span>
             <strong id="checkinPower" style="color: #fff;">No</strong>
           </div>
+          <div style="grid-column: 1 / -1; border-top: 1px dashed var(--border-color); padding-top: 0.75rem; margin-top: 0.25rem;">
+            <span style="color: var(--text-muted); display: block;">Check-in Status</span>
+            <strong id="checkinAttendanceStatus" style="color: #fff;">Not Checked In</strong>
+          </div>
         </div>
         
-        <button class="btn btn-primary" id="btnDismissCheckin" style="width: 100%;">Close Verification</button>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="checkinActions">
+          <button class="btn btn-gold" id="btnConfirmCheckin" style="width: 100%;">
+            <i class="fa-solid fa-user-check"></i> Confirm Attendance
+          </button>
+          <button class="btn btn-secondary" id="btnDismissCheckin" style="width: 100%;">Close Verification</button>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Javascript File -->
-  <script src="app.js?v=1.9.0"></script>
+  <script src="app.js?v=2.0.0"></script>
 </body>
 </html>
