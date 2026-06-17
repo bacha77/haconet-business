@@ -11,7 +11,176 @@ window.addEventListener('error', (event) => {
 // ==========================================================================
 // 1. Initial Seed Data
 // ==========================================================================
-const SEED_BUSINESSES = [];
+const SEED_BUSINESSES = [
+  {
+    id: "biz-1781580403894",
+    name: "Island Bar Cuisine",
+    owner: "Island Bar Management",
+    title: "Operator",
+    category: "Food & Beverage",
+    phone: "614-263-2272",
+    email: "info@islandbarcuisine.com",
+    website: "https://www.facebook.com/islandbarcuisine/",
+    address: "3496 Cleveland Ave, Columbus, OH 43224",
+    established: 2019,
+    description: "Authentic Haitian and Caribbean dishes, offering rich flavors of legumes, griot, tasso, and more in a welcoming bar and lounge environment.",
+    interests: ["Build business relationships", "Find potential clients/customers", "Promote products/services"]
+  },
+  {
+    id: "biz-1781580403895",
+    name: "Bibi's Patties",
+    owner: "Bibi Augustin",
+    title: "Founder & Head Baker",
+    category: "Food & Beverage",
+    phone: "614-505-8321",
+    email: "contact@bibispatties.com",
+    website: "https://www.bibispatties.com",
+    address: "6086 Huntley Rd, Columbus, OH 43229",
+    established: 2021,
+    description: "Authentic Haitian puff pastry patties filled with seasoned beef, chicken, fish, or vegetables. Freshly baked daily and serving Central Ohio's Haitian community.",
+    interests: ["Promote products/services", "Find potential clients/customers", "Connect with other entrepreneurs"]
+  },
+  {
+    id: "biz-1781580403896",
+    name: "T-Co Islands Restaurant",
+    owner: "T-Co Management",
+    title: "General Manager",
+    category: "Food & Beverage",
+    phone: "614-846-1509",
+    email: "order@tcoislandsrestaurant.com",
+    website: "https://tcoislands.com",
+    address: "4860 Karl Rd, Columbus, OH 43229",
+    established: 2017,
+    description: "Serving Columbus with authentic Haitian flavors including legume, black rice (diri djondjon), griot, and delicious bouillon.",
+    interests: ["Build business relationships", "Find potential clients/customers"]
+  },
+  {
+    id: "biz-1781580403897",
+    name: "Caribbean Your Kitchen",
+    owner: "Your Kitchen Culinary Team",
+    title: "Owner",
+    category: "Food & Beverage",
+    phone: "614-392-1279",
+    email: "yourkitchen@caribbeanyourkitchen.com",
+    website: "https://caribbeanyourkitchen.com/",
+    address: "5316 Cleveland Ave, Columbus, OH 43231",
+    established: 2020,
+    description: "Family-owned kitchen serving authentic Haitian dishes, griot, legume, fried plantains, and other Caribbean favorites.",
+    interests: ["Find potential clients/customers", "Promote products/services"]
+  },
+  {
+    id: "biz-1781580403898",
+    name: "509 Restaurant & Grill",
+    owner: "509 Dining Group LLC",
+    title: "General Manager",
+    category: "Food & Beverage",
+    phone: "614-578-8311",
+    email: "manager@509restaurant.com",
+    website: "https://509restaurant.com",
+    address: "3508 E Main St, Columbus, OH 43213",
+    established: 2022,
+    description: "Vibrant restaurant and grill offering a modern twist on Haitian culinary classics, from griot to flavorful stews.",
+    interests: ["Build business relationships", "Explore partnerships", "Promote products/services"]
+  },
+  {
+    id: "biz-1781655000001",
+    name: "A Taste of Haiti",
+    owner: "Taste of Haiti Team",
+    title: "Owner",
+    category: "Food & Beverage",
+    phone: "614-330-8029",
+    email: "atasteofhaiticolumbus@gmail.com",
+    website: "https://www.facebook.com/atasteofhaiticolumbus/",
+    address: "4734 Cleveland Ave, Columbus, OH 43231",
+    established: 2018,
+    description: "A popular family-owned Haitian food truck and catering service serving Central Ohio. Specializes in home-cooked Haitian delicacies, traditional griot, legume, plantains, and pastries.",
+    interests: ["Find potential clients/customers", "Promote products/services"]
+  },
+  {
+    id: "biz-1781655000002",
+    name: "Renise Market Lakay",
+    owner: "Renise Augustin",
+    title: "Owner",
+    category: "Food & Beverage",
+    phone: "614-505-3906",
+    email: "info@renisemarket.store",
+    website: "https://renisemarket.store",
+    address: "5169 Sinclair Road, Columbus, OH 43229",
+    established: 2017,
+    description: "The premier Haitian and Caribbean grocery store in Columbus, Ohio. Offering imported Haitian breads, spices, djondjon, and traditional ingredients.",
+    interests: ["Promote products/services", "Find potential clients/customers", "Build business relationships"]
+  },
+  {
+    id: "biz-1781655000003",
+    name: "Michline Haitian Caribbean Store",
+    owner: "Michline Cadet",
+    title: "Owner",
+    category: "Retail",
+    phone: "614-895-3642",
+    email: "support@michlinehcs.com",
+    website: "https://michlinehcs.com",
+    address: "Columbus, OH",
+    established: 2021,
+    description: "Online-based boutique and cultural storefront specializing in organic Haitian coffee, pilon (mortar & pestle) sets, Haitian lalo, pikliz, and traditional herbal remedies.",
+    interests: ["Find potential clients/customers", "Promote products/services"]
+  },
+  {
+    id: "biz-1781580403899",
+    name: "Greater Haitian American Chamber of Commerce (GHACC)",
+    owner: "Chamber Board",
+    title: "Executive Committee",
+    category: "Nonprofit",
+    phone: "614-600-5530",
+    email: "network@ghacc.org",
+    website: "https://www.ghacc.org",
+    address: "Columbus, OH",
+    established: 2015,
+    description: "Direct business network dedicated to supporting, connecting, and advocating for Haitian-American entrepreneurs and business professionals in Central Ohio.",
+    interests: ["Build business relationships", "Meet community leaders", "Explore partnerships", "Learn about resources and funding opportunities"]
+  },
+  {
+    id: "biz-1781655000004",
+    name: "Haitian Community Network (HaCoNet)",
+    owner: "Marc Fequiere",
+    title: "Executive Director",
+    category: "Nonprofit",
+    phone: "614-600-5530",
+    email: "info@haconet.org",
+    website: "https://haconet.org",
+    address: "2020 Brice Rd., Suite 185, Reynoldsburg, OH 43068",
+    established: 2014,
+    description: "Nonprofit organization dedicated to empowering the Haitian community in Ohio through education (ESL classes), resource navigation, translation services, civic advocacy, and integration assistance.",
+    interests: ["Meet community leaders", "Explore partnerships", "Learn about resources and funding opportunities"]
+  },
+  {
+    id: "biz-1781580403900",
+    name: "Bond Enterprise Language Services",
+    owner: "Bond Translation Services",
+    title: "Director of Operations",
+    category: "Professional Services",
+    phone: "614-943-3490",
+    email: "support@bondlanguages.com",
+    website: "https://www.bondenterpriselanguageservices.com",
+    address: "Columbus, OH",
+    established: 2018,
+    description: "Professional interpretation and translation services specializing in certified Haitian Creole and English document translation, business localization, and community interpretation.",
+    interests: ["Build business relationships", "Find potential clients/customers", "Explore partnerships"]
+  },
+  {
+    id: "biz-1781655000005",
+    name: "Mala African & Caribbean Hair Braiding",
+    owner: "Mala Diallo",
+    title: "Owner & Lead Stylist",
+    category: "Professional Services",
+    phone: "614-868-8090",
+    email: "info@malahairbraiding.com",
+    website: "https://www.facebook.com/MalaHairBraiding/",
+    address: "1918 S Hamilton Rd, Columbus, OH 43232",
+    established: 2016,
+    description: "Professional hair care and braiding salon specializing in traditional and modern African and Caribbean braiding styles for all hair types.",
+    interests: ["Find potential clients/customers", "Promote products/services"]
+  }
+];
 
 const SEED_REGISTRATIONS = [];
 
@@ -204,7 +373,15 @@ async function initDatabase() {
         if (seedError) console.error("Seeding businesses failed:", seedError);
         businesses = SEED_BUSINESSES;
       } else {
-        businesses = bData;
+        // Filter out mock test listings
+        const MOCK_BUSINESS_IDS = [
+          'biz-1781579939672', // LDEXPRESS
+          'biz-1781580234326', // STOREHOUSE FINANCE
+          'biz-1781653915186', // LDEXPRESS 1
+          'biz-1781654452628', // Haitian Business
+          'biz-1781655336014'  // Test
+        ];
+        businesses = bData.filter(b => !MOCK_BUSINESS_IDS.includes(b.id));
       }
 
       // 2. Fetch registrations
