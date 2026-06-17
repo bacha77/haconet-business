@@ -235,6 +235,9 @@ async function initDatabase() {
   if (adminDashboard && adminDashboard.style.display === 'block') {
     renderAdminAttendeeList();
   }
+  
+  // Check URL parameters for any ticket check-ins
+  await checkUrlParamsForCheckin();
 }
 
 function loadLocalStorageFallback() {
@@ -1163,7 +1166,8 @@ function renderTicketStub(reg) {
 
   const tQrCodeImg = document.getElementById('tQrCodeImg');
   if (tQrCodeImg) {
-    tQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(reg.regId)}`;
+    const checkinUrl = `${window.location.origin}${window.location.pathname}?checkin=${encodeURIComponent(reg.regId)}`;
+    tQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(checkinUrl)}`;
   }
 
   if (tExhibitor) {
@@ -1377,6 +1381,144 @@ if (btnExportCSV) {
     link.click();
     document.body.removeChild(link);
   });
+}
+
+// ==========================================================================
+// 11. Ticket Check-In Verification Logic
+// ==========================================================================
+async function checkUrlParamsForCheckin() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const regIdToCheck = urlParams.get('checkin');
+  
+  if (!regIdToCheck) return;
+  
+  console.log("Found check-in parameter in URL:", regIdToCheck);
+  
+  const checkinModal = document.getElementById('checkinModal');
+  if (!checkinModal) return;
+  
+  const checkinStatusIcon = document.getElementById('checkinStatusIcon');
+  const checkinTitle = document.getElementById('checkinTitle');
+  const checkinBizName = document.getElementById('checkinBizName');
+  const checkinOwner = document.getElementById('checkinOwner');
+  const checkinExhibitor = document.getElementById('checkinExhibitor');
+  const checkinRegId = document.getElementById('checkinRegId');
+  const checkinPower = document.getElementById('checkinPower');
+  const btnDismissCheckin = document.getElementById('btnDismissCheckin');
+  const btnCloseCheckinModal = document.getElementById('btnCloseCheckinModal');
+  
+  let reg = registrations.find(r => r.regId === regIdToCheck);
+  
+  if (!reg && useSupabase && supabaseClient) {
+    try {
+      console.log("Registration not found in memory. Querying Supabase directly...");
+      const { data, error } = await supabaseClient
+        .from('registrations')
+        .select('*')
+        .eq('regid', regIdToCheck);
+        
+      if (!error && data && data.length > 0) {
+        reg = mapRegistrationFromDb(data[0]);
+        registrations.push(reg);
+        // Refresh admin dashboard list if active
+        if (adminDashboard && adminDashboard.style.display === 'block') {
+          renderAdminAttendeeList();
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch registration for check-in from Supabase:", e);
+    }
+  }
+  
+  if (reg) {
+    // Verified
+    if (checkinStatusIcon) {
+      checkinStatusIcon.innerHTML = '<i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i>';
+    }
+    if (checkinTitle) {
+      checkinTitle.innerText = "Ticket Verified!";
+      checkinTitle.style.color = "var(--accent-gold)";
+    }
+    if (checkinBizName) {
+      checkinBizName.innerText = reg.bizName || 'No Business Name';
+      checkinBizName.style.display = 'block';
+    }
+    if (checkinOwner) {
+      checkinOwner.innerText = reg.ownerName ? `${reg.ownerName}${reg.title ? ` (${reg.title})` : ''}` : 'No Owner Name';
+      checkinOwner.style.display = 'block';
+    }
+    
+    if (checkinExhibitor) {
+      checkinExhibitor.style.display = 'inline-block';
+      if (reg.exhibitor === 'Yes') {
+        checkinExhibitor.innerText = "Exhibitor (Table Reserved)";
+        checkinExhibitor.className = "badge-status yes";
+      } else {
+        checkinExhibitor.innerText = "General Attendee";
+        checkinExhibitor.className = "badge-status no";
+      }
+    }
+    
+    if (checkinRegId) checkinRegId.innerText = reg.regId;
+    
+    if (checkinPower) {
+      if (reg.exhibitor === 'Yes') {
+        checkinPower.innerText = reg.electricity === 'Yes' ? 'Yes (Power Needed)' : 'No (Power Not Needed)';
+      } else {
+        checkinPower.innerText = 'Not Applicable';
+      }
+    }
+  } else {
+    // Invalid / Not Found
+    if (checkinStatusIcon) {
+      checkinStatusIcon.innerHTML = '<i class="fa-solid fa-circle-xmark" style="color: var(--accent-red);"></i>';
+    }
+    if (checkinTitle) {
+      checkinTitle.innerText = "Invalid Ticket!";
+      checkinTitle.style.color = "var(--accent-red)";
+    }
+    if (checkinBizName) {
+      checkinBizName.innerText = "Ticket Not Found";
+    }
+    if (checkinOwner) {
+      checkinOwner.innerText = "This Registration ID is not in our system. Please check with the registration desk.";
+    }
+    if (checkinExhibitor) {
+      checkinExhibitor.style.display = 'none';
+    }
+    if (checkinRegId) checkinRegId.innerText = regIdToCheck;
+    if (checkinPower) checkinPower.innerText = 'N/A';
+  }
+  
+  // Display Modal
+  checkinModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  
+  // Setup dismiss events
+  const dismissCheckin = () => {
+    checkinModal.classList.remove('open');
+    document.body.style.overflow = '';
+    
+    // Clean URL parameter without reloading
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+  };
+  
+  if (btnDismissCheckin) {
+    btnDismissCheckin.addEventListener('click', dismissCheckin, { once: true });
+  }
+  if (btnCloseCheckinModal) {
+    btnCloseCheckinModal.addEventListener('click', dismissCheckin, { once: true });
+  }
+  
+  // Also dismiss if click on the overlay
+  const overlayClick = (e) => {
+    if (e.target === checkinModal) {
+      dismissCheckin();
+      checkinModal.removeEventListener('click', overlayClick);
+    }
+  };
+  checkinModal.addEventListener('click', overlayClick);
 }
 
 // Start database fetch and initialization

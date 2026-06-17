@@ -1010,7 +1010,45 @@
     </div>
   </div>
 
+  <!-- 4. TICKET CHECK-IN VERIFICATION MODAL -->
+  <div class="modal-overlay" id="checkinModal">
+    <div class="modal-box" style="max-width: 500px;" id="checkinModalBox">
+      <button class="modal-close-btn" id="btnCloseCheckinModal" aria-label="Close Check-In">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header" style="padding-bottom: 0;">
+        <div style="text-align: center; font-size: 3rem; margin-bottom: 0.5rem;" id="checkinStatusIcon">
+          <i class="fa-solid fa-circle-check" style="color: var(--accent-gold);"></i>
+        </div>
+        <h3 style="text-align: center; color: var(--accent-gold);" id="checkinTitle">Ticket Verified!</h3>
+        <p style="color: var(--text-secondary); text-align: center; font-size: 0.9rem;" id="checkinSubTitle">HACONET Business Meet & Greet check-in confirmation.</p>
+      </div>
+      
+      <div class="modal-body" style="padding-top: 1.5rem; text-align: center;" id="checkinModalBody">
+        <div id="checkinDetailsBlock" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 id="checkinBizName" style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff;">Business Name</h4>
+          <p id="checkinOwner" style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Owner Name</p>
+          <span class="badge-status yes" id="checkinExhibitor" style="font-size: 0.8rem; padding: 4px 10px; border-radius: 50px;">Exhibitor (Table Reserved)</span>
+        </div>
+        
+        <div id="checkinGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left; font-size: 0.85rem; margin-bottom: 1.5rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
+          <div>
+            <span style="color: var(--text-muted); display: block;">Registration ID</span>
+            <strong id="checkinRegId" style="color: #fff;">HAC-2026-XXXX</strong>
+          </div>
+          <div>
+            <span style="color: var(--text-muted); display: block;">Power Requested</span>
+            <strong id="checkinPower" style="color: #fff;">No</strong>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary" id="btnDismissCheckin" style="width: 100%;">Close Verification</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Javascript File -->
-  <script src="app.js?v=1.8.0"></script>
+  <script src="app.js?v=1.9.0"></script>
 </body>
 </html>
