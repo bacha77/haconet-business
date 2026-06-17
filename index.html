@@ -338,13 +338,14 @@
        Event Registration Wizard
        ========================================================================== -->
   <section class="registration-section" id="register" style="background: rgba(13, 27, 49, 0.3);">
-    <div class="container registration-container" id="regFormContainer">
+    <div class="container registration-container-wide" id="regFormContainer">
       <div class="section-header" id="regSectionHeader">
         <h2 class="serif-font text-gradient" id="regMainTitle">Event Registration Form</h2>
         <p id="regSubtitle">Complete the interactive wizard to register for the Haitian Business Meet & Greet on August 6, 2026.</p>
       </div>
       
-      <div class="wizard-card" id="registrationWizard">
+      <div class="registration-layout-grid" id="regLayoutGrid">
+        <div class="wizard-card" id="registrationWizard">
         <div class="wizard-header" id="wizardHeaderBlock">
           <h3>Meet & Greet Registration</h3>
           <p>Please enter your information to proceed</p>
@@ -606,8 +607,23 @@
           </div>
         </form>
       </div>
+      
+      <div class="qr-mobile-card" id="mobileRegQrCard">
+        <div class="qr-mobile-header">
+          <h4>Register on Mobile</h4>
+          <p>Scan this code with your phone camera to quickly register directly on your mobile device.</p>
+        </div>
+        <div class="qr-mobile-box">
+          <img id="mobileRegQrImg" src="" alt="Scan to register on mobile">
+        </div>
+        <div class="qr-mobile-footer">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>Optimized for iOS & Android</span>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- ==========================================================================
        Admin Section (Show/Hide via JS)
@@ -1067,6 +1083,6 @@
   </div>
 
   <!-- Javascript File -->
-  <script src="app.js?v=2.0.0"></script>
+  <script src="app.js?v=2.1.0"></script>
 </body>
 </html>

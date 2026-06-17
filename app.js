@@ -1668,5 +1668,12 @@ async function checkUrlParamsForCheckin() {
   checkinModal.addEventListener('click', overlayClick);
 }
 
+// Render registration QR code on load
+const mobileRegQrImg = document.getElementById('mobileRegQrImg');
+if (mobileRegQrImg) {
+  const regUrl = `${window.location.origin}${window.location.pathname}#register`;
+  mobileRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(regUrl)}`;
+}
+
 // Start database fetch and initialization
 initDatabase();
