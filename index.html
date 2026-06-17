@@ -63,7 +63,7 @@
       <div class="hero-content" id="heroContentBlock">
         <div class="hero-badge" id="heroEventBadge">
           <i class="fa-solid fa-calendar-days"></i>
-          <span>Annual Networking Event &bull; Aug 6, 2026</span>
+          <span id="heroTopDate">Annual Networking Event &bull; Aug 6, 2026</span>
         </div>
         <h1 class="hero-title serif-font text-gradient" id="heroMainTitle">
           Haitian Business <br>Meet & Greet
@@ -115,15 +115,15 @@
         <div class="countdown-event-details" id="countdownDetailsBlock">
           <div class="c-detail" id="cDetailDate">
             <i class="fa-solid fa-calendar-days"></i>
-            <span><strong>Saturday, August 6, 2026</strong></span>
+            <span><strong id="displayCDetailDate">Saturday, August 6, 2026</strong></span>
           </div>
           <div class="c-detail" id="cDetailTime">
             <i class="fa-solid fa-clock"></i>
-            <span>5:00 PM - 9:00 PM EST</span>
+            <span id="displayCDetailTime">5:00 PM - 9:00 PM EST</span>
           </div>
           <div class="c-detail" id="cDetailLoc">
             <i class="fa-solid fa-location-dot"></i>
-            <span>Columbus, OH (Details upon registration)</span>
+            <span id="displayCDetailLoc">Columbus, OH (Details upon registration)</span>
           </div>
         </div>
       </div>
@@ -142,7 +142,7 @@
           </div>
           <div class="about-img-overlay" id="aboutImgFrameOutline"></div>
           <div class="about-badge" id="aboutYearsBadge">
-            <span class="num">2026</span>
+            <span class="num" id="aboutYearsBadgeNum">2026</span>
             <span class="lbl">Community Power</span>
           </div>
         </div>
@@ -958,6 +958,56 @@
         <button class="admin-tab-btn" data-tab="inquiries" id="adminTabInquiries" role="tab" aria-selected="false">
           <i class="fa-solid fa-envelope-open-text"></i> Inquiries
         </button>
+        <button class="admin-tab-btn" data-tab="settings" id="adminTabSettings" role="tab" aria-selected="false">
+          <i class="fa-solid fa-gear"></i> Settings
+        </button>
+      </div>
+
+      <!-- TAB PANEL: Settings -->
+      <div class="admin-tab-panel" id="adminPanelSettings" role="tabpanel">
+        <div class="admin-cms-card" style="max-width: 800px; margin: 0 auto;">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-gear"></i> Global Event Settings</h3>
+          </div>
+          <div class="admin-table-container" style="padding: 1.5rem;">
+            <form id="adminSettingsForm">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="settingEventName">Event Name / Year</label>
+                  <input type="text" id="settingEventName" class="form-control" placeholder="e.g. 2026">
+                </div>
+                <div class="form-group">
+                  <label for="settingTopDate">Top Banner Date</label>
+                  <input type="text" id="settingTopDate" class="form-control" placeholder="e.g. Annual Networking Event &bull; Aug 6, 2026">
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="settingDisplayDate">Main Event Date</label>
+                  <input type="text" id="settingDisplayDate" class="form-control" placeholder="e.g. Saturday, August 6, 2026">
+                </div>
+                <div class="form-group">
+                  <label for="settingDisplayTime">Main Event Time</label>
+                  <input type="text" id="settingDisplayTime" class="form-control" placeholder="e.g. 5:00 PM - 9:00 PM EST">
+                </div>
+              </div>
+              <div class="form-group full-width">
+                <label for="settingDisplayLoc">Event Location</label>
+                <input type="text" id="settingDisplayLoc" class="form-control" placeholder="e.g. Columbus, OH (Details upon registration)">
+              </div>
+              <div class="form-group full-width">
+                <label for="settingCountdownTarget">Countdown Target Time</label>
+                <input type="datetime-local" id="settingCountdownTarget" class="form-control">
+                <span style="display:block; font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">
+                  This dictates when the countdown clock hits zero.
+                </span>
+              </div>
+              <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-gold" id="btnSaveSettings">Save Settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
 
       <!-- TAB PANEL: Attendees -->

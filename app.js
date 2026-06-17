@@ -193,6 +193,7 @@ let useSupabase = false;
 // Global Data Arrays
 let businesses = [];
 let registrations = [];
+let eventSettings = null;
 
 try {
   if (window.supabase) {
@@ -364,6 +365,15 @@ async function initDatabase() {
         throw bError;
       }
       
+      // Fetch Event Settings
+      try {
+        let { data: settsData, error: settsErr } = await supabaseClient.from('event_settings').select('*').limit(1);
+        if (!settsErr && settsData && settsData.length > 0) {
+          eventSettings = settsData[0];
+          applyEventSettings(eventSettings);
+        }
+      } catch(e) { console.warn("Could not load event settings from DB", e); }
+
       useSupabase = true;
       console.log("Connected to Supabase database successfully!");
 
@@ -534,7 +544,7 @@ sectorLinks.forEach(link => {
 // 5. Event Countdown Timer Clock
 // ==========================================================================
 // Set target event date: August 6th, 2026 at 5:00 PM EST (17:00:00)
-const targetEventDate = new Date('August 6, 2026 17:00:00').getTime();
+let targetEventDate = new Date('August 6, 2026 17:00:00').getTime();
 
 function updateCountdownClock() {
   if (!daysVal || !hoursVal || !minutesVal || !secondsVal) return;
@@ -2277,6 +2287,7 @@ function initAdminTabs() {
       else if (target === 'faq') renderAdminFaq();
       else if (target === 'inquiries') renderAdminInquiries();
       else if (target === 'directory') renderAdminDirectory();
+      else if (target === 'settings') renderAdminSettings();
     });
   });
 }
@@ -2459,6 +2470,91 @@ document.getElementById('btnAddBusiness')?.addEventListener('click', () => openB
 document.getElementById('btnCloseBusinessModal')?.addEventListener('click', closeBusinessModal);
 document.getElementById('btnCancelBusinessModal')?.addEventListener('click', closeBusinessModal);
 document.getElementById('businessEditorModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('businessEditorModal')) closeBusinessModal(); });
+
+// ==========================================================================
+// CMS — EVENT SETTINGS Admin View & Logic
+// ==========================================================================
+
+function applyEventSettings(settings) {
+  if (!settings) return;
+  const els = {
+    topDate: document.getElementById('heroTopDate'),
+    displayDate: document.getElementById('displayCDetailDate'),
+    displayTime: document.getElementById('displayCDetailTime'),
+    displayLoc: document.getElementById('displayCDetailLoc'),
+    badgeNum: document.getElementById('aboutYearsBadgeNum')
+  };
+  
+  if (els.topDate && settings.topDate) els.topDate.innerHTML = settings.topDate;
+  if (els.displayDate && settings.displayDate) els.displayDate.innerHTML = settings.displayDate;
+  if (els.displayTime && settings.displayTime) els.displayTime.innerHTML = settings.displayTime;
+  if (els.displayLoc && settings.displayLoc) els.displayLoc.innerHTML = settings.displayLoc;
+  if (els.badgeNum && settings.eventName) els.badgeNum.innerHTML = settings.eventName;
+
+  if (settings.countdownTarget) {
+    targetEventDate = new Date(settings.countdownTarget).getTime();
+    updateCountdownClock(); // Refresh timer immediately
+  }
+}
+
+function renderAdminSettings() {
+  if (!eventSettings) {
+    // defaults if empty
+    document.getElementById('settingEventName').value = '2026';
+    document.getElementById('settingTopDate').value = 'Annual Networking Event &bull; Aug 6, 2026';
+    document.getElementById('settingDisplayDate').value = 'Saturday, August 6, 2026';
+    document.getElementById('settingDisplayTime').value = '5:00 PM - 9:00 PM EST';
+    document.getElementById('settingDisplayLoc').value = 'Columbus, OH (Details upon registration)';
+    document.getElementById('settingCountdownTarget').value = '2026-08-06T17:00';
+    return;
+  }
+  
+  document.getElementById('settingEventName').value = eventSettings.eventName || '';
+  document.getElementById('settingTopDate').value = eventSettings.topDate || '';
+  document.getElementById('settingDisplayDate').value = eventSettings.displayDate || '';
+  document.getElementById('settingDisplayTime').value = eventSettings.displayTime || '';
+  document.getElementById('settingDisplayLoc').value = eventSettings.displayLoc || '';
+  document.getElementById('settingCountdownTarget').value = eventSettings.countdownTarget || '';
+}
+
+document.getElementById('adminSettingsForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnSaveSettings');
+  const originalText = btn.textContent;
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  const newSettings = {
+    id: 'global', // single row identifier
+    eventName: document.getElementById('settingEventName').value.trim(),
+    topDate: document.getElementById('settingTopDate').value.trim(),
+    displayDate: document.getElementById('settingDisplayDate').value.trim(),
+    displayTime: document.getElementById('settingDisplayTime').value.trim(),
+    displayLoc: document.getElementById('settingDisplayLoc').value.trim(),
+    countdownTarget: document.getElementById('settingCountdownTarget').value.trim(),
+  };
+
+  if (useSupabase && supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from('event_settings').upsert([newSettings]);
+      if (error) throw error;
+      eventSettings = newSettings;
+      applyEventSettings(eventSettings);
+      alert("Settings saved to database successfully!");
+    } catch(err) {
+      console.warn("Failed to sync settings to Supabase", err);
+      alert("Failed to save settings. Make sure the event_settings table exists in Supabase.");
+    }
+  } else {
+    eventSettings = newSettings;
+    localStorage.setItem('haconet_event_settings', JSON.stringify(newSettings));
+    applyEventSettings(eventSettings);
+    alert("Settings saved locally!");
+  }
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+});
 
 // ==========================================================================
 // CMS — SPONSORS Admin View & CRUD
