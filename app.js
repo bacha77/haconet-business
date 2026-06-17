@@ -1380,13 +1380,20 @@ if (toggleAdminBtn) {
       adminDashboard.style.display = 'none';
       toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Staff Login';
     } else {
-      adminDashboard.style.display = 'block';
-      renderAdminAttendeeList();
-      toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock-open" style="color: var(--accent-gold);"></i> Close Admin Portal';
+      const passcode = prompt("Enter HACONET Staff Passcode:");
+      if (passcode === null) return; // cancelled
       
-      setTimeout(() => {
-        adminDashboard.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      if (passcode.trim().toLowerCase() === 'haconet2026') {
+        adminDashboard.style.display = 'block';
+        renderAdminAttendeeList();
+        toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock-open" style="color: var(--accent-gold);"></i> Close Admin Portal';
+        
+        setTimeout(() => {
+          adminDashboard.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      } else {
+        alert("Incorrect passcode. Access denied.");
+      }
     }
   });
 }
