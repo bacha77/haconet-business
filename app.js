@@ -1899,5 +1899,171 @@ if (heroRegQrImg) {
   heroRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(regUrl)}`;
 }
 
+// FAQ Accordion Toggle Interaction
+function initFaqAccordion() {
+  const faqHeaders = document.querySelectorAll('.faq-header');
+  faqHeaders.forEach(header => {
+    header.addEventListener('click', () => {
+      const item = header.parentElement;
+      const body = item.querySelector('.faq-body');
+      
+      if (!body) return;
+      
+      const isActive = item.classList.contains('active');
+      
+      // Close all other FAQ items for proper accordion effect
+      document.querySelectorAll('.faq-item').forEach(el => {
+        el.classList.remove('active');
+        const b = el.querySelector('.faq-body');
+        if (b) b.style.maxHeight = null;
+      });
+      
+      if (!isActive) {
+        item.classList.add('active');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    });
+  });
+}
+
+// Contact & Sponsorship Inquiry Submission Handler
+function initInquiryForm() {
+  const form = document.getElementById('inquiryContactForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nameEl = document.getElementById('inqName');
+    const emailEl = document.getElementById('inqEmail');
+    const bizEl = document.getElementById('inqBiz');
+    const typeEl = document.getElementById('inqType');
+    const messageEl = document.getElementById('inqMessage');
+
+    let isValid = true;
+
+    // Validation Name
+    if (!nameEl || nameEl.value.trim() === '') {
+      if (nameEl) nameEl.classList.add('error');
+      const err = document.getElementById('errInqName');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      if (nameEl) nameEl.classList.remove('error');
+      const err = document.getElementById('errInqName');
+      if (err) err.style.display = 'none';
+    }
+
+    // Validation Email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailEl || !emailPattern.test(emailEl.value.trim())) {
+      if (emailEl) emailEl.classList.add('error');
+      const err = document.getElementById('errInqEmail');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      if (emailEl) emailEl.classList.remove('error');
+      const err = document.getElementById('errInqEmail');
+      if (err) err.style.display = 'none';
+    }
+
+    // Validation Inquiry Type
+    if (!typeEl || typeEl.value === '') {
+      if (typeEl) typeEl.classList.add('error');
+      const err = document.getElementById('errInqType');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      if (typeEl) typeEl.classList.remove('error');
+      const err = document.getElementById('errInqType');
+      if (err) err.style.display = 'none';
+    }
+
+    // Validation Message
+    if (!messageEl || messageEl.value.trim() === '') {
+      if (messageEl) messageEl.classList.add('error');
+      const err = document.getElementById('errInqMessage');
+      if (err) err.style.display = 'block';
+      isValid = false;
+    } else {
+      if (messageEl) messageEl.classList.remove('error');
+      const err = document.getElementById('errInqMessage');
+      if (err) err.style.display = 'none';
+    }
+
+    if (!isValid) return;
+
+    // Create inquiry record
+    const inquiryData = {
+      id: `INQ-${Date.now()}`,
+      name: nameEl.value.trim(),
+      email: emailEl.value.trim(),
+      business: bizEl ? bizEl.value.trim() : '',
+      type: typeEl.value,
+      message: messageEl.value.trim(),
+      dateSubmitted: new Date().toLocaleString()
+    };
+
+    // Save logic
+    if (useSupabase && supabaseClient) {
+      try {
+        const { error } = await supabaseClient.from('inquiries').insert([{
+          inqid: inquiryData.id,
+          name: inquiryData.name,
+          email: inquiryData.email,
+          business: inquiryData.business,
+          type: inquiryData.type,
+          message: inquiryData.message,
+          datesubmitted: inquiryData.dateSubmitted
+        }]);
+        if (error) throw error;
+      } catch (err) {
+        console.warn("Supabase inquiry save failed. Falling back to LocalStorage.", err);
+        saveInquiryToLocalStorage(inquiryData);
+      }
+    } else {
+      saveInquiryToLocalStorage(inquiryData);
+    }
+
+    // Reset and success feedback
+    form.reset();
+    const successBanner = document.getElementById('inquirySuccessBanner');
+    if (successBanner) {
+      successBanner.style.display = 'block';
+      successBanner.style.opacity = '0';
+      successBanner.style.transform = 'translateY(10px)';
+      successBanner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          successBanner.style.opacity = '1';
+          successBanner.style.transform = 'translateY(0)';
+        });
+      });
+      // Auto-hide after 8 seconds
+      setTimeout(() => {
+        successBanner.style.opacity = '0';
+        successBanner.style.transform = 'translateY(10px)';
+        setTimeout(() => { successBanner.style.display = 'none'; }, 400);
+      }, 8000);
+    }
+  });
+}
+
+function saveInquiryToLocalStorage(inq) {
+  let localInqs = [];
+  try {
+    localInqs = JSON.parse(localStorage.getItem('haconet_inquiries')) || [];
+  } catch (e) {
+    localInqs = [];
+  }
+  if (!Array.isArray(localInqs)) localInqs = [];
+  localInqs.push(inq);
+  localStorage.setItem('haconet_inquiries', JSON.stringify(localInqs));
+}
+
+// Initialize components
+initFaqAccordion();
+initInquiryForm();
+
 // Start database fetch and initialization
 initDatabase();
