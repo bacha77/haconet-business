@@ -2618,12 +2618,12 @@ function openLegalModal(title, content) {
   const modal = document.getElementById('legalModal');
   document.getElementById('legalModalTitle').innerText = title;
   document.getElementById('legalModalContent').innerHTML = content || '<p>Content not available.</p>';
-  modal.classList.add('active');
+  modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 
 function closeLegalModal() {
-  document.getElementById('legalModal').classList.remove('active');
+  document.getElementById('legalModal').classList.remove('open');
   document.body.style.overflow = '';
 }
 
