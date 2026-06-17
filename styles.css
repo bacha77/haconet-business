@@ -1284,7 +1284,7 @@ section {
   border-radius: var(--radius-md);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem;
   transition: var(--transition-normal);
 }
 
