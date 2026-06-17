@@ -2143,12 +2143,19 @@ function renderSponsorsSection() {
       <h4 class="tier-title ${tier.titleClass}">${tier.label}</h4>
       <div class="${tier.gridClass}">`;
     tierSponsors.forEach(s => {
-      const iconClass = s.icon || 'fa-solid fa-star';
       const nameLink = s.website
         ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${s.name}</a>`
         : s.name;
+      // Show real logo if available, otherwise icon placeholder
+      const logoHtml = s.logoData
+        ? `<img src="${s.logoData}" alt="${s.name} logo" class="sponsor-logo-img">`
+        : `<div class="sponsor-logo-placeholder"><i class="${s.icon || 'fa-solid fa-star'}"></i> ${nameLink}</div>`;
+      const nameBelow = s.logoData
+        ? `<div style="font-weight:700;font-size:0.95rem;margin-bottom:0.25rem;">${nameLink}</div>`
+        : '';
       html += `<div class="sponsor-card ${tier.cssClass}">
-        <div class="sponsor-logo-placeholder"><i class="${iconClass}"></i> ${nameLink}</div>
+        ${logoHtml}
+        ${nameBelow}
         ${s.desc ? `<p class="sponsor-desc">${s.desc}</p>` : ''}
       </div>`;
     });
@@ -2245,16 +2252,20 @@ function renderAdminSponsors() {
   const tbody = document.getElementById('adminSponsorsTableBody');
   if (!tbody) return;
   if (sponsors.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="cms-empty-state"><i class="fa-solid fa-trophy"></i><p>No sponsors yet. Click "Add Sponsor" to get started.</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6"><div class="cms-empty-state"><i class="fa-solid fa-trophy"></i><p>No sponsors yet. Click "Add Sponsor" to get started.</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = sponsors.map(s => {
     const tierClass = s.tier === 'Platinum' ? 'platinum' : s.tier === 'Gold' ? 'gold' : 'community';
     const webLink = s.website ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:var(--accent-gold);font-size:0.85rem;">${s.website}</a>` : '<span style="color:var(--text-muted);">—</span>';
+    const thumbHtml = s.logoData
+      ? `<img src="${s.logoData}" alt="logo" class="sponsor-thumb">`
+      : `<div style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:6px;border:1px solid var(--border-color);background:rgba(255,255,255,0.04);"><i class="${s.icon || 'fa-solid fa-star'}" style="color:var(--accent-gold);"></i></div>`;
     return `<tr>
+      <td>${thumbHtml}</td>
       <td style="font-weight:600;">${s.name}</td>
       <td><span class="tier-badge ${tierClass}">${s.tier}</span></td>
-      <td style="color:var(--text-secondary);font-size:0.85rem;max-width:200px;">${s.desc || '—'}</td>
+      <td style="color:var(--text-secondary);font-size:0.85rem;max-width:180px;">${s.desc || '—'}</td>
       <td>${webLink}</td>
       <td><div class="cms-actions">
         <button class="btn-icon edit" title="Edit" onclick="openSponsorModal('${s.id}')"><i class="fa-solid fa-pen"></i></button>
@@ -2262,6 +2273,29 @@ function renderAdminSponsors() {
       </div></td>
     </tr>`;
   }).join('');
+}
+
+function _setLogoPreview(dataUrl) {
+  const previewBox = document.getElementById('logoPreviewBox');
+  const previewImg = document.getElementById('logoPreviewImg');
+  const uploadLabel = document.getElementById('logoUploadLabel');
+  const logoDataInput = document.getElementById('sponsorLogoData');
+  if (!previewBox || !previewImg) return;
+  if (dataUrl) {
+    previewImg.src = dataUrl;
+    previewBox.style.display = 'block';
+    if (uploadLabel) { uploadLabel.querySelector('span') && (uploadLabel.querySelector('span').textContent = 'Change Logo'); }
+    if (logoDataInput) logoDataInput.value = dataUrl;
+  } else {
+    previewImg.src = '';
+    previewBox.style.display = 'none';
+    if (uploadLabel) { uploadLabel.querySelector('span') && (uploadLabel.querySelector('span').textContent = 'Upload Logo from Device'); }
+    if (logoDataInput) logoDataInput.value = '';
+    const fileInput = document.getElementById('sponsorLogoFile');
+    if (fileInput) fileInput.value = '';
+    const urlInput = document.getElementById('sponsorLogoUrl');
+    if (urlInput) urlInput.value = '';
+  }
 }
 
 function openSponsorModal(id = null) {
@@ -2281,10 +2315,15 @@ function openSponsorModal(id = null) {
     document.getElementById('sponsorDesc').value = s.desc || '';
     document.getElementById('sponsorIcon').value = s.icon || '';
     document.getElementById('sponsorWebsite').value = s.website || '';
+    // Restore logo preview
+    _setLogoPreview(s.logoData || '');
+    const urlInput = document.getElementById('sponsorLogoUrl');
+    if (urlInput && s.logoData && s.logoData.startsWith('http')) urlInput.value = s.logoData;
   } else {
     title.textContent = 'Add Sponsor';
     document.getElementById('sponsorEditId').value = '';
     form.reset();
+    _setLogoPreview('');
   }
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -2316,6 +2355,11 @@ function deleteSponsor(id) {
     if (!tierEl.value) { tierEl.classList.add('error'); document.getElementById('errSponsorTier').style.display = 'block'; valid = false; } else { tierEl.classList.remove('error'); document.getElementById('errSponsorTier').style.display = 'none'; }
     if (!valid) return;
 
+    // Resolve final logo: hidden field first (base64 from file), then URL input
+    const logoDataInput = document.getElementById('sponsorLogoData');
+    const logoUrlInput = document.getElementById('sponsorLogoUrl');
+    const logoData = (logoDataInput && logoDataInput.value) || (logoUrlInput && logoUrlInput.value.trim()) || '';
+
     const editId = document.getElementById('sponsorEditId').value;
     const data = {
       id: editId || `sp-${Date.now()}`,
@@ -2323,7 +2367,8 @@ function deleteSponsor(id) {
       tier: tierEl.value,
       desc: document.getElementById('sponsorDesc').value.trim(),
       icon: document.getElementById('sponsorIcon').value.trim() || 'fa-solid fa-star',
-      website: document.getElementById('sponsorWebsite').value.trim()
+      website: document.getElementById('sponsorWebsite').value.trim(),
+      logoData: logoData
     };
     if (editId) {
       const idx = sponsors.findIndex(s => s.id === editId);
@@ -2336,6 +2381,67 @@ function deleteSponsor(id) {
     renderAdminSponsors();
     renderSponsorsSection();
   });
+})();
+
+// Logo file input handler
+(function() {
+  const fileInput = document.getElementById('sponsorLogoFile');
+  if (!fileInput) return;
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Logo file is too large. Please use an image under 2MB.');
+      fileInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      _setLogoPreview(ev.target.result);
+      // Clear URL input if file was uploaded
+      const urlInput = document.getElementById('sponsorLogoUrl');
+      if (urlInput) urlInput.value = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // URL input handler
+  const urlInput = document.getElementById('sponsorLogoUrl');
+  if (urlInput) {
+    urlInput.addEventListener('blur', () => {
+      const val = urlInput.value.trim();
+      if (val && val.startsWith('http')) {
+        _setLogoPreview(val);
+        // Clear file input
+        if (fileInput) fileInput.value = '';
+      }
+    });
+  }
+
+  // Remove logo button
+  const btnRemove = document.getElementById('btnRemoveLogo');
+  if (btnRemove) {
+    btnRemove.addEventListener('click', () => {
+      _setLogoPreview('');
+    });
+  }
+
+  // Drag & drop onto upload area
+  const uploadArea = document.getElementById('logoUploadArea');
+  if (uploadArea) {
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      if (file.size > 2 * 1024 * 1024) { alert('Logo file is too large. Please use an image under 2MB.'); return; }
+      const reader = new FileReader();
+      reader.onload = (ev) => { _setLogoPreview(ev.target.result); };
+      reader.readAsDataURL(file);
+    });
+  }
 })();
 
 document.getElementById('btnAddSponsor')?.addEventListener('click', () => openSponsorModal());

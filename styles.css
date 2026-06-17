@@ -3365,3 +3365,85 @@ body.focus-registration .registration-layout-grid {
   }
 }
 
+/* ==========================================================================
+   Sponsor Logo Upload
+   ========================================================================== */
+.logo-upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.logo-upload-area.dragover {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.06);
+}
+
+.logo-upload-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  padding: 0.85rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  transition: all 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.logo-upload-btn i {
+  font-size: 1.6rem;
+  color: var(--accent-gold);
+  margin-bottom: 0.25rem;
+}
+
+.logo-upload-btn small {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.logo-upload-btn:hover {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.07);
+  color: #fff;
+}
+
+.logo-upload-btn.has-logo {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+/* Sponsor logo in the public card */
+.sponsor-logo-img {
+  max-height: 64px;
+  max-width: 160px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 0.5rem;
+  border-radius: 6px;
+}
+
+/* Sponsor logo thumbnail in admin table */
+.sponsor-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  display: block;
+}
