@@ -3081,3 +3081,287 @@ body.focus-registration .registration-layout-grid {
   border-color: var(--accent-gold);
   box-shadow: 0 0 10px var(--accent-gold-glow);
 }
+
+/* ==========================================================================
+   Admin CMS — Tab Navigation
+   ========================================================================== */
+.admin-tabs-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin: 2rem 0 0;
+  border-bottom: 2px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.admin-tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  padding: 0.75rem 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s, border-color 0.2s;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  white-space: nowrap;
+}
+
+.admin-tab-btn:hover {
+  color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.admin-tab-btn.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.07);
+}
+
+.admin-tab-btn i {
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   Admin CMS — Tab Panels
+   ========================================================================== */
+.admin-tab-panel {
+  display: none;
+  animation: fadeInUp 0.3s ease both;
+  margin-top: 1.5rem;
+}
+
+.admin-tab-panel.active {
+  display: block;
+}
+
+/* ==========================================================================
+   Admin CMS — Content Manager Card
+   ========================================================================== */
+.admin-cms-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.admin-cms-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.02);
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-cms-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.admin-cms-header h3 i {
+  color: var(--accent-gold);
+}
+
+/* ==========================================================================
+   Admin CMS — FAQ List Manager
+   ========================================================================== */
+.admin-faq-list {
+  padding: 0.5rem 0;
+}
+
+.admin-faq-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s;
+}
+
+.admin-faq-row:last-child {
+  border-bottom: none;
+}
+
+.admin-faq-row:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.admin-faq-row-text {
+  overflow: hidden;
+}
+
+.admin-faq-row-question {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-faq-row-answer {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-faq-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.btn-icon {
+  background: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: rgba(255,255,255,0.07);
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+}
+
+.btn-icon.edit:hover {
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
+}
+
+.btn-icon.delete:hover {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.btn-icon.move:hover {
+  color: var(--accent-blue, #5b9cde);
+  border-color: var(--accent-blue, #5b9cde);
+}
+
+/* CMS Table action cells */
+.admin-table .cms-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* Tier badges in sponsors table */
+.tier-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tier-badge.platinum {
+  background: rgba(229, 205, 153, 0.15);
+  color: #e5cd99;
+  border: 1px solid rgba(229, 205, 153, 0.3);
+}
+
+.tier-badge.gold {
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--accent-gold);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.tier-badge.community {
+  background: rgba(91, 156, 222, 0.12);
+  color: #5b9cde;
+  border: 1px solid rgba(91, 156, 222, 0.25);
+}
+
+/* Empty state for CMS tables */
+.cms-empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+}
+
+.cms-empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  opacity: 0.4;
+}
+
+/* Inquiry message expand */
+.inq-message-cell {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.inq-message-cell.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+/* ==========================================================================
+   Responsive Admin Tabs
+   ========================================================================== */
+@media (max-width: 768px) {
+  .admin-tabs-nav {
+    gap: 0.25rem;
+  }
+
+  .admin-tab-btn {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .admin-tab-btn span {
+    display: none;
+  }
+
+  .admin-cms-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-faq-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .admin-faq-row-actions {
+    justify-content: flex-end;
+  }
+}
+

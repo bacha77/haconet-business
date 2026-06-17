@@ -2061,9 +2061,543 @@ function saveInquiryToLocalStorage(inq) {
   localStorage.setItem('haconet_inquiries', JSON.stringify(localInqs));
 }
 
-// Initialize components
+// ==========================================================================
+// CMS — Seed Data
+// ==========================================================================
+const SEED_SPONSORS = [
+  { id: 'sp-1', name: 'Central Ohio Financial Group', tier: 'Platinum', desc: 'Providing capital and small business advisory services to minority entrepreneurs.', icon: 'fa-solid fa-building-columns', website: '' },
+  { id: 'sp-2', name: 'Columbus Enterprise Alliance', tier: 'Gold', desc: 'Empowering local trade and strategic networking partnerships.', icon: 'fa-solid fa-shield-halved', website: '' },
+  { id: 'sp-3', name: 'Greater Columbus Development Hub', tier: 'Gold', desc: 'Fostering urban economic development and micro-loan programs.', icon: 'fa-solid fa-chart-line', website: '' },
+  { id: 'sp-4', name: 'Bond Enterprise LLC', tier: 'Community', desc: '', icon: 'fa-solid fa-briefcase', website: '' },
+  { id: 'sp-5', name: 'Lakay Real Estate', tier: 'Community', desc: '', icon: 'fa-solid fa-house-chimney', website: '' },
+  { id: 'sp-6', name: 'Ohio Hope Foundation', tier: 'Community', desc: '', icon: 'fa-solid fa-handshake-angle', website: '' },
+  { id: 'sp-7', name: 'Cadet Legal Services', tier: 'Community', desc: '', icon: 'fa-solid fa-scale-balanced', website: '' }
+];
+
+const SEED_SPEAKERS = [
+  { id: 'spk-1', name: 'Dr. Fabienne Jean-Baptiste', role: 'Keynote Speaker', company: 'Founder, JB Consulting & Healthcare Partners', bio: 'Dr. Jean-Baptiste has over 15 years of experience in healthcare leadership and startup advising in Ohio.', photo: '', linkedin: 'https://linkedin.com', website: '' },
+  { id: 'spk-2', name: 'Marc-Antoine Fequiere', role: 'Moderator / Panelist', company: 'Executive Director, HACONET', bio: 'Marc is a tireless advocate for civic access, resource translation, and business mentorship for Columbus families.', photo: '', linkedin: 'https://linkedin.com', website: '' },
+  { id: 'spk-3', name: 'Marie-Cecile Augustin', role: 'Panelist', company: 'CEO, Augustin Tax & Financial Advisory', bio: 'Marie-Cecile helps minority business owners unlock capital, secure tax grants, and plan sustainable business transitions.', photo: '', linkedin: 'https://linkedin.com', website: '' }
+];
+
+const SEED_FAQ = [
+  { id: 'fq-1', question: 'Is the HACONET Business Meet & Greet free to attend?', answer: 'Yes, general attendance is free! However, registration is strictly required to secure your ticket and receive location coordinates and agenda updates. Business exhibitors requesting vendor booths have a separate table setup process.' },
+  { id: 'fq-2', question: 'How do I reserve a vendor display/exhibitor table?', answer: 'You can request a display table during the online registration process. On Step 3 of the Registration Form, select "Yes" under the "Would you like a vendor/display table?" option and specify if you require electrical outlets. We will review your submission and email you confirmation with booth details.' },
+  { id: 'fq-3', question: 'Where is the event located, and is parking available?', answer: 'The event is hosted at the DoubleTree by Hilton Columbus Downtown, located in Central Columbus, OH. Valet parking is available at the hotel entrance, and several self-parking garages/metered spots are located within walking distance of the venue.' },
+  { id: 'fq-4', question: 'Can I attend if my business is not yet established?', answer: 'Absolutely! The event is open to aspiring entrepreneurs, community members, professionals, and students. It is a perfect space to find mentorship, gather ideas, and meet strategic business partners.' },
+  { id: 'fq-5', question: 'What is the dress code for the networking event?', answer: 'The dress code is business professional or smart casual. We encourage you to dress to impress as you will be networking directly with potential clients, investors, and local leaders.' }
+];
+
+// CMS live data arrays (loaded from localStorage or seed)
+let sponsors = [];
+let speakers = [];
+let faqItems = [];
+
+// ==========================================================================
+// CMS — Load Content from localStorage
+// ==========================================================================
+function loadCmsContent() {
+  try { sponsors = JSON.parse(localStorage.getItem('haconet_sponsors')) || null; } catch(e) { sponsors = null; }
+  if (!Array.isArray(sponsors) || sponsors.length === 0) {
+    sponsors = [...SEED_SPONSORS];
+    localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
+  }
+
+  try { speakers = JSON.parse(localStorage.getItem('haconet_speakers')) || null; } catch(e) { speakers = null; }
+  if (!Array.isArray(speakers) || speakers.length === 0) {
+    speakers = [...SEED_SPEAKERS];
+    localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
+  }
+
+  try { faqItems = JSON.parse(localStorage.getItem('haconet_faq')) || null; } catch(e) { faqItems = null; }
+  if (!Array.isArray(faqItems) || faqItems.length === 0) {
+    faqItems = [...SEED_FAQ];
+    localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+  }
+}
+
+function saveCmsToLocalStorage() {
+  localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
+  localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
+  localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+}
+
+// ==========================================================================
+// CMS — Public Section Renderers
+// ==========================================================================
+function renderSponsorsSection() {
+  const container = document.getElementById('sponsorsContainer');
+  if (!container) return;
+
+  const tiers = [
+    { key: 'Platinum', label: 'Platinum Sponsor', cssClass: 'platinum-card', titleClass: 'platinum', gridClass: 'sponsor-grid' },
+    { key: 'Gold',     label: 'Gold Partners',     cssClass: 'gold-card',     titleClass: 'gold',     gridClass: 'sponsor-grid' },
+    { key: 'Community',label: 'Community Supporters', cssClass: 'community-card', titleClass: 'silver', gridClass: 'sponsor-grid silver-grid' }
+  ];
+
+  let html = '<div class="sponsors-container">';
+  tiers.forEach(tier => {
+    const tierSponsors = sponsors.filter(s => s.tier === tier.key);
+    if (tierSponsors.length === 0) return;
+    html += `<div class="sponsor-tier ${tier.key}">
+      <h4 class="tier-title ${tier.titleClass}">${tier.label}</h4>
+      <div class="${tier.gridClass}">`;
+    tierSponsors.forEach(s => {
+      const iconClass = s.icon || 'fa-solid fa-star';
+      const nameLink = s.website
+        ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">${s.name}</a>`
+        : s.name;
+      html += `<div class="sponsor-card ${tier.cssClass}">
+        <div class="sponsor-logo-placeholder"><i class="${iconClass}"></i> ${nameLink}</div>
+        ${s.desc ? `<p class="sponsor-desc">${s.desc}</p>` : ''}
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderSpeakersSection() {
+  const grid = document.getElementById('speakersGrid');
+  if (!grid) return;
+  if (speakers.length === 0) {
+    grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">No speakers added yet.</p>';
+    return;
+  }
+  grid.innerHTML = speakers.map(spk => {
+    const imgHtml = spk.photo
+      ? `<img src="${spk.photo}" alt="${spk.name}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : `<i class="fa-solid fa-user-tie"></i>`;
+    const liHtml = spk.linkedin ? `<a href="${spk.linkedin}" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin-in"></i></a>` : '';
+    const webHtml = spk.website ? `<a href="${spk.website}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i></a>` : '';
+    const socialsHtml = (liHtml || webHtml) ? `<div class="speaker-socials">${liHtml}${webHtml}</div>` : '';
+    return `<div class="speaker-card">
+      <div class="speaker-img-container">
+        <div class="speaker-img-placeholder">${imgHtml}</div>
+        ${socialsHtml}
+      </div>
+      <div class="speaker-info">
+        <h4>${spk.name}</h4>
+        <span class="speaker-role">${spk.role}</span>
+        ${spk.company ? `<p class="speaker-company">${spk.company}</p>` : ''}
+        ${spk.bio ? `<p class="speaker-bio">${spk.bio}</p>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFaqSection() {
+  const container = document.getElementById('faqAccordion');
+  if (!container) return;
+  if (faqItems.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">No FAQ entries yet.</p>';
+    return;
+  }
+  container.innerHTML = faqItems.map(fq => `
+    <div class="faq-item">
+      <button class="faq-header" aria-expanded="false">
+        <span>${fq.question}</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+      <div class="faq-body">
+        <div class="faq-content"><p>${fq.answer}</p></div>
+      </div>
+    </div>`).join('');
+  // Re-attach accordion listeners
+  initFaqAccordion();
+}
+
+// ==========================================================================
+// CMS — Admin Tab Switching
+// ==========================================================================
+function initAdminTabs() {
+  const tabBtns = document.querySelectorAll('.admin-tab-btn');
+  const tabPanels = document.querySelectorAll('.admin-tab-panel');
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      tabBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+      tabPanels.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      const panel = document.getElementById(`adminPanel${capitalize(target)}`);
+      if (panel) panel.classList.add('active');
+
+      // Render panel on first activation
+      if (target === 'sponsors') renderAdminSponsors();
+      else if (target === 'speakers') renderAdminSpeakers();
+      else if (target === 'faq') renderAdminFaq();
+      else if (target === 'inquiries') renderAdminInquiries();
+    });
+  });
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// ==========================================================================
+// CMS — SPONSORS Admin View & CRUD
+// ==========================================================================
+function renderAdminSponsors() {
+  const tbody = document.getElementById('adminSponsorsTableBody');
+  if (!tbody) return;
+  if (sponsors.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="cms-empty-state"><i class="fa-solid fa-trophy"></i><p>No sponsors yet. Click "Add Sponsor" to get started.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sponsors.map(s => {
+    const tierClass = s.tier === 'Platinum' ? 'platinum' : s.tier === 'Gold' ? 'gold' : 'community';
+    const webLink = s.website ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:var(--accent-gold);font-size:0.85rem;">${s.website}</a>` : '<span style="color:var(--text-muted);">—</span>';
+    return `<tr>
+      <td style="font-weight:600;">${s.name}</td>
+      <td><span class="tier-badge ${tierClass}">${s.tier}</span></td>
+      <td style="color:var(--text-secondary);font-size:0.85rem;max-width:200px;">${s.desc || '—'}</td>
+      <td>${webLink}</td>
+      <td><div class="cms-actions">
+        <button class="btn-icon edit" title="Edit" onclick="openSponsorModal('${s.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-icon delete" title="Delete" onclick="deleteSponsor('${s.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function openSponsorModal(id = null) {
+  const modal = document.getElementById('sponsorEditorModal');
+  const title = document.getElementById('sponsorModalTitle');
+  const form = document.getElementById('sponsorEditorForm');
+  form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+  form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
+
+  if (id) {
+    const s = sponsors.find(x => x.id === id);
+    if (!s) return;
+    title.textContent = 'Edit Sponsor';
+    document.getElementById('sponsorEditId').value = s.id;
+    document.getElementById('sponsorName').value = s.name;
+    document.getElementById('sponsorTier').value = s.tier;
+    document.getElementById('sponsorDesc').value = s.desc || '';
+    document.getElementById('sponsorIcon').value = s.icon || '';
+    document.getElementById('sponsorWebsite').value = s.website || '';
+  } else {
+    title.textContent = 'Add Sponsor';
+    document.getElementById('sponsorEditId').value = '';
+    form.reset();
+  }
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSponsorModal() {
+  document.getElementById('sponsorEditorModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function deleteSponsor(id) {
+  if (!confirm('Are you sure you want to remove this sponsor?')) return;
+  sponsors = sponsors.filter(s => s.id !== id);
+  saveCmsToLocalStorage();
+  renderAdminSponsors();
+  renderSponsorsSection();
+}
+
+// Sponsor form submit
+(function() {
+  const form = document.getElementById('sponsorEditorForm');
+  if (!form) return;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nameEl = document.getElementById('sponsorName');
+    const tierEl = document.getElementById('sponsorTier');
+    let valid = true;
+    if (!nameEl.value.trim()) { nameEl.classList.add('error'); document.getElementById('errSponsorName').style.display = 'block'; valid = false; } else { nameEl.classList.remove('error'); document.getElementById('errSponsorName').style.display = 'none'; }
+    if (!tierEl.value) { tierEl.classList.add('error'); document.getElementById('errSponsorTier').style.display = 'block'; valid = false; } else { tierEl.classList.remove('error'); document.getElementById('errSponsorTier').style.display = 'none'; }
+    if (!valid) return;
+
+    const editId = document.getElementById('sponsorEditId').value;
+    const data = {
+      id: editId || `sp-${Date.now()}`,
+      name: nameEl.value.trim(),
+      tier: tierEl.value,
+      desc: document.getElementById('sponsorDesc').value.trim(),
+      icon: document.getElementById('sponsorIcon').value.trim() || 'fa-solid fa-star',
+      website: document.getElementById('sponsorWebsite').value.trim()
+    };
+    if (editId) {
+      const idx = sponsors.findIndex(s => s.id === editId);
+      if (idx !== -1) sponsors[idx] = data;
+    } else {
+      sponsors.push(data);
+    }
+    saveCmsToLocalStorage();
+    closeSponsorModal();
+    renderAdminSponsors();
+    renderSponsorsSection();
+  });
+})();
+
+document.getElementById('btnAddSponsor')?.addEventListener('click', () => openSponsorModal());
+document.getElementById('btnCloseSponsorModal')?.addEventListener('click', closeSponsorModal);
+document.getElementById('btnCancelSponsorModal')?.addEventListener('click', closeSponsorModal);
+document.getElementById('sponsorEditorModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('sponsorEditorModal')) closeSponsorModal(); });
+
+// ==========================================================================
+// CMS — SPEAKERS Admin View & CRUD
+// ==========================================================================
+function renderAdminSpeakers() {
+  const tbody = document.getElementById('adminSpeakersTableBody');
+  if (!tbody) return;
+  if (speakers.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="cms-empty-state"><i class="fa-solid fa-microphone"></i><p>No speakers yet. Click "Add Speaker" to get started.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = speakers.map(spk => `<tr>
+    <td style="font-weight:600;">${spk.name}</td>
+    <td><span style="color:var(--accent-gold);font-size:0.85rem;font-weight:600;">${spk.role}</span></td>
+    <td style="color:var(--text-secondary);font-size:0.85rem;">${spk.company || '—'}</td>
+    <td style="color:var(--text-muted);font-size:0.82rem;max-width:220px;">${spk.bio ? spk.bio.substring(0, 80) + (spk.bio.length > 80 ? '…' : '') : '—'}</td>
+    <td><div class="cms-actions">
+      <button class="btn-icon edit" title="Edit" onclick="openSpeakerModal('${spk.id}')"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn-icon delete" title="Delete" onclick="deleteSpeaker('${spk.id}')"><i class="fa-solid fa-trash"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openSpeakerModal(id = null) {
+  const modal = document.getElementById('speakerEditorModal');
+  const title = document.getElementById('speakerModalTitle');
+  const form = document.getElementById('speakerEditorForm');
+  form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+  form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
+
+  if (id) {
+    const spk = speakers.find(x => x.id === id);
+    if (!spk) return;
+    title.textContent = 'Edit Speaker';
+    document.getElementById('speakerEditId').value = spk.id;
+    document.getElementById('speakerName').value = spk.name;
+    document.getElementById('speakerRole').value = spk.role;
+    document.getElementById('speakerCompany').value = spk.company || '';
+    document.getElementById('speakerBio').value = spk.bio || '';
+    document.getElementById('speakerPhoto').value = spk.photo || '';
+    document.getElementById('speakerLinkedin').value = spk.linkedin || '';
+    document.getElementById('speakerWebsite').value = spk.website || '';
+  } else {
+    title.textContent = 'Add Speaker';
+    document.getElementById('speakerEditId').value = '';
+    form.reset();
+  }
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSpeakerModal() {
+  document.getElementById('speakerEditorModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function deleteSpeaker(id) {
+  if (!confirm('Are you sure you want to remove this speaker?')) return;
+  speakers = speakers.filter(s => s.id !== id);
+  saveCmsToLocalStorage();
+  renderAdminSpeakers();
+  renderSpeakersSection();
+}
+
+(function() {
+  const form = document.getElementById('speakerEditorForm');
+  if (!form) return;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nameEl = document.getElementById('speakerName');
+    const roleEl = document.getElementById('speakerRole');
+    let valid = true;
+    if (!nameEl.value.trim()) { nameEl.classList.add('error'); document.getElementById('errSpeakerName').style.display = 'block'; valid = false; } else { nameEl.classList.remove('error'); document.getElementById('errSpeakerName').style.display = 'none'; }
+    if (!roleEl.value) { roleEl.classList.add('error'); document.getElementById('errSpeakerRole').style.display = 'block'; valid = false; } else { roleEl.classList.remove('error'); document.getElementById('errSpeakerRole').style.display = 'none'; }
+    if (!valid) return;
+
+    const editId = document.getElementById('speakerEditId').value;
+    const data = {
+      id: editId || `spk-${Date.now()}`,
+      name: nameEl.value.trim(),
+      role: roleEl.value,
+      company: document.getElementById('speakerCompany').value.trim(),
+      bio: document.getElementById('speakerBio').value.trim(),
+      photo: document.getElementById('speakerPhoto').value.trim(),
+      linkedin: document.getElementById('speakerLinkedin').value.trim(),
+      website: document.getElementById('speakerWebsite').value.trim()
+    };
+    if (editId) {
+      const idx = speakers.findIndex(s => s.id === editId);
+      if (idx !== -1) speakers[idx] = data;
+    } else {
+      speakers.push(data);
+    }
+    saveCmsToLocalStorage();
+    closeSpeakerModal();
+    renderAdminSpeakers();
+    renderSpeakersSection();
+  });
+})();
+
+document.getElementById('btnAddSpeaker')?.addEventListener('click', () => openSpeakerModal());
+document.getElementById('btnCloseSpeakerModal')?.addEventListener('click', closeSpeakerModal);
+document.getElementById('btnCancelSpeakerModal')?.addEventListener('click', closeSpeakerModal);
+document.getElementById('speakerEditorModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('speakerEditorModal')) closeSpeakerModal(); });
+
+// ==========================================================================
+// CMS — FAQ Admin View & CRUD
+// ==========================================================================
+function renderAdminFaq() {
+  const list = document.getElementById('adminFaqList');
+  if (!list) return;
+  if (faqItems.length === 0) {
+    list.innerHTML = `<div class="cms-empty-state"><i class="fa-solid fa-circle-question"></i><p>No FAQ entries yet. Click "Add FAQ" to get started.</p></div>`;
+    return;
+  }
+  list.innerHTML = faqItems.map((fq, idx) => `
+    <div class="admin-faq-row" id="adminFaqRow-${fq.id}">
+      <div class="admin-faq-row-text">
+        <div class="admin-faq-row-question">${fq.question}</div>
+        <div class="admin-faq-row-answer">${fq.answer}</div>
+      </div>
+      <div class="admin-faq-row-actions">
+        <button class="btn-icon move" title="Move Up" onclick="moveFaq('${fq.id}', -1)" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}><i class="fa-solid fa-chevron-up"></i></button>
+        <button class="btn-icon move" title="Move Down" onclick="moveFaq('${fq.id}', 1)" ${idx === faqItems.length-1 ? 'disabled style="opacity:0.3;"' : ''}><i class="fa-solid fa-chevron-down"></i></button>
+        <button class="btn-icon edit" title="Edit" onclick="openFaqModal('${fq.id}')"><i class="fa-solid fa-pen"></i></button>
+        <button class="btn-icon delete" title="Delete" onclick="deleteFaq('${fq.id}')"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`).join('');
+}
+
+function moveFaq(id, direction) {
+  const idx = faqItems.findIndex(f => f.id === id);
+  if (idx === -1) return;
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= faqItems.length) return;
+  [faqItems[idx], faqItems[newIdx]] = [faqItems[newIdx], faqItems[idx]];
+  saveCmsToLocalStorage();
+  renderAdminFaq();
+  renderFaqSection();
+}
+
+function openFaqModal(id = null) {
+  const modal = document.getElementById('faqEditorModal');
+  const title = document.getElementById('faqModalTitle');
+  const form = document.getElementById('faqEditorForm');
+  form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+  form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
+
+  if (id) {
+    const fq = faqItems.find(x => x.id === id);
+    if (!fq) return;
+    title.textContent = 'Edit FAQ Entry';
+    document.getElementById('faqEditId').value = fq.id;
+    document.getElementById('faqQuestion').value = fq.question;
+    document.getElementById('faqAnswer').value = fq.answer;
+  } else {
+    title.textContent = 'Add FAQ Entry';
+    document.getElementById('faqEditId').value = '';
+    form.reset();
+  }
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFaqModal() {
+  document.getElementById('faqEditorModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function deleteFaq(id) {
+  if (!confirm('Are you sure you want to delete this FAQ entry?')) return;
+  faqItems = faqItems.filter(f => f.id !== id);
+  saveCmsToLocalStorage();
+  renderAdminFaq();
+  renderFaqSection();
+}
+
+(function() {
+  const form = document.getElementById('faqEditorForm');
+  if (!form) return;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const qEl = document.getElementById('faqQuestion');
+    const aEl = document.getElementById('faqAnswer');
+    let valid = true;
+    if (!qEl.value.trim()) { qEl.classList.add('error'); document.getElementById('errFaqQuestion').style.display = 'block'; valid = false; } else { qEl.classList.remove('error'); document.getElementById('errFaqQuestion').style.display = 'none'; }
+    if (!aEl.value.trim()) { aEl.classList.add('error'); document.getElementById('errFaqAnswer').style.display = 'block'; valid = false; } else { aEl.classList.remove('error'); document.getElementById('errFaqAnswer').style.display = 'none'; }
+    if (!valid) return;
+
+    const editId = document.getElementById('faqEditId').value;
+    const data = { id: editId || `fq-${Date.now()}`, question: qEl.value.trim(), answer: aEl.value.trim() };
+    if (editId) {
+      const idx = faqItems.findIndex(f => f.id === editId);
+      if (idx !== -1) faqItems[idx] = data;
+    } else {
+      faqItems.push(data);
+    }
+    saveCmsToLocalStorage();
+    closeFaqModal();
+    renderAdminFaq();
+    renderFaqSection();
+  });
+})();
+
+document.getElementById('btnAddFaq')?.addEventListener('click', () => openFaqModal());
+document.getElementById('btnCloseFaqModal')?.addEventListener('click', closeFaqModal);
+document.getElementById('btnCancelFaqModal')?.addEventListener('click', closeFaqModal);
+document.getElementById('faqEditorModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('faqEditorModal')) closeFaqModal(); });
+
+// ==========================================================================
+// CMS — INQUIRIES Admin View
+// ==========================================================================
+function renderAdminInquiries() {
+  const tbody = document.getElementById('adminInquiriesTableBody');
+  if (!tbody) return;
+  let localInqs = [];
+  try { localInqs = JSON.parse(localStorage.getItem('haconet_inquiries')) || []; } catch(e) { localInqs = []; }
+  if (!Array.isArray(localInqs) || localInqs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="cms-empty-state"><i class="fa-solid fa-envelope-open-text"></i><p>No inquiries received yet.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = [...localInqs].reverse().map(inq => `<tr>
+    <td style="font-size:0.82rem;color:var(--text-muted);white-space:nowrap;">${inq.dateSubmitted || '—'}</td>
+    <td style="font-weight:600;">${inq.name || '—'}</td>
+    <td style="font-size:0.85rem;"><a href="mailto:${inq.email}" style="color:var(--accent-gold);">${inq.email || '—'}</a></td>
+    <td style="font-size:0.85rem;color:var(--text-secondary);">${inq.business || '—'}</td>
+    <td><span class="biz-cat-tag" style="font-size:0.75rem;">${inq.type || '—'}</span></td>
+    <td><div class="inq-message-cell" title="Click to expand" onclick="this.classList.toggle('expanded')">${inq.message || '—'}</div></td>
+  </tr>`).join('');
+}
+
+// Clear inquiries button
+document.getElementById('btnClearInquiries')?.addEventListener('click', () => {
+  if (!confirm('Are you sure you want to clear all inquiries? This cannot be undone.')) return;
+  localStorage.removeItem('haconet_inquiries');
+  renderAdminInquiries();
+});
+
+// ==========================================================================
+// Initialize everything
+// ==========================================================================
+// Load CMS content first
+loadCmsContent();
+
+// Render public sections from data
+renderSponsorsSection();
+renderSpeakersSection();
+renderFaqSection();
+
+// Init FAQ accordion listeners and inquiry form
 initFaqAccordion();
 initInquiryForm();
 
+// Init admin tabs (only active once admin is shown)
+initAdminTabs();
+
 // Start database fetch and initialization
 initDatabase();
+

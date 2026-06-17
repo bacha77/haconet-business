@@ -207,49 +207,8 @@
         <p id="sponsorsSubtitle">Empowered by local leaders, organizations, and businesses committed to fostering economic growth in the Haitian-American community.</p>
       </div>
       
-      <div class="sponsors-container">
-        <div class="sponsor-tier Platinum">
-          <h4 class="tier-title platinum">Platinum Sponsor</h4>
-          <div class="sponsor-grid">
-            <div class="sponsor-card platinum-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-building-columns"></i> Central Ohio Financial Group</div>
-              <p class="sponsor-desc">Providing capital and small business advisory services to minority entrepreneurs.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="sponsor-tier Gold">
-          <h4 class="tier-title gold">Gold Partners</h4>
-          <div class="sponsor-grid">
-            <div class="sponsor-card gold-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-shield-halved"></i> Columbus Enterprise Alliance</div>
-              <p class="sponsor-desc">Empowering local trade and strategic networking partnerships.</p>
-            </div>
-            <div class="sponsor-card gold-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-chart-line"></i> Greater Columbus Development Hub</div>
-              <p class="sponsor-desc">Fostering urban economic development and micro-loan programs.</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="sponsor-tier Silver">
-          <h4 class="tier-title silver">Community Supporters</h4>
-          <div class="sponsor-grid silver-grid">
-            <div class="sponsor-card community-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-briefcase"></i> Bond Enterprise LLC</div>
-            </div>
-            <div class="sponsor-card community-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-house-chimney"></i> Lakay Real Estate</div>
-            </div>
-            <div class="sponsor-card community-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-handshake-angle"></i> Ohio Hope Foundation</div>
-            </div>
-            <div class="sponsor-card community-card">
-              <div class="sponsor-logo-placeholder"><i class="fa-solid fa-scale-balanced"></i> Cadet Legal Services</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Dynamically rendered by JS renderSponsorsSection() -->
+      <div id="sponsorsContainer"></div>
     </div>
   </section>
 
@@ -380,58 +339,8 @@
         <h3 class="speakers-section-title serif-font text-gradient text-center">Speaker & Panelist Spotlight</h3>
         <p class="speakers-section-subtitle text-center">Hear from experienced Haitian-American professionals and leaders who are driving change and scaling businesses.</p>
         
-        <div class="speakers-grid">
-          <!-- Speaker 1 -->
-          <div class="speaker-card">
-            <div class="speaker-img-container">
-              <div class="speaker-img-placeholder"><i class="fa-solid fa-user-tie"></i></div>
-              <div class="speaker-socials">
-                <a href="https://linkedin.com" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin-in"></i></a>
-                <a href="https://google.com" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i></a>
-              </div>
-            </div>
-            <div class="speaker-info">
-              <h4>Dr. Fabienne Jean-Baptiste</h4>
-              <span class="speaker-role">Keynote Speaker</span>
-              <p class="speaker-company">Founder, JB Consulting & Healthcare Partners</p>
-              <p class="speaker-bio">Dr. Jean-Baptiste has over 15 years of experience in healthcare leadership and startup advising in Ohio.</p>
-            </div>
-          </div>
-          
-          <!-- Speaker 2 -->
-          <div class="speaker-card">
-            <div class="speaker-img-container">
-              <div class="speaker-img-placeholder"><i class="fa-solid fa-user-tie"></i></div>
-              <div class="speaker-socials">
-                <a href="https://linkedin.com" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin-in"></i></a>
-                <a href="https://google.com" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i></a>
-              </div>
-            </div>
-            <div class="speaker-info">
-              <h4>Marc-Antoine Fequiere</h4>
-              <span class="speaker-role">Moderator / Panelist</span>
-              <p class="speaker-company">Executive Director, HACONET</p>
-              <p class="speaker-bio">Marc is a tireless advocate for civic access, resource translation, and business mentorship for Columbus families.</p>
-            </div>
-          </div>
-          
-          <!-- Speaker 3 -->
-          <div class="speaker-card">
-            <div class="speaker-img-container">
-              <div class="speaker-img-placeholder"><i class="fa-solid fa-user-tie"></i></div>
-              <div class="speaker-socials">
-                <a href="https://linkedin.com" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin-in"></i></a>
-                <a href="https://google.com" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i></a>
-              </div>
-            </div>
-            <div class="speaker-info">
-              <h4>Marie-Cecile Augustin</h4>
-              <span class="speaker-role">Panelist</span>
-              <p class="speaker-company">CEO, Augustin Tax & Financial Advisory</p>
-              <p class="speaker-bio">Marie-Cecile helps minority business owners unlock capital, secure tax grants, and plan sustainable business transitions.</p>
-            </div>
-          </div>
-        </div>
+        <!-- Dynamically rendered by JS renderSpeakersSection() -->
+        <div class="speakers-grid" id="speakersGrid"></div>
       </div>
       
       <div class="event-meta-cards" id="eventMetaCardsGrid">
@@ -897,72 +806,8 @@
         <p id="faqSubtitle">Find answers to common questions about ticket registrations, vendor tables, and event attendance.</p>
       </div>
 
-      <div class="faq-accordion-container" id="faqAccordion">
-        <!-- FAQ 1 -->
-        <div class="faq-item">
-          <button class="faq-header" aria-expanded="false">
-            <span>Is the HACONET Business Meet & Greet free to attend?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div class="faq-body">
-            <div class="faq-content">
-              <p>Yes, general attendance is free! However, registration is strictly required to secure your ticket and receive location coordinates and agenda updates. Business exhibitors requesting vendor booths have a separate table setup process.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- FAQ 2 -->
-        <div class="faq-item">
-          <button class="faq-header" aria-expanded="false">
-            <span>How do I reserve a vendor display/exhibitor table?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div class="faq-body">
-            <div class="faq-content">
-              <p>You can request a display table during the online registration process. On Step 3 of the Registration Form, select "Yes" under the "Would you like a vendor/display table?" option and specify if you require electrical outlets. We will review your submission and email you confirmation with booth details.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- FAQ 3 -->
-        <div class="faq-item">
-          <button class="faq-header" aria-expanded="false">
-            <span>Where is the event located, and is parking available?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div class="faq-body">
-            <div class="faq-content">
-              <p>The event is hosted at the DoubleTree by Hilton Columbus Downtown, located in Central Columbus, OH. Valet parking is available at the hotel entrance, and several self-parking garages/metered spots are located within walking distance of the venue.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- FAQ 4 -->
-        <div class="faq-item">
-          <button class="faq-header" aria-expanded="false">
-            <span>Can I attend if my business is not yet established?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div class="faq-body">
-            <div class="faq-content">
-              <p>Absolutely! The event is open to aspiring entrepreneurs, community members, professionals, and students. It is a perfect space to find mentorship, gather ideas, and meet strategic business partners.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- FAQ 5 -->
-        <div class="faq-item">
-          <button class="faq-header" aria-expanded="false">
-            <span>What is the dress code for the networking event?</span>
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-          <div class="faq-body">
-            <div class="faq-content">
-              <p>The dress code is business professional or smart casual. We encourage you to dress to impress as you will be networking directly with potential clients, investors, and local leaders.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Dynamically rendered by JS renderFaqSection() -->
+      <div class="faq-accordion-container" id="faqAccordion"></div>
     </div>
   </section>
 
@@ -1037,21 +882,24 @@
        ========================================================================== -->
   <section class="admin-section" id="adminDashboard">
     <div class="container">
+
+      <!-- Admin Header -->
       <div class="admin-header-row" id="adminHeaderRow">
         <div>
           <h2 class="serif-font text-gradient" id="adminTitle">HACONET Admin Portal</h2>
-          <p style="color: var(--text-secondary);" id="adminSubtitle">View registrations and download attendee database.</p>
+          <p style="color: var(--text-secondary);" id="adminSubtitle">Manage attendees, sponsors, speakers, FAQ, and inquiries.</p>
         </div>
-        <div style="display: flex; gap: 1rem; align-items: center;" id="adminActionsContainer">
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;" id="adminActionsContainer">
           <button class="btn btn-outline-gold" id="btnExportCSV">
-            <i class="fa-solid fa-file-csv"></i> Export Attendee Data (CSV)
+            <i class="fa-solid fa-file-csv"></i> Export Attendees (CSV)
           </button>
           <button class="btn btn-red" id="btnAdminLogout">
             <i class="fa-solid fa-right-from-bracket"></i> Logout
           </button>
         </div>
       </div>
-      
+
+      <!-- Stats Grid -->
       <div class="admin-stats-grid" id="adminStatsGrid">
         <div class="admin-stat-card" id="statCardTotal">
           <div class="admin-stat-icon blue" id="statIconTotal"><i class="fa-solid fa-users"></i></div>
@@ -1060,7 +908,6 @@
             <div class="admin-stat-lbl">Registrations</div>
           </div>
         </div>
-        
         <div class="admin-stat-card" id="statCardExhibitors">
           <div class="admin-stat-icon" id="statIconExhibitors"><i class="fa-solid fa-store"></i></div>
           <div class="admin-stat-info">
@@ -1068,7 +915,6 @@
             <div class="admin-stat-lbl">Exhibitors</div>
           </div>
         </div>
-        
         <div class="admin-stat-card" id="statCardPower">
           <div class="admin-stat-icon red" id="statIconPower"><i class="fa-solid fa-plug"></i></div>
           <div class="admin-stat-info">
@@ -1076,7 +922,6 @@
             <div class="admin-stat-lbl">Need Power</div>
           </div>
         </div>
-        
         <div class="admin-stat-card" id="statCardConsent">
           <div class="admin-stat-icon blue" id="statIconConsent"><i class="fa-solid fa-check-double"></i></div>
           <div class="admin-stat-info">
@@ -1084,7 +929,6 @@
             <div class="admin-stat-lbl">In Directory</div>
           </div>
         </div>
-        
         <div class="admin-stat-card" id="statCardCheckedIn">
           <div class="admin-stat-icon blue" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71;" id="statIconCheckedIn"><i class="fa-solid fa-user-check"></i></div>
           <div class="admin-stat-info">
@@ -1093,38 +937,293 @@
           </div>
         </div>
       </div>
-      
-      <div class="admin-table-card" id="adminTableCard">
-        <div class="admin-table-header" id="adminTableHeader">
-          <h3 id="adminTableTitle">Registered Attendees</h3>
-          <span style="font-size: 0.85rem; color: var(--text-muted);" id="adminTableCountLabel">Showing all listings</span>
-        </div>
-        
-        <div class="admin-table-container" id="adminTableContainer">
-          <table class="admin-table" id="adminAttendeeTable">
-            <thead>
-              <tr>
-                <th>Registration ID</th>
-                <th>Business Name</th>
-                <th>Representative</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Industry</th>
-                <th>Exhibitor</th>
-                <th>Power</th>
-                <th>Consent</th>
-                <th>Checked In</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="adminAttendeeTableBody">
-              <!-- JS populates rows dynamically -->
-            </tbody>
-          </table>
+
+      <!-- Admin CMS Tabs -->
+      <div class="admin-tabs-nav" id="adminTabsNav" role="tablist">
+        <button class="admin-tab-btn active" data-tab="attendees" id="adminTabAttendees" role="tab" aria-selected="true">
+          <i class="fa-solid fa-users"></i> Attendees
+        </button>
+        <button class="admin-tab-btn" data-tab="sponsors" id="adminTabSponsors" role="tab" aria-selected="false">
+          <i class="fa-solid fa-trophy"></i> Sponsors
+        </button>
+        <button class="admin-tab-btn" data-tab="speakers" id="adminTabSpeakers" role="tab" aria-selected="false">
+          <i class="fa-solid fa-microphone"></i> Speakers
+        </button>
+        <button class="admin-tab-btn" data-tab="faq" id="adminTabFaq" role="tab" aria-selected="false">
+          <i class="fa-solid fa-circle-question"></i> FAQ
+        </button>
+        <button class="admin-tab-btn" data-tab="inquiries" id="adminTabInquiries" role="tab" aria-selected="false">
+          <i class="fa-solid fa-envelope-open-text"></i> Inquiries
+        </button>
+      </div>
+
+      <!-- TAB PANEL: Attendees -->
+      <div class="admin-tab-panel active" id="adminPanelAttendees" role="tabpanel">
+        <div class="admin-table-card" id="adminTableCard">
+          <div class="admin-table-header" id="adminTableHeader">
+            <h3 id="adminTableTitle">Registered Attendees</h3>
+            <span style="font-size: 0.85rem; color: var(--text-muted);" id="adminTableCountLabel">Showing all listings</span>
+          </div>
+          <div class="admin-table-container" id="adminTableContainer">
+            <table class="admin-table" id="adminAttendeeTable">
+              <thead>
+                <tr>
+                  <th>Reg ID</th>
+                  <th>Business Name</th>
+                  <th>Representative</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Industry</th>
+                  <th>Exhibitor</th>
+                  <th>Power</th>
+                  <th>Consent</th>
+                  <th>Checked In</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminAttendeeTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </div>
+
+      <!-- TAB PANEL: Sponsors -->
+      <div class="admin-tab-panel" id="adminPanelSponsors" role="tabpanel">
+        <div class="admin-cms-card">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-trophy"></i> Sponsor Management</h3>
+            <button class="btn btn-gold btn-sm" id="btnAddSponsor">
+              <i class="fa-solid fa-plus"></i> Add Sponsor
+            </button>
+          </div>
+          <div class="admin-table-container">
+            <table class="admin-table" id="adminSponsorsTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Tier</th>
+                  <th>Description</th>
+                  <th>Website</th>
+                  <th style="text-align:center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminSponsorsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PANEL: Speakers -->
+      <div class="admin-tab-panel" id="adminPanelSpeakers" role="tabpanel">
+        <div class="admin-cms-card">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-microphone"></i> Speaker &amp; Panelist Management</h3>
+            <button class="btn btn-gold btn-sm" id="btnAddSpeaker">
+              <i class="fa-solid fa-plus"></i> Add Speaker
+            </button>
+          </div>
+          <div class="admin-table-container">
+            <table class="admin-table" id="adminSpeakersTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Company / Organization</th>
+                  <th>Bio</th>
+                  <th style="text-align:center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminSpeakersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PANEL: FAQ -->
+      <div class="admin-tab-panel" id="adminPanelFaq" role="tabpanel">
+        <div class="admin-cms-card">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-circle-question"></i> FAQ Management</h3>
+            <button class="btn btn-gold btn-sm" id="btnAddFaq">
+              <i class="fa-solid fa-plus"></i> Add FAQ
+            </button>
+          </div>
+          <div id="adminFaqList" class="admin-faq-list"></div>
+        </div>
+      </div>
+
+      <!-- TAB PANEL: Inquiries -->
+      <div class="admin-tab-panel" id="adminPanelInquiries" role="tabpanel">
+        <div class="admin-cms-card">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-envelope-open-text"></i> Contact Inquiries Inbox</h3>
+            <button class="btn btn-red btn-sm" id="btnClearInquiries">
+              <i class="fa-solid fa-trash"></i> Clear All
+            </button>
+          </div>
+          <div class="admin-table-container">
+            <table class="admin-table" id="adminInquiriesTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Business</th>
+                  <th>Type</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody id="adminInquiriesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
+
+  <!-- =====================================================================
+       CMS Editor Modals
+       ===================================================================== -->
+
+  <!-- Sponsor Editor Modal -->
+  <div class="modal-overlay" id="sponsorEditorModal">
+    <div class="modal-box" style="max-width: 540px;" id="sponsorEditorModalBox">
+      <button class="modal-close-btn" id="btnCloseSponsorModal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-header">
+        <h3 id="sponsorModalTitle">Add Sponsor</h3>
+      </div>
+      <div class="modal-body">
+        <form id="sponsorEditorForm" novalidate>
+          <input type="hidden" id="sponsorEditId">
+          <div class="form-group">
+            <label for="sponsorName">Sponsor Name <span class="required">*</span></label>
+            <input type="text" id="sponsorName" class="form-control" placeholder="e.g. Columbus Financial Group">
+            <span class="form-error-msg" id="errSponsorName">Name is required.</span>
+          </div>
+          <div class="form-group">
+            <label for="sponsorTier">Sponsorship Tier <span class="required">*</span></label>
+            <select id="sponsorTier" class="form-control">
+              <option value="" disabled selected>Select tier...</option>
+              <option value="Platinum">Platinum</option>
+              <option value="Gold">Gold</option>
+              <option value="Community">Community Supporter</option>
+            </select>
+            <span class="form-error-msg" id="errSponsorTier">Please select a tier.</span>
+          </div>
+          <div class="form-group">
+            <label for="sponsorDesc">Description</label>
+            <input type="text" id="sponsorDesc" class="form-control" placeholder="Short description of their contribution">
+          </div>
+          <div class="form-group">
+            <label for="sponsorIcon">FontAwesome Icon Class</label>
+            <input type="text" id="sponsorIcon" class="form-control" placeholder="e.g. fa-solid fa-building-columns">
+            <small style="color:var(--text-muted);">Find icons at fontawesome.com/icons</small>
+          </div>
+          <div class="form-group">
+            <label for="sponsorWebsite">Website URL</label>
+            <input type="url" id="sponsorWebsite" class="form-control" placeholder="https://example.com">
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:1.5rem;">
+            <button type="button" class="btn btn-secondary" id="btnCancelSponsorModal">Cancel</button>
+            <button type="submit" class="btn btn-gold" id="btnSaveSponsor"><i class="fa-solid fa-floppy-disk"></i> Save Sponsor</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Speaker Editor Modal -->
+  <div class="modal-overlay" id="speakerEditorModal">
+    <div class="modal-box" style="max-width: 560px;" id="speakerEditorModalBox">
+      <button class="modal-close-btn" id="btnCloseSpeakerModal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-header">
+        <h3 id="speakerModalTitle">Add Speaker</h3>
+      </div>
+      <div class="modal-body">
+        <form id="speakerEditorForm" novalidate>
+          <input type="hidden" id="speakerEditId">
+          <div class="form-group">
+            <label for="speakerName">Full Name <span class="required">*</span></label>
+            <input type="text" id="speakerName" class="form-control" placeholder="e.g. Dr. Marie Dupont">
+            <span class="form-error-msg" id="errSpeakerName">Name is required.</span>
+          </div>
+          <div class="form-group">
+            <label for="speakerRole">Role <span class="required">*</span></label>
+            <select id="speakerRole" class="form-control">
+              <option value="" disabled selected>Select role...</option>
+              <option value="Keynote Speaker">Keynote Speaker</option>
+              <option value="Moderator">Moderator</option>
+              <option value="Panelist">Panelist</option>
+              <option value="Moderator / Panelist">Moderator / Panelist</option>
+              <option value="Guest Speaker">Guest Speaker</option>
+            </select>
+            <span class="form-error-msg" id="errSpeakerRole">Please select a role.</span>
+          </div>
+          <div class="form-group">
+            <label for="speakerCompany">Company / Organization</label>
+            <input type="text" id="speakerCompany" class="form-control" placeholder="e.g. CEO, Haitian Business Corp">
+          </div>
+          <div class="form-group">
+            <label for="speakerBio">Short Bio</label>
+            <textarea id="speakerBio" class="form-control" placeholder="A brief description of this speaker's background and expertise..." rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="speakerPhoto">Photo URL (optional)</label>
+            <input type="url" id="speakerPhoto" class="form-control" placeholder="https://example.com/photo.jpg">
+            <small style="color:var(--text-muted);">Paste a direct image link. Leave blank to use icon placeholder.</small>
+          </div>
+          <div class="form-group">
+            <label for="speakerLinkedin">LinkedIn URL</label>
+            <input type="url" id="speakerLinkedin" class="form-control" placeholder="https://linkedin.com/in/...">
+          </div>
+          <div class="form-group">
+            <label for="speakerWebsite">Website URL</label>
+            <input type="url" id="speakerWebsite" class="form-control" placeholder="https://example.com">
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:1.5rem;">
+            <button type="button" class="btn btn-secondary" id="btnCancelSpeakerModal">Cancel</button>
+            <button type="submit" class="btn btn-gold" id="btnSaveSpeaker"><i class="fa-solid fa-floppy-disk"></i> Save Speaker</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Editor Modal -->
+  <div class="modal-overlay" id="faqEditorModal">
+    <div class="modal-box" style="max-width: 560px;" id="faqEditorModalBox">
+      <button class="modal-close-btn" id="btnCloseFaqModal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-header">
+        <h3 id="faqModalTitle">Add FAQ Entry</h3>
+      </div>
+      <div class="modal-body">
+        <form id="faqEditorForm" novalidate>
+          <input type="hidden" id="faqEditId">
+          <div class="form-group">
+            <label for="faqQuestion">Question <span class="required">*</span></label>
+            <input type="text" id="faqQuestion" class="form-control" placeholder="e.g. Is the event free to attend?">
+            <span class="form-error-msg" id="errFaqQuestion">Question is required.</span>
+          </div>
+          <div class="form-group">
+            <label for="faqAnswer">Answer <span class="required">*</span></label>
+            <textarea id="faqAnswer" class="form-control" rows="5" placeholder="Detailed answer to the question..."></textarea>
+            <span class="form-error-msg" id="errFaqAnswer">Answer is required.</span>
+          </div>
+          <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:1.5rem;">
+            <button type="button" class="btn btn-secondary" id="btnCancelFaqModal">Cancel</button>
+            <button type="submit" class="btn btn-gold" id="btnSaveFaq"><i class="fa-solid fa-floppy-disk"></i> Save FAQ</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- ==========================================================================
        Footer Section
