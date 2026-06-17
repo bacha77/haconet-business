@@ -245,6 +245,9 @@ async function initDatabase() {
     renderAdminAttendeeList();
   }
   
+  // Check URL parameters for focus registration kiosk mode
+  checkUrlParamsForFocusReg();
+
   // Check URL parameters for any ticket check-ins
   await checkUrlParamsForCheckin();
 }
@@ -1668,10 +1671,18 @@ async function checkUrlParamsForCheckin() {
   checkinModal.addEventListener('click', overlayClick);
 }
 
+// Check URL parameters for kiosk registration mode
+function checkUrlParamsForFocusReg() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('register') === 'true') {
+    document.body.classList.add('focus-registration');
+  }
+}
+
 // Render registration QR code on load
 const mobileRegQrImg = document.getElementById('mobileRegQrImg');
 if (mobileRegQrImg) {
-  const regUrl = `${window.location.origin}${window.location.pathname}#register`;
+  const regUrl = `${window.location.origin}${window.location.pathname}?register=true`;
   mobileRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(regUrl)}`;
 }
 

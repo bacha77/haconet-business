@@ -2302,3 +2302,36 @@ textarea.form-control {
 .qr-mobile-footer i {
   color: var(--accent-gold);
 }
+
+/* ==========================================================================
+   Focus Registration (Kiosk Mode) Styling
+   ========================================================================== */
+body.focus-registration header,
+body.focus-registration section:not(.registration-section),
+body.focus-registration footer {
+  display: none !important;
+}
+
+body.focus-registration .registration-section {
+  padding: 2rem 0 !important;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary) !important;
+}
+
+body.focus-registration .focus-logo-container {
+  display: block !important;
+}
+
+body.focus-registration .focus-exit-link {
+  display: block !important;
+}
+
+body.focus-registration .registration-layout-grid {
+  grid-template-columns: 1fr !important;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
