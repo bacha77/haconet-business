@@ -2276,6 +2276,7 @@ function initAdminTabs() {
       else if (target === 'speakers') renderAdminSpeakers();
       else if (target === 'faq') renderAdminFaq();
       else if (target === 'inquiries') renderAdminInquiries();
+      else if (target === 'directory') renderAdminDirectory();
     });
   });
 }
@@ -2283,6 +2284,181 @@ function initAdminTabs() {
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// ==========================================================================
+// CMS — DIRECTORY Admin View & CRUD
+// ==========================================================================
+function renderAdminDirectory() {
+  const tbody = document.getElementById('adminDirectoryTableBody');
+  if (!tbody) return;
+  if (!businesses || businesses.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="cms-empty-state"><i class="fa-solid fa-address-book"></i><p>No businesses yet. Click "Add Business" to get started.</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = businesses.map(b => `<tr>
+    <td style="font-weight:600;">${b.name}</td>
+    <td>${b.owner || '—'} <span style="font-size:0.8rem;color:var(--text-muted);display:block;">${b.title || ''}</span></td>
+    <td><span class="biz-cat-tag">${b.category || 'Other'}</span></td>
+    <td style="color:var(--text-secondary);font-size:0.85rem;">${b.phone || '—'}</td>
+    <td><div class="cms-actions">
+      <button class="btn-icon edit" title="Edit" onclick="openBusinessModal('${b.id}')"><i class="fa-solid fa-pen"></i></button>
+      <button class="btn-icon delete" title="Delete" onclick="deleteBusiness('${b.id}')"><i class="fa-solid fa-trash"></i></button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function openBusinessModal(id = null) {
+  const modal = document.getElementById('businessEditorModal');
+  const title = document.getElementById('businessModalTitle');
+  const form = document.getElementById('businessEditorForm');
+  form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
+  form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
+
+  if (id) {
+    const biz = businesses.find(x => x.id === id);
+    if (!biz) return;
+    title.textContent = 'Edit Business';
+    document.getElementById('businessEditId').value = biz.id;
+    document.getElementById('businessName').value = biz.name || '';
+    document.getElementById('businessOwner').value = biz.owner || '';
+    document.getElementById('businessTitle').value = biz.title || '';
+    document.getElementById('businessCategory').value = biz.category || 'Other';
+    document.getElementById('businessPhone').value = biz.phone || '';
+    document.getElementById('businessEmail').value = biz.email || '';
+    document.getElementById('businessWebsite').value = biz.website || '';
+    document.getElementById('businessAddress').value = biz.address || '';
+    document.getElementById('businessEstablished').value = biz.established || '';
+    document.getElementById('businessDescription').value = biz.description || '';
+    
+    let interestsStr = '';
+    if (Array.isArray(biz.interests)) {
+      interestsStr = biz.interests.join(', ');
+    } else if (typeof biz.interests === 'string') {
+      try {
+        const arr = JSON.parse(biz.interests);
+        if (Array.isArray(arr)) interestsStr = arr.join(', ');
+      } catch(e) {
+        interestsStr = biz.interests;
+      }
+    }
+    document.getElementById('businessInterests').value = interestsStr;
+  } else {
+    title.textContent = 'Add Business';
+    document.getElementById('businessEditId').value = '';
+    form.reset();
+  }
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeBusinessModal() {
+  document.getElementById('businessEditorModal').classList.remove('open');
+  document.body.style.overflow = 'auto';
+}
+
+async function deleteBusiness(id) {
+  if (!confirm('Are you sure you want to delete this business?')) return;
+  const oldBusinesses = [...businesses];
+  businesses = businesses.filter(x => x.id !== id);
+  renderAdminDirectory();
+  renderDirectory();
+  
+  if (useSupabase && supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from('businesses').delete().eq('id', id);
+      if (error) throw error;
+    } catch(e) {
+      console.warn("Supabase delete failed, restoring local state.", e);
+      alert("Failed to delete business from cloud.");
+      businesses = oldBusinesses;
+      renderAdminDirectory();
+      renderDirectory();
+    }
+  } else {
+    localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+  }
+}
+
+document.getElementById('businessEditorForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  let isValid = true;
+  const nameInput = document.getElementById('businessName');
+  if (!nameInput.value.trim()) { nameInput.classList.add('error'); nameInput.nextElementSibling.style.display = 'block'; isValid = false; }
+  const ownerInput = document.getElementById('businessOwner');
+  if (!ownerInput.value.trim()) { ownerInput.classList.add('error'); ownerInput.nextElementSibling.style.display = 'block'; isValid = false; }
+  const categoryInput = document.getElementById('businessCategory');
+  if (!categoryInput.value) { categoryInput.classList.add('error'); categoryInput.nextElementSibling.style.display = 'block'; isValid = false; }
+
+  if (!isValid) return;
+
+  const idInput = document.getElementById('businessEditId').value;
+  const isNew = !idInput;
+  const bizId = isNew ? 'biz-' + Date.now() : idInput;
+
+  let interestsArr = [];
+  const interestsVal = document.getElementById('businessInterests').value.trim();
+  if (interestsVal) {
+    interestsArr = interestsVal.split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  const bizObj = {
+    id: bizId,
+    name: nameInput.value.trim(),
+    owner: ownerInput.value.trim(),
+    title: document.getElementById('businessTitle').value.trim(),
+    category: categoryInput.value,
+    phone: document.getElementById('businessPhone').value.trim(),
+    email: document.getElementById('businessEmail').value.trim(),
+    website: document.getElementById('businessWebsite').value.trim(),
+    address: document.getElementById('businessAddress').value.trim(),
+    established: document.getElementById('businessEstablished').value.trim(),
+    description: document.getElementById('businessDescription').value.trim(),
+    interests: interestsArr
+  };
+
+  const btn = document.getElementById('btnSaveBusiness');
+  const originalText = btn.textContent;
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  if (isNew) {
+    businesses.push(bizObj);
+  } else {
+    const idx = businesses.findIndex(x => x.id === bizId);
+    if (idx > -1) businesses[idx] = bizObj;
+  }
+
+  if (useSupabase && supabaseClient) {
+    try {
+      // the interests array in Supabase is stored as jsonb string or array depending on schema
+      // businesses table currently receives array if mapped, but if the table expects jsonb:
+      const dbObj = { ...bizObj, interests: JSON.stringify(bizObj.interests) };
+      const { error } = await supabaseClient.from('businesses').upsert(dbObj);
+      if (error) throw error;
+    } catch(err) {
+      console.warn("Failed to sync business to Supabase", err);
+      // Revert if new
+      if (isNew) businesses.pop();
+      alert("Failed to save to cloud.");
+      btn.textContent = originalText;
+      btn.disabled = false;
+      return;
+    }
+  } else {
+    localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+  }
+
+  closeBusinessModal();
+  renderAdminDirectory();
+  renderDirectory();
+  btn.textContent = originalText;
+  btn.disabled = false;
+});
+
+document.getElementById('btnAddBusiness')?.addEventListener('click', () => openBusinessModal());
+document.getElementById('btnCloseBusinessModal')?.addEventListener('click', closeBusinessModal);
+document.getElementById('btnCancelBusinessModal')?.addEventListener('click', closeBusinessModal);
+document.getElementById('businessEditorModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('businessEditorModal')) closeBusinessModal(); });
 
 // ==========================================================================
 // CMS — SPONSORS Admin View & CRUD

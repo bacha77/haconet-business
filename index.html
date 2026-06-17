@@ -943,6 +943,9 @@
         <button class="admin-tab-btn active" data-tab="attendees" id="adminTabAttendees" role="tab" aria-selected="true">
           <i class="fa-solid fa-users"></i> Attendees
         </button>
+        <button class="admin-tab-btn" data-tab="directory" id="adminTabDirectory" role="tab" aria-selected="false">
+          <i class="fa-solid fa-address-book"></i> Directory
+        </button>
         <button class="admin-tab-btn" data-tab="sponsors" id="adminTabSponsors" role="tab" aria-selected="false">
           <i class="fa-solid fa-trophy"></i> Sponsors
         </button>
@@ -982,6 +985,32 @@
                 </tr>
               </thead>
               <tbody id="adminAttendeeTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PANEL: Directory -->
+      <div class="admin-tab-panel" id="adminPanelDirectory" role="tabpanel">
+        <div class="admin-cms-card">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-address-book"></i> Business Directory Management</h3>
+            <button class="btn btn-gold btn-sm" id="btnAddBusiness">
+              <i class="fa-solid fa-plus"></i> Add Business
+            </button>
+          </div>
+          <div class="admin-table-container">
+            <table class="admin-table" id="adminDirectoryTable">
+              <thead>
+                <tr>
+                  <th>Business Name</th>
+                  <th>Owner</th>
+                  <th>Category</th>
+                  <th>Phone</th>
+                  <th style="text-align:center;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminDirectoryTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -1088,6 +1117,99 @@
        ===================================================================== -->
 
   <!-- Sponsor Editor Modal -->
+  <!-- BUSINESS EDITOR MODAL -->
+  <div class="modal-overlay" id="businessEditorModal">
+    <div class="modal-box" style="max-width: 600px;" id="businessEditorModalBox">
+      <button class="modal-close-btn" id="btnCloseBusinessModal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-header">
+        <h3 id="businessModalTitle">Add Business</h3>
+      </div>
+      <div class="modal-body">
+        <form id="businessEditorForm">
+          <input type="hidden" id="businessEditId">
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="businessName">Business Name <span class="required">*</span></label>
+              <input type="text" id="businessName" class="form-control" required>
+              <span class="form-error-msg">Business name is required.</span>
+            </div>
+            <div class="form-group">
+              <label for="businessCategory">Category <span class="required">*</span></label>
+              <select id="businessCategory" class="form-control" required>
+                <option value="">Select a Category</option>
+                <option value="Food & Beverage">Food & Beverage</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Retail">Retail</option>
+                <option value="Construction">Construction</option>
+                <option value="Financial Services">Financial Services</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="form-error-msg">Category is required.</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="businessOwner">Owner Name <span class="required">*</span></label>
+              <input type="text" id="businessOwner" class="form-control" required>
+              <span class="form-error-msg">Owner name is required.</span>
+            </div>
+            <div class="form-group">
+              <label for="businessTitle">Owner Title</label>
+              <input type="text" id="businessTitle" class="form-control" placeholder="e.g. Founder, CEO">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="businessPhone">Phone</label>
+              <input type="tel" id="businessPhone" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="businessEmail">Email</label>
+              <input type="email" id="businessEmail" class="form-control">
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="businessWebsite">Website/Social URL</label>
+            <input type="url" id="businessWebsite" class="form-control" placeholder="https://...">
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="businessAddress">Physical Address</label>
+              <input type="text" id="businessAddress" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="businessEstablished">Year Established</label>
+              <input type="number" id="businessEstablished" class="form-control" placeholder="e.g. 2015">
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="businessDescription">Description</label>
+            <textarea id="businessDescription" class="form-control" rows="3"></textarea>
+          </div>
+
+          <div class="form-group full-width" style="margin-bottom: 1.5rem;">
+            <label for="businessInterests">Networking Interests (comma separated)</label>
+            <input type="text" id="businessInterests" class="form-control" placeholder="e.g. Mentorship, Finding Clients, Hiring">
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+            <button type="button" class="btn btn-secondary" id="btnCancelBusinessModal">Cancel</button>
+            <button type="submit" class="btn btn-gold" id="btnSaveBusiness">Save Business</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPONSOR EDITOR MODAL -->
   <div class="modal-overlay" id="sponsorEditorModal">
     <div class="modal-box" style="max-width: 540px;" id="sponsorEditorModalBox">
       <button class="modal-close-btn" id="btnCloseSponsorModal" aria-label="Close">
