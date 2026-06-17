@@ -2510,12 +2510,6 @@ function renderAdminSpeakers() {
   </tr>`).join('');
 }
 
-function openSpeakerModal(id = null) {
-  const modal = document.getElementById('speakerEditorModal');
-  const title = document.getElementById('speakerModalTitle');
-  const form = document.getElementById('speakerEditorForm');
-  form.querySelectorAll('.form-control').forEach(el => el.classList.remove('error'));
-  form.querySelectorAll('.form-error-msg').forEach(el => el.style.display = 'none');
 
 function _setSpeakerPhotoPreview(dataUrl) {
   const previewBox = document.getElementById('speakerPhotoPreviewBox');
