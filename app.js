@@ -255,6 +255,7 @@ const adminDashboard = document.getElementById('adminDashboard');
 const toggleAdminBtn = document.getElementById('toggleAdminBtn');
 const adminTableBody = document.getElementById('adminAttendeeTableBody');
 const btnExportCSV = document.getElementById('btnExportCSV');
+const btnAdminLogout = document.getElementById('btnAdminLogout');
 
 // Stats Counters
 const statTotalRegistrations = document.getElementById('statTotalRegistrations');
@@ -1590,6 +1591,20 @@ if (toggleAdminBtn) {
       } else {
         alert("Incorrect passcode. Access denied.");
       }
+    }
+  });
+}
+
+// Admin Logout functionality
+if (btnAdminLogout) {
+  btnAdminLogout.addEventListener('click', () => {
+    if (adminDashboard) {
+      adminDashboard.style.display = 'none';
+      if (toggleAdminBtn) {
+        toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Staff Login';
+      }
+      alert("You have logged out of the HACONET Admin Portal.");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   });
 }

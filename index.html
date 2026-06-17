@@ -654,9 +654,14 @@
           <h2 class="serif-font text-gradient" id="adminTitle">HACONET Admin Portal</h2>
           <p style="color: var(--text-secondary);" id="adminSubtitle">View registrations and download attendee database.</p>
         </div>
-        <button class="btn btn-outline-gold" id="btnExportCSV">
-          <i class="fa-solid fa-file-csv"></i> Export Attendee Data (CSV)
-        </button>
+        <div style="display: flex; gap: 1rem; align-items: center;" id="adminActionsContainer">
+          <button class="btn btn-outline-gold" id="btnExportCSV">
+            <i class="fa-solid fa-file-csv"></i> Export Attendee Data (CSV)
+          </button>
+          <button class="btn btn-red" id="btnAdminLogout">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
       </div>
       
       <div class="admin-stats-grid" id="adminStatsGrid">
@@ -1102,6 +1107,6 @@
   </div>
 
   <!-- Javascript File -->
-  <script src="app.js?v=2.5.0"></script>
+  <script src="app.js?v=2.5.1"></script>
 </body>
 </html>
