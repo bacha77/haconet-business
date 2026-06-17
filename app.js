@@ -194,6 +194,7 @@ let useSupabase = false;
 let businesses = [];
 let registrations = [];
 let eventSettings = null;
+let legalDocs = null;
 
 try {
   if (window.supabase) {
@@ -373,6 +374,14 @@ async function initDatabase() {
           applyEventSettings(eventSettings);
         }
       } catch(e) { console.warn("Could not load event settings from DB", e); }
+
+      // Fetch Legal Docs
+      try {
+        let { data: legData, error: legErr } = await supabaseClient.from('legal_docs').select('*').limit(1);
+        if (!legErr && legData && legData.length > 0) {
+          legalDocs = legData[0];
+        }
+      } catch(e) { console.warn("Could not load legal docs from DB", e); }
 
       useSupabase = true;
       console.log("Connected to Supabase database successfully!");
@@ -2288,6 +2297,7 @@ function initAdminTabs() {
       else if (target === 'inquiries') renderAdminInquiries();
       else if (target === 'directory') renderAdminDirectory();
       else if (target === 'settings') renderAdminSettings();
+      else if (target === 'legal') renderAdminLegal();
     });
   });
 }
@@ -2554,6 +2564,84 @@ document.getElementById('adminSettingsForm')?.addEventListener('submit', async (
 
   btn.textContent = originalText;
   btn.disabled = false;
+});
+
+// ==========================================================================
+// CMS — LEGAL DOCS Admin View & Logic
+// ==========================================================================
+
+function renderAdminLegal() {
+  if (!legalDocs) {
+    document.getElementById('legalPrivacyText').value = '';
+    document.getElementById('legalTermsText').value = '';
+  } else {
+    document.getElementById('legalPrivacyText').value = legalDocs.privacyText || '';
+    document.getElementById('legalTermsText').value = legalDocs.termsText || '';
+  }
+}
+
+document.getElementById('adminLegalForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnSaveLegalDocs');
+  const originalText = btn.textContent;
+  btn.textContent = 'Saving...';
+  btn.disabled = true;
+
+  const newDocs = {
+    id: 'global',
+    privacyText: document.getElementById('legalPrivacyText').value.trim(),
+    termsText: document.getElementById('legalTermsText').value.trim()
+  };
+
+  if (useSupabase && supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from('legal_docs').upsert([newDocs]);
+      if (error) throw error;
+      legalDocs = newDocs;
+      alert("Legal documents saved to database successfully!");
+    } catch(err) {
+      console.warn("Failed to sync legal docs to Supabase", err);
+      alert("Failed to save. Make sure the legal_docs table exists in Supabase.");
+    }
+  } else {
+    legalDocs = newDocs;
+    localStorage.setItem('haconet_legal_docs', JSON.stringify(newDocs));
+    alert("Legal documents saved locally!");
+  }
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+});
+
+// PUBLIC LEGAL MODAL LOGIC
+function openLegalModal(title, content) {
+  const modal = document.getElementById('legalModal');
+  document.getElementById('legalModalTitle').innerText = title;
+  document.getElementById('legalModalContent').innerHTML = content || '<p>Content not available.</p>';
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLegalModal() {
+  document.getElementById('legalModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('btnCloseLegalModal')?.addEventListener('click', closeLegalModal);
+document.getElementById('legalModal')?.addEventListener('click', (e) => {
+  if (e.target === document.getElementById('legalModal')) closeLegalModal();
+});
+
+document.getElementById('linkPrivacy')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const content = legalDocs?.privacyText || '<p>Privacy Policy has not been set yet.</p>';
+  openLegalModal('Privacy Policy', content);
+});
+
+document.getElementById('linkTerms')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  const content = legalDocs?.termsText || '<p>Terms of Service have not been set yet.</p>';
+  openLegalModal('Terms of Service', content);
 });
 
 // ==========================================================================

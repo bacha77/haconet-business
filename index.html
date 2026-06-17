@@ -961,6 +961,9 @@
         <button class="admin-tab-btn" data-tab="settings" id="adminTabSettings" role="tab" aria-selected="false">
           <i class="fa-solid fa-gear"></i> Settings
         </button>
+        <button class="admin-tab-btn" data-tab="legal" id="adminTabLegal" role="tab" aria-selected="false">
+          <i class="fa-solid fa-scale-balanced"></i> Legal
+        </button>
       </div>
 
       <!-- TAB PANEL: Settings -->
@@ -1004,6 +1007,30 @@
               </div>
               <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
                 <button type="submit" class="btn btn-gold" id="btnSaveSettings">Save Settings</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PANEL: Legal Docs -->
+      <div class="admin-tab-panel" id="adminPanelLegal" role="tabpanel">
+        <div class="admin-cms-card" style="max-width: 800px; margin: 0 auto;">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-scale-balanced"></i> Legal Documents</h3>
+          </div>
+          <div class="admin-table-container" style="padding: 1.5rem;">
+            <form id="adminLegalForm">
+              <div class="form-group full-width">
+                <label for="legalPrivacyText">Privacy Policy Content (Supports HTML formatting)</label>
+                <textarea id="legalPrivacyText" class="form-control" rows="10" placeholder="Paste your privacy policy here..."></textarea>
+              </div>
+              <div class="form-group full-width" style="margin-top: 2rem;">
+                <label for="legalTermsText">Terms of Service Content (Supports HTML formatting)</label>
+                <textarea id="legalTermsText" class="form-control" rows="10" placeholder="Paste your terms of service here..."></textarea>
+              </div>
+              <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-gold" id="btnSaveLegalDocs">Save Documents</button>
               </div>
             </form>
           </div>
@@ -1678,6 +1705,23 @@
             <button type="submit" class="btn btn-gold" id="btnSubmitAddBusiness">List Business</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEGAL DOCS MODAL -->
+  <div class="modal-overlay" id="legalModal">
+    <div class="modal-box" style="max-width: 800px;" id="legalModalBox">
+      <button class="modal-close-btn" id="btnCloseLegalModal" aria-label="Close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <div class="modal-header">
+        <h3 id="legalModalTitle">Legal Document</h3>
+      </div>
+      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+        <div id="legalModalContent" style="color: var(--text-secondary); line-height: 1.6; font-size: 0.95rem;">
+          <!-- Populated by JS -->
+        </div>
       </div>
     </div>
   </div>
