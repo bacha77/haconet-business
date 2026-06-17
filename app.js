@@ -403,6 +403,22 @@ function renderDirectory() {
   if (!directoryGrid) return;
   directoryGrid.innerHTML = '';
   
+  const isSearchEmpty = searchQuery.toLowerCase().trim() === '';
+  const isCategoryAll = currentCategory === 'all';
+  
+  if (isSearchEmpty && isCategoryAll) {
+    directoryGrid.innerHTML = `
+      <div class="directory-placeholder" id="directorySearchPlaceholder" style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+        <i class="fa-solid fa-magnifying-glass-location" style="font-size: 3rem; color: var(--accent-gold); margin-bottom: 1.5rem; display: block; opacity: 0.8;"></i>
+        <h3 class="serif-font" style="font-size: 1.5rem; margin-bottom: 0.75rem; color: #fff;">Search HACONET Directory</h3>
+        <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.5;">
+          Type in the search bar above or select an industry category below to explore Haitian-owned businesses in the Greater Columbus area.
+        </p>
+      </div>
+    `;
+    return;
+  }
+  
   // Apply combined filters
   const filtered = businesses.filter(biz => {
     const matchesCategory = currentCategory === 'all' || biz.category === currentCategory;
