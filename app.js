@@ -1679,11 +1679,16 @@ function checkUrlParamsForFocusReg() {
   }
 }
 
-// Render registration QR code on load
+// Render registration QR codes on load
 const mobileRegQrImg = document.getElementById('mobileRegQrImg');
+const heroRegQrImg = document.getElementById('heroRegQrImg');
+const regUrl = `${window.location.origin}${window.location.pathname}?register=true`;
+
 if (mobileRegQrImg) {
-  const regUrl = `${window.location.origin}${window.location.pathname}?register=true`;
   mobileRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(regUrl)}`;
+}
+if (heroRegQrImg) {
+  heroRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(regUrl)}`;
 }
 
 // Start database fetch and initialization

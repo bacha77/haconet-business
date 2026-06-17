@@ -2335,3 +2335,60 @@ body.focus-registration .registration-layout-grid {
   margin: 0 auto;
   width: 100%;
 }
+
+/* ==========================================================================
+   Hero Section QR Code Helper Styling
+   ========================================================================== */
+.hero-qr-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  max-width: 380px;
+}
+
+.hero-qr-box {
+  width: 70px;
+  height: 70px;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-qr-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hero-qr-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.hero-qr-text span {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+}
+
+.hero-qr-text p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+@media (max-width: 992px) {
+  .hero-qr-container {
+    display: none !important;
+  }
+}
