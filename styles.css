@@ -55,6 +55,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 100px; /* Offset for fixed header */
 }
 
 body {

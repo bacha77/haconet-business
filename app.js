@@ -1912,8 +1912,55 @@ function checkUrlParamsForFocusReg() {
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('register') === 'true') {
     document.body.classList.add('focus-registration');
+  } else {
+    document.body.classList.remove('focus-registration');
   }
 }
+
+// Function to dynamically toggle focused registration mode
+function setFocusRegistration(active) {
+  if (active) {
+    document.body.classList.add('focus-registration');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    const newUrl = `${window.location.origin}${window.location.pathname}?register=true`;
+    if (new URLSearchParams(window.location.search).get('register') !== 'true') {
+      window.history.pushState({ register: true }, '', newUrl);
+    }
+  } else {
+    document.body.classList.remove('focus-registration');
+    const newUrl = `${window.location.origin}${window.location.pathname}`;
+    if (new URLSearchParams(window.location.search).get('register') === 'true') {
+      window.history.pushState({ register: false }, '', newUrl);
+    }
+    // Scroll to the registration anchor on landing page
+    const regSection = document.getElementById('register');
+    if (regSection) {
+      regSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+}
+
+// Handle window history navigation (back/forward buttons)
+window.addEventListener('popstate', () => {
+  checkUrlParamsForFocusReg();
+});
+
+// Attach event listeners for focused registration mode transition
+document.addEventListener('DOMContentLoaded', () => {
+  const regButtons = ['navCtaRegister', 'heroBtnRegister', 'eventCtaBtn'];
+  regButtons.forEach(id => {
+    document.getElementById(id)?.addEventListener('click', (e) => {
+      e.preventDefault();
+      setFocusRegistration(true);
+    });
+  });
+
+  document.getElementById('btnExitFocusReg')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    setFocusRegistration(false);
+  });
+});
+
 
 // Render registration QR codes on load
 const mobileRegQrImg = document.getElementById('mobileRegQrImg');
@@ -2522,7 +2569,7 @@ function renderAdminSettings() {
     // defaults if empty
     document.getElementById('settingEventName').value = '2026';
     document.getElementById('settingTopDate').value = 'Annual Networking Event &bull; Aug 6, 2026';
-    document.getElementById('settingDisplayDate').value = 'Saturday, August 6, 2026';
+    document.getElementById('settingDisplayDate').value = 'Thursday, August 6, 2026';
     document.getElementById('settingDisplayTime').value = '5:00 PM - 9:00 PM EST';
     document.getElementById('settingDisplayLoc').value = 'Columbus, OH (Details upon registration)';
     document.getElementById('settingCountdownTarget').value = '2026-08-06T17:00';
