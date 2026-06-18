@@ -478,20 +478,13 @@
         </div>
       </div>
 
-      <!-- Past Highlights Gallery Grid -->
-      <div class="highlights-gallery-grid">
-        <div class="gallery-item">
-          <div class="gallery-placeholder"><i class="fa-solid fa-people-group"></i> <span>Panel Discussion</span></div>
+      <!-- Dynamic Event Gallery Carousel -->
+      <div class="gallery-carousel-container">
+        <button class="carousel-nav prev" id="btnGalleryPrev" aria-label="Previous Image"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="gallery-carousel-track" id="galleryCarouselTrack">
+          <!-- Populated by JS -->
         </div>
-        <div class="gallery-item">
-          <div class="gallery-placeholder"><i class="fa-solid fa-handshake"></i> <span>Business Partnership</span></div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-placeholder"><i class="fa-solid fa-trophy"></i> <span>Awards Ceremony</span></div>
-        </div>
-        <div class="gallery-item">
-          <div class="gallery-placeholder"><i class="fa-solid fa-store"></i> <span>Exhibitor Showcase</span></div>
-        </div>
+        <button class="carousel-nav next" id="btnGalleryNext" aria-label="Next Image"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
     </div>
   </section>
@@ -964,6 +957,9 @@
         <button class="admin-tab-btn" data-tab="legal" id="adminTabLegal" role="tab" aria-selected="false">
           <i class="fa-solid fa-scale-balanced"></i> Legal
         </button>
+        <button class="admin-tab-btn" data-tab="gallery" id="adminTabGallery" role="tab" aria-selected="false">
+          <i class="fa-solid fa-images"></i> Gallery
+        </button>
       </div>
 
       <!-- TAB PANEL: Settings -->
@@ -1033,6 +1029,45 @@
                 <button type="submit" class="btn btn-gold" id="btnSaveLegalDocs">Save Documents</button>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB PANEL: Gallery -->
+      <div class="admin-tab-panel" id="adminPanelGallery" role="tabpanel">
+        <div class="admin-cms-card">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-images"></i> Event Image Gallery</h3>
+          </div>
+          
+          <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-light);">
+            <h4>Upload New Photo</h4>
+            <form id="adminUploadGalleryForm" style="display: flex; gap: 1rem; align-items: flex-end; margin-top: 1rem; flex-wrap: wrap;">
+              <div class="form-group" style="flex: 1; min-width: 250px;">
+                <label for="galleryImageInput">Select Image File</label>
+                <input type="file" id="galleryImageInput" class="form-control" accept="image/*" required>
+              </div>
+              <div class="form-group" style="flex: 2; min-width: 250px;">
+                <label for="galleryCaptionInput">Photo Caption (Optional)</label>
+                <input type="text" id="galleryCaptionInput" class="form-control" placeholder="e.g. Panel Discussion 2026">
+              </div>
+              <button type="submit" class="btn btn-gold" id="btnUploadGalleryPhoto">Upload Photo</button>
+            </form>
+          </div>
+
+          <div class="admin-table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 120px;">Preview</th>
+                  <th>Caption</th>
+                  <th style="width: 150px; text-align:right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminGalleryTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -195,6 +195,7 @@ let businesses = [];
 let registrations = [];
 let eventSettings = null;
 let legalDocs = null;
+let galleryPhotos = [];
 
 try {
   if (window.supabase) {
@@ -382,6 +383,14 @@ async function initDatabase() {
           legalDocs = legData[0];
         }
       } catch(e) { console.warn("Could not load legal docs from DB", e); }
+
+      // Fetch Gallery
+      try {
+        let { data: galData, error: galErr } = await supabaseClient.from('gallery').select('*').order('created_at', { ascending: false });
+        if (!galErr && galData) {
+          galleryPhotos = galData;
+        }
+      } catch(e) { console.warn("Could not load gallery from DB", e); }
 
       useSupabase = true;
       console.log("Connected to Supabase database successfully!");
@@ -2298,6 +2307,7 @@ function initAdminTabs() {
       else if (target === 'directory') renderAdminDirectory();
       else if (target === 'settings') renderAdminSettings();
       else if (target === 'legal') renderAdminLegal();
+      else if (target === 'gallery') renderAdminGallery();
     });
   });
 }
@@ -2642,6 +2652,172 @@ document.getElementById('linkTerms')?.addEventListener('click', (e) => {
   e.preventDefault();
   const content = legalDocs?.termsText || '<p>Terms of Service have not been set yet.</p>';
   openLegalModal('Terms of Service', content);
+});
+
+// ==========================================================================
+// CMS — GALLERY Admin View & Public Carousel
+// ==========================================================================
+
+let carouselInterval = null;
+let currentCarouselIndex = 0;
+
+function renderAdminGallery() {
+  const tbody = document.getElementById('adminGalleryTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (galleryPhotos.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:var(--text-muted); padding:2rem;">No photos uploaded yet.</td></tr>`;
+    return;
+  }
+
+  galleryPhotos.forEach(photo => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><img src="${photo.photoData}" alt="Gallery Photo" class="admin-gallery-thumb"></td>
+      <td>${photo.caption || '<em>No caption</em>'}</td>
+      <td style="text-align:right;">
+        <button class="btn btn-sm btn-danger" onclick="deleteGalleryPhoto('${photo.id}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('adminUploadGalleryForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnUploadGalleryPhoto');
+  const fileInput = document.getElementById('galleryImageInput');
+  const captionInput = document.getElementById('galleryCaptionInput');
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const base64Data = ev.target.result;
+    const newPhoto = {
+      id: 'gal-' + Date.now(),
+      photoData: base64Data,
+      caption: captionInput.value.trim(),
+      created_at: new Date().toISOString()
+    };
+
+    if (useSupabase && supabaseClient) {
+      try {
+        const { error } = await supabaseClient.from('gallery').insert([newPhoto]);
+        if (error) throw error;
+        galleryPhotos.unshift(newPhoto);
+        alert('Photo uploaded!');
+      } catch (err) {
+        console.warn(err);
+        alert('Failed to upload photo to database.');
+      }
+    } else {
+      galleryPhotos.unshift(newPhoto);
+      localStorage.setItem('haconet_gallery', JSON.stringify(galleryPhotos));
+      alert('Photo saved locally!');
+    }
+
+    fileInput.value = '';
+    captionInput.value = '';
+    btn.disabled = false;
+    btn.textContent = 'Upload Photo';
+    renderAdminGallery();
+    renderPublicGallery();
+  };
+  reader.readAsDataURL(file);
+});
+
+window.deleteGalleryPhoto = async (id) => {
+  if(!confirm("Are you sure you want to delete this photo?")) return;
+  
+  if (useSupabase && supabaseClient) {
+    try {
+      const { error } = await supabaseClient.from('gallery').delete().eq('id', id);
+      if (error) throw error;
+      galleryPhotos = galleryPhotos.filter(p => p.id !== id);
+    } catch (err) {
+      console.warn(err);
+      alert('Failed to delete photo from database.');
+      return;
+    }
+  } else {
+    galleryPhotos = galleryPhotos.filter(p => p.id !== id);
+    localStorage.setItem('haconet_gallery', JSON.stringify(galleryPhotos));
+  }
+  renderAdminGallery();
+  renderPublicGallery();
+};
+
+function renderPublicGallery() {
+  const track = document.getElementById('galleryCarouselTrack');
+  if (!track) return;
+  
+  if (galleryPhotos.length === 0) {
+    track.innerHTML = `<div class="gallery-carousel-item"><div class="gallery-placeholder"><i class="fa-solid fa-images"></i> <span>No photos available yet</span></div></div>`;
+    return;
+  }
+
+  track.innerHTML = '';
+  galleryPhotos.forEach((photo) => {
+    const item = document.createElement('div');
+    item.className = 'gallery-carousel-item';
+    let captionHtml = photo.caption ? `<div class="gallery-carousel-caption">${photo.caption}</div>` : '';
+    item.innerHTML = `
+      <img src="${photo.photoData}" alt="Event Highlight">
+      ${captionHtml}
+    `;
+    track.appendChild(item);
+  });
+
+  currentCarouselIndex = 0;
+  updateCarouselPosition();
+  startCarousel();
+}
+
+function updateCarouselPosition() {
+  const track = document.getElementById('galleryCarouselTrack');
+  if (!track || galleryPhotos.length === 0) return;
+  track.style.transform = `translateX(-${currentCarouselIndex * 100}%)`;
+}
+
+function startCarousel() {
+  if (carouselInterval) clearInterval(carouselInterval);
+  if (galleryPhotos.length <= 1) return;
+  carouselInterval = setInterval(() => {
+    currentCarouselIndex = (currentCarouselIndex + 1) % galleryPhotos.length;
+    updateCarouselPosition();
+  }, 4000);
+}
+
+document.getElementById('btnGalleryPrev')?.addEventListener('click', () => {
+  if (galleryPhotos.length <= 1) return;
+  if (carouselInterval) clearInterval(carouselInterval);
+  currentCarouselIndex = (currentCarouselIndex - 1 + galleryPhotos.length) % galleryPhotos.length;
+  updateCarouselPosition();
+  startCarousel(); // restart timer
+});
+
+document.getElementById('btnGalleryNext')?.addEventListener('click', () => {
+  if (galleryPhotos.length <= 1) return;
+  if (carouselInterval) clearInterval(carouselInterval);
+  currentCarouselIndex = (currentCarouselIndex + 1) % galleryPhotos.length;
+  updateCarouselPosition();
+  startCarousel(); // restart timer
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Try to load local gallery fallback if supabase fails before initDatabase completes
+  try {
+    const loc = JSON.parse(localStorage.getItem('haconet_gallery'));
+    if (loc) galleryPhotos = loc;
+  } catch(e) {}
+  
+  // Render initial (will be overwritten if supabase fetches)
+  setTimeout(() => renderPublicGallery(), 1000);
 });
 
 // ==========================================================================
