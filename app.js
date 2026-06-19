@@ -7,8 +7,9 @@
 window.addEventListener('error', (event) => {
   console.error("HACONET JavaScript Uncaught Error:", event.error);
   try {
-    const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
-    if (isMobile) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isDebug = urlParams.get('debug') === 'true';
+    if (isDebug) {
       let errDiv = document.getElementById('mobile-debug-overlay');
       if (!errDiv) {
         errDiv = document.createElement('div');
@@ -630,6 +631,9 @@ function navigateView(hash) {
 window.addEventListener('hashchange', () => {
   navigateView(window.location.hash);
 });
+
+// Run SPA Routing immediately for the initial view to prevent layout flashing
+navigateView(window.location.hash);
 
 // Mobile menu toggle
 if (menuToggle && navLinksList) {
