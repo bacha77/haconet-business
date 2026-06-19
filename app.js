@@ -2158,7 +2158,7 @@ const SEED_SPEAKERS = [
 const SEED_FAQ = [
   { id: 'fq-1', question: 'Is the HACONET Business Meet & Greet free to attend?', answer: 'Yes, general attendance is free! However, registration is strictly required to secure your ticket and receive location coordinates and agenda updates. Business exhibitors requesting vendor booths have a separate table setup process.' },
   { id: 'fq-2', question: 'How do I reserve a vendor display/exhibitor table?', answer: 'You can request a display table during the online registration process. On Step 3 of the Registration Form, select "Yes" under the "Would you like a vendor/display table?" option and specify if you require electrical outlets. We will review your submission and email you confirmation with booth details.' },
-  { id: 'fq-3', question: 'Where is the event located, and is parking available?', answer: 'The event is hosted at the DoubleTree by Hilton Columbus Downtown, located in Central Columbus, OH. Valet parking is available at the hotel entrance, and several self-parking garages/metered spots are located within walking distance of the venue.' },
+  { id: 'fq-3', question: 'Where is the event located, and is parking available?', answer: 'The event is hosted at the Gillie Community Center, located at 2100 Morse Rd, Columbus, OH 43229. Free parking is available at the community center parking lot.' },
   { id: 'fq-4', question: 'Can I attend if my business is not yet established?', answer: 'Absolutely! The event is open to aspiring entrepreneurs, community members, professionals, and students. It is a perfect space to find mentorship, gather ideas, and meet strategic business partners.' },
   { id: 'fq-5', question: 'What is the dress code for the networking event?', answer: 'The dress code is business professional or smart casual. We encourage you to dress to impress as you will be networking directly with potential clients, investors, and local leaders.' }
 ];
@@ -2571,7 +2571,7 @@ function renderAdminSettings() {
     document.getElementById('settingTopDate').value = 'Annual Networking Event &bull; Aug 6, 2026';
     document.getElementById('settingDisplayDate').value = 'Thursday, August 6, 2026';
     document.getElementById('settingDisplayTime').value = '5:00 PM - 9:00 PM EST';
-    document.getElementById('settingDisplayLoc').value = 'Columbus, OH (Details upon registration)';
+    document.getElementById('settingDisplayLoc').value = 'Gillie Community Center, 2100 Morse Rd, Columbus, OH 43229';
     document.getElementById('settingCountdownTarget').value = '2026-08-06T17:00';
     return;
   }
