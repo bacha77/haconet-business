@@ -3522,6 +3522,10 @@ body.focus-registration .registration-layout-grid {
 /* ==========================================================================
    Navigation Tab Routing Helper Classes
    ========================================================================== */
+.hidden-view {
+  display: none !important;
+}
+
 .view-section {
   animation: fadeInView 0.4s ease-out forwards;
 }

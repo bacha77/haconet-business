@@ -240,7 +240,86 @@ const SEED_BUSINESSES = [
   }
 ];
 
-const SEED_REGISTRATIONS = [];
+const SEED_REGISTRATIONS = [
+  {
+    regId: 'HAC-2026-0001',
+    bizName: 'Island Bar Cuisine',
+    ownerName: 'Islande Pierre',
+    title: 'Owner',
+    address: '3496 Cleveland Ave',
+    city: 'Columbus',
+    state: 'OH',
+    zip: '43224',
+    phone: '614-263-2272',
+    email: 'info@islandbarcuisine.com',
+    website: 'https://www.facebook.com/islandbarcuisine/',
+    industry: 'Food & Beverage',
+    established: '2019',
+    description: 'Authentic Haitian cuisine and Caribbean dishes.',
+    interests: ['Promote products/services', 'Find potential clients/customers'],
+    exhibitor: 'Yes',
+    electricity: 'Yes',
+    directoryConsent: 'Yes',
+    accommodations: '',
+    signature: 'Islande Pierre',
+    dateSigned: '2026-06-10',
+    checkedIn: false,
+    checkedInAt: null,
+    tableNumber: 3
+  },
+  {
+    regId: 'HAC-2026-0002',
+    bizName: "Bibi's Patties",
+    ownerName: 'Bibi Augustin',
+    title: 'Founder & Head Baker',
+    address: '6086 Huntley Rd',
+    city: 'Columbus',
+    state: 'OH',
+    zip: '43229',
+    phone: '614-505-8321',
+    email: 'contact@bibispatties.com',
+    website: 'https://www.bibispatties.com',
+    industry: 'Food & Beverage',
+    established: '2021',
+    description: 'Authentic Haitian puff pastry patties — freshly baked daily.',
+    interests: ['Promote products/services', 'Connect with other entrepreneurs'],
+    exhibitor: 'Yes',
+    electricity: 'No',
+    directoryConsent: 'Yes',
+    accommodations: '',
+    signature: 'Bibi Augustin',
+    dateSigned: '2026-06-11',
+    checkedIn: false,
+    checkedInAt: null,
+    tableNumber: 7
+  },
+  {
+    regId: 'HAC-2026-0003',
+    bizName: 'HaCoNet - Haitian Community Network',
+    ownerName: 'Marc Fequiere',
+    title: 'Executive Director',
+    address: '2020 Brice Rd., Suite 185',
+    city: 'Reynoldsburg',
+    state: 'OH',
+    zip: '43068',
+    phone: '614-600-5530',
+    email: 'info@haconet.org',
+    website: 'https://haconet.org',
+    industry: 'Nonprofit',
+    established: '2014',
+    description: 'Empowering the Haitian community in Ohio through education and resource navigation.',
+    interests: ['Meet community leaders', 'Explore partnerships'],
+    exhibitor: 'No',
+    electricity: 'No',
+    directoryConsent: 'Yes',
+    accommodations: '',
+    signature: 'Marc Fequiere',
+    dateSigned: '2026-06-12',
+    checkedIn: true,
+    checkedInAt: '5:15 PM',
+    tableNumber: null
+  }
+];
 
 // Supabase Configuration
 const supabaseUrl = 'https://ntjbyhwnxlloytzsznio.supabase.co';
