@@ -82,11 +82,13 @@
 
         <div class="hero-qr-container" id="heroQrContainer">
           <div class="hero-qr-box">
-            <img id="heroRegQrImg" src="" alt="Scan to register on mobile">
+            <a href="?register=true" id="heroRegQrLink" style="display: block; width: 100%; height: 100%;">
+              <img id="heroRegQrImg" src="" alt="Scan or tap to register on mobile" style="display: block; width: 100%; height: 100%; object-fit: contain;">
+            </a>
           </div>
           <div class="hero-qr-text">
             <span><strong>Register on your Phone</strong></span>
-            <p>Scan the code to open the mobile registration form instantly.</p>
+            <p>Scan or tap the code to open the mobile registration form instantly.</p>
           </div>
         </div>
       </div>
@@ -769,10 +771,12 @@
       <div class="qr-mobile-card" id="mobileRegQrCard">
         <div class="qr-mobile-header">
           <h4>Register on Mobile</h4>
-          <p>Scan this code with your phone camera to quickly register directly on your mobile device.</p>
+          <p>Scan or tap this code with your phone camera to quickly register directly on your mobile device.</p>
         </div>
         <div class="qr-mobile-box">
-          <img id="mobileRegQrImg" src="" alt="Scan to register on mobile">
+          <a href="?register=true" id="mobileRegQrLink" style="display: block; width: 100%; height: 100%;">
+            <img id="mobileRegQrImg" src="" alt="Scan or tap to register on mobile" style="display: block; width: 100%; height: 100%; object-fit: contain;">
+          </a>
         </div>
         <div class="qr-mobile-footer">
           <i class="fa-solid fa-mobile-screen-button"></i>
@@ -1832,7 +1836,9 @@
             <div class="ticket-qr-container" id="tQrContainer">
               <!-- Rendered via CSS background or local mockup barcode -->
               <div class="ticket-qr" id="tQrImgBox">
-                <img id="tQrCodeImg" src="" alt="Ticket QR Code" style="display: block; width: 100%; height: 100%; object-fit: contain;">
+                <a id="tQrCodeLink" href="#" target="_blank" style="display: block; width: 100%; height: 100%;">
+                  <img id="tQrCodeImg" src="" alt="Ticket QR Code" style="display: block; width: 100%; height: 100%; object-fit: contain;">
+                </a>
               </div>
               <span class="ticket-ref" id="tRegId">HAC-2026-9872</span>
             </div>

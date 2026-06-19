@@ -3476,3 +3476,46 @@ body.focus-registration .registration-layout-grid {
   border: 1px solid var(--border-color);
   display: block;
 }
+
+/* Responsive Improvements for Ticket Modal on Mobile Devices */
+@media (max-width: 576px) {
+  #ticketModal {
+    padding: 0.5rem !important;
+  }
+  #ticketModalBox {
+    max-height: 90vh !important;
+    border-radius: var(--radius-md) !important;
+  }
+  #ticketModalBody {
+    padding: 1rem 0.75rem !important;
+  }
+  .ticket-wrapper {
+    margin: 0.5rem 0 !important;
+  }
+  .ticket-header {
+    padding: 1.5rem 1rem !important;
+  }
+  .ticket-header h4 {
+    font-size: 1.35rem !important;
+  }
+  .ticket-body {
+    padding: 1.5rem 1rem !important;
+    gap: 1.5rem !important;
+  }
+  .ticket-info {
+    gap: 0.75rem !important;
+    text-align: left !important;
+  }
+  .t-info-group {
+    border-bottom: 1px dashed #eaeaea !important;
+    padding-bottom: 0.5rem !important;
+  }
+  .t-info-group:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+  }
+  .ticket-footer {
+    padding: 1rem !important;
+  }
+}
+

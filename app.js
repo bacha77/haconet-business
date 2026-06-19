@@ -1401,9 +1401,13 @@ function renderTicketStub(reg) {
   }
 
   const tQrCodeImg = document.getElementById('tQrCodeImg');
+  const tQrCodeLink = document.getElementById('tQrCodeLink');
   if (tQrCodeImg) {
     const checkinUrl = `${window.location.origin}${window.location.pathname}?checkin=${encodeURIComponent(reg.regId)}`;
-    tQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(checkinUrl)}`;
+    tQrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkinUrl)}`;
+    if (tQrCodeLink) {
+      tQrCodeLink.href = checkinUrl;
+    }
   }
 
   if (tExhibitor) {
@@ -1968,10 +1972,10 @@ const heroRegQrImg = document.getElementById('heroRegQrImg');
 const regUrl = `${window.location.origin}${window.location.pathname}?register=true`;
 
 if (mobileRegQrImg) {
-  mobileRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(regUrl)}`;
+  mobileRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(regUrl)}`;
 }
 if (heroRegQrImg) {
-  heroRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(regUrl)}`;
+  heroRegQrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(regUrl)}`;
 }
 
 // FAQ Accordion Toggle Interaction
