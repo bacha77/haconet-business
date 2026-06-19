@@ -318,6 +318,14 @@ const adminTableBody = document.getElementById('adminAttendeeTableBody');
 const btnExportCSV = document.getElementById('btnExportCSV');
 const btnAdminLogout = document.getElementById('btnAdminLogout');
 
+// Staff Login Modal Elements
+const adminLoginModal = document.getElementById('adminLoginModal');
+const btnCloseAdminLoginModal = document.getElementById('btnCloseAdminLoginModal');
+const adminLoginForm = document.getElementById('adminLoginForm');
+const adminPasscodeField = document.getElementById('adminPasscodeField');
+const adminLoginError = document.getElementById('adminLoginError');
+const btnCancelAdminLogin = document.getElementById('btnCancelAdminLogin');
+
 // Stats Counters
 const statTotalRegistrations = document.getElementById('statTotalRegistrations');
 const statTotalExhibitors = document.getElementById('statTotalExhibitors');
@@ -1719,20 +1727,54 @@ if (toggleAdminBtn) {
       adminDashboard.style.display = 'none';
       toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Staff Login';
     } else {
-      const passcode = prompt("Enter HACONET Staff Passcode:");
-      if (passcode === null) return; // cancelled
-      
-      if (passcode.trim().toLowerCase() === 'haconet@2026') {
-        adminDashboard.style.display = 'block';
-        renderAdminAttendeeList();
+      // Clear fields and warnings, then open custom Staff Login modal
+      if (adminPasscodeField) adminPasscodeField.value = '';
+      if (adminLoginError) adminLoginError.style.display = 'none';
+      if (adminPasscodeField) adminPasscodeField.classList.remove('error');
+      if (adminLoginModal) adminLoginModal.classList.add('open');
+    }
+  });
+}
+
+// Custom Staff Login Modal close/cancel handlers
+function closeAdminLoginModal() {
+  if (adminLoginModal) {
+    adminLoginModal.classList.remove('open');
+  }
+}
+
+if (btnCloseAdminLoginModal) {
+  btnCloseAdminLoginModal.addEventListener('click', closeAdminLoginModal);
+}
+if (btnCancelAdminLogin) {
+  btnCancelAdminLogin.addEventListener('click', closeAdminLoginModal);
+}
+if (adminLoginModal) {
+  adminLoginModal.addEventListener('click', (e) => {
+    if (e.target === adminLoginModal) {
+      closeAdminLoginModal();
+    }
+  });
+}
+
+// Handle login form submission and passcode validation
+if (adminLoginForm) {
+  adminLoginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const passcode = adminPasscodeField ? adminPasscodeField.value : '';
+    if (passcode.trim().toLowerCase() === 'haconet@2026') {
+      closeAdminLoginModal();
+      if (adminDashboard) adminDashboard.style.display = 'block';
+      renderAdminAttendeeList();
+      if (toggleAdminBtn) {
         toggleAdminBtn.innerHTML = '<i class="fa-solid fa-lock-open" style="color: var(--accent-gold);"></i> Close Admin Portal';
-        
-        setTimeout(() => {
-          adminDashboard.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      } else {
-        alert("Incorrect passcode. Access denied.");
       }
+      setTimeout(() => {
+        if (adminDashboard) adminDashboard.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      if (adminLoginError) adminLoginError.style.display = 'block';
+      if (adminPasscodeField) adminPasscodeField.classList.add('error');
     }
   });
 }
