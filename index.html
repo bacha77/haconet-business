@@ -21,6 +21,9 @@
   
   <!-- Supabase JS Client SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- HTML5 QR Code Scanner library for check-ins -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
 <body>
 
@@ -437,6 +440,64 @@
               <span class="time-stamp">8:00 PM - 9:00 PM</span>
               <h4>Open Business Networking & Expo Reception</h4>
               <p>Visit vendor tables, exchange business cards, and enjoy cultural appetizers with music and networking.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Floor Plan & Booth Map -->
+      <div class="floor-plan-block" id="floorPlanBlock" style="margin-top: 5rem; margin-bottom: 5rem;">
+        <h3 class="serif-font text-gradient text-center" style="font-size: 2.25rem; margin-bottom: 1rem;">Interactive Expo Floor Plan</h3>
+        <p class="text-center" style="color: var(--text-secondary); max-width: 700px; margin: 0 auto 2.5rem auto;">
+          Explore the Gillie Community Center exhibition hall. Click on any assigned booth (highlighted in gold) to view the exhibitor's business profile and connect.
+        </p>
+        
+        <div class="floor-plan-search-bar" style="max-width: 480px; margin: 0 auto 2rem auto; display: flex; gap: 0.5rem;">
+          <input type="text" id="mapSearchInput" class="form-control" placeholder="Search exhibitor or table number..." style="font-size: 0.95rem;">
+          <button class="btn btn-gold" id="btnSearchMap" style="padding: 0.75rem 1.5rem;"><i class="fa-solid fa-location-crosshairs"></i> Locate</button>
+        </div>
+
+        <div class="floor-plan-wrapper" id="floorPlanWrapper">
+          
+          <!-- Map Visual -->
+          <div class="floor-map-container">
+            
+            <!-- Stage/Entrance Reference -->
+            <div class="floor-reference stage">
+              Main Presentation Stage
+            </div>
+
+            <!-- Grid Layout representing 20 Tables (5 columns, 4 rows) -->
+            <div class="booths-grid" id="boothsGrid">
+              <!-- Javascript populates 20 booths here -->
+            </div>
+
+            <div class="floor-reference entrance">
+              Entrance & Registration Desks
+            </div>
+          </div>
+
+          <!-- Floor Plan Details Panel -->
+          <div class="floor-details-panel" id="floorDetailsPanel">
+            <h4 class="serif-font" style="font-size: 1.25rem; color: var(--accent-gold); margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+              Booth Information
+            </h4>
+            <div id="boothDetailContent">
+              <p style="color: var(--text-muted); font-style: italic;">Select any table booth on the floor plan map to view active exhibitor registration and networking profiles.</p>
+            </div>
+            <div class="map-stats">
+              <div class="map-stat-row">
+                <span>Total Booths:</span>
+                <strong>20</strong>
+              </div>
+              <div class="map-stat-row">
+                <span>Assigned Tables:</span>
+                <strong id="mapStatAssigned">0</strong>
+              </div>
+              <div class="map-stat-row">
+                <span>Available Tables:</span>
+                <strong id="mapStatAvailable">20</strong>
+              </div>
             </div>
           </div>
         </div>
@@ -940,6 +1001,9 @@
         <button class="admin-tab-btn active" data-tab="attendees" id="adminTabAttendees" role="tab" aria-selected="true">
           <i class="fa-solid fa-users"></i> Attendees
         </button>
+        <button class="admin-tab-btn" data-tab="scanner" id="adminTabScanner" role="tab" aria-selected="false">
+          <i class="fa-solid fa-camera"></i> Scan Tickets
+        </button>
         <button class="admin-tab-btn" data-tab="directory" id="adminTabDirectory" role="tab" aria-selected="false">
           <i class="fa-solid fa-address-book"></i> Directory
         </button>
@@ -1076,6 +1140,44 @@
         </div>
       </div>
 
+      <!-- TAB PANEL: QR Scanner -->
+      <div class="admin-tab-panel" id="adminPanelScanner" role="tabpanel">
+        <div class="admin-cms-card" style="max-width: 600px; margin: 0 auto;">
+          <div class="admin-cms-header">
+            <h3><i class="fa-solid fa-camera"></i> Live Ticket Check-in Scanner</h3>
+          </div>
+          <div class="admin-table-container" style="padding: 2rem; text-align: center;">
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">
+              Select a camera below to start scanning attendee ticket QR codes directly from your device.
+            </p>
+            
+            <div class="form-group" style="max-width: 320px; margin: 0 auto 1.5rem auto;">
+              <label for="scannerCameraSelect" style="text-align: left; display: block; margin-bottom: 0.5rem;">Choose Camera Source</label>
+              <select id="scannerCameraSelect" class="form-control">
+                <option value="">Detecting cameras...</option>
+              </select>
+            </div>
+
+            <!-- Scanner Camera Box -->
+            <div id="scannerReaderContainer" style="max-width: 420px; margin: 0 auto; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); background: #000; position: relative;">
+              <div id="scannerReader" style="width: 100%; min-height: 250px;"></div>
+            </div>
+
+            <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem;">
+              <button class="btn btn-gold btn-sm" id="btnStartScanner"><i class="fa-solid fa-play"></i> Start Camera</button>
+              <button class="btn btn-red btn-sm" id="btnStopScanner" style="display: none;"><i class="fa-solid fa-stop"></i> Stop Camera</button>
+            </div>
+
+            <div id="scannerLogBox" style="margin-top: 2rem; border-top: 1px dashed var(--border-color); padding-top: 1.5rem; text-align: left;">
+              <h5 style="color: var(--accent-gold); margin-bottom: 0.75rem;"><i class="fa-solid fa-list-check"></i> Scanner Scan Log</h5>
+              <div id="scannerLogs" style="background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1rem; font-family: monospace; font-size: 0.85rem; max-height: 150px; overflow-y: auto; color: var(--text-secondary);">
+                <div style="color: var(--text-muted);">Waiting for scans...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB PANEL: Attendees -->
       <div class="admin-tab-panel active" id="adminPanelAttendees" role="tabpanel">
         <div class="admin-table-card" id="adminTableCard">
@@ -1094,6 +1196,7 @@
                   <th>Email</th>
                   <th>Industry</th>
                   <th>Exhibitor</th>
+                  <th>Booth</th>
                   <th>Power</th>
                   <th>Consent</th>
                   <th>Checked In</th>
@@ -1624,6 +1727,9 @@
               <div id="pOwnerItem"><i class="fa-solid fa-user-tie"></i> Owned by: <strong id="pOwner">Owner Name</strong> <span id="pOwnerTitle" style="color: var(--text-muted);"></span></div>
               <div id="pEstItem" style="margin-top: 4px;"><i class="fa-solid fa-calendar-check"></i> Established: <span id="pYearEstablished">Year</span></div>
             </div>
+            <button class="btn btn-secondary btn-sm" id="btnDownloadVCard" style="margin-top: 1rem; align-self: flex-start;">
+              <i class="fa-solid fa-id-card"></i> Save Contact (vCard)
+            </button>
           </div>
           
           <div class="profile-desc-block" id="pDescBlock">
@@ -1852,6 +1958,9 @@
         
         <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;" class="print-btn-row" id="ticketActions">
           <button class="btn btn-secondary" id="btnDismissTicket">Close</button>
+          <button class="btn btn-secondary" id="btnTicketVCard" style="display: none;">
+            <i class="fa-solid fa-id-card"></i> Save Contact (vCard)
+          </button>
           <button class="btn btn-gold" id="btnPrintTicket">
             <i class="fa-solid fa-print"></i> Print Ticket / Save PDF
           </button>
@@ -1937,6 +2046,66 @@
             <button type="button" class="btn btn-secondary" id="btnCancelAdminLogin" style="width: 100%;">Cancel</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. PRINTABLE EXHIBITOR BADGE MODAL -->
+  <div class="modal-overlay" id="badgeModal">
+    <div class="modal-box" style="max-width: 500px;" id="badgeModalBox">
+      <button class="modal-close-btn" id="btnCloseBadgeModal" aria-label="Close Badge Modal">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="modal-header">
+        <h3>Exhibitor Name Badge</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Styled for 4" x 3" badge clipholders. Click Print to print or save as PDF.</p>
+      </div>
+
+      <div class="modal-body" style="padding-top: 1.5rem;">
+        
+        <!-- Styled Badge Container (Isolatable during Print) -->
+        <div class="badge-print-wrapper" id="badgePrintWrapper">
+          <div class="badge-card-container">
+            <div class="badge-card-top-border"></div>
+            
+            <div class="badge-card-header">
+              <img src="assets/logo.png" alt="HACONET logo" class="badge-card-logo">
+              <div class="badge-card-header-text">
+                <strong>HACONET 2026</strong>
+                <span>EXHIBITOR EXPO</span>
+              </div>
+            </div>
+
+            <div class="badge-card-body">
+              <h2 id="badgeAttendeeName">Attendee Name</h2>
+              <h3 id="badgeBusinessName">Business Name</h3>
+              <p id="badgeAttendeeRole">Founder / Owner</p>
+              
+              <div class="badge-card-footer-info">
+                <div class="badge-booth-box">
+                  <span class="badge-booth-lbl">BOOTH TABLE</span>
+                  <strong id="badgeBoothNumber">T-05</strong>
+                </div>
+                
+                <div class="badge-qr-container">
+                  <img id="badgeQrCodeImg" src="" alt="Badge QR Code" style="width: 70px; height: 70px; object-fit: contain;">
+                </div>
+              </div>
+            </div>
+
+            <div class="badge-card-bottom-banner">
+              HAITIAN BUSINESS MEET & GREET • COLUMBUS, OH
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;" class="print-btn-row" id="badgeActions">
+          <button class="btn btn-secondary" id="btnCancelBadge">Cancel</button>
+          <button class="btn btn-gold" id="btnPrintBadgeAction">
+            <i class="fa-solid fa-print"></i> Print Badge
+          </button>
+        </div>
       </div>
     </div>
   </div>

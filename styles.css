@@ -3522,10 +3522,6 @@ body.focus-registration .registration-layout-grid {
 /* ==========================================================================
    Navigation Tab Routing Helper Classes
    ========================================================================== */
-.hidden-view {
-  display: none !important;
-}
-
 .view-section {
   animation: fadeInView 0.4s ease-out forwards;
 }
@@ -3538,6 +3534,361 @@ body.focus-registration .registration-layout-grid {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Expo Floor Plan Styling
+   ========================================================================== */
+.floor-plan-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.floor-map-container {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  position: relative;
+  overflow-x: auto;
+}
+
+.floor-reference {
+  text-align: center;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.75rem;
+}
+
+.floor-reference.stage {
+  background: linear-gradient(90deg, #0f4c81 0%, #172a3a 100%);
+  color: var(--accent-gold);
+  width: 60%;
+  border: 1px solid rgba(241, 196, 15, 0.2);
+  margin-bottom: 2rem;
+}
+
+.floor-reference.entrance {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--border-color);
+  color: var(--text-muted);
+  width: 40%;
+  margin-top: 2rem;
+  font-size: 0.8rem;
+}
+
+.booths-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.booth-node {
+  aspect-ratio: 1.2;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  color: var(--text-secondary);
+}
+
+.booth-node span.booth-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.booth-node span.booth-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 600;
+}
+
+.booth-node:hover {
+  transform: translateY(-2px);
+  border-color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.booth-node.assigned {
+  background: linear-gradient(135deg, rgba(241, 196, 15, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%);
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+.booth-node.assigned span.booth-label {
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+.booth-node.assigned:hover {
+  background: linear-gradient(135deg, rgba(241, 196, 15, 0.25) 0%, rgba(212, 175, 55, 0.1) 100%);
+  box-shadow: 0 0 12px rgba(241, 196, 15, 0.2);
+}
+
+.booth-node.highlighted {
+  border-color: #2ecc71 !important;
+  color: #2ecc71 !important;
+  box-shadow: 0 0 15px rgba(46, 204, 113, 0.4) !important;
+  transform: scale(1.05);
+}
+
+.floor-details-panel {
+  border-left: 1px solid var(--border-color);
+  padding-left: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.map-stats {
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+}
+
+.map-stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.map-stat-row:last-child {
+  margin-bottom: 0;
+}
+
+.map-stat-row strong {
+  color: #fff;
+}
+
+@media (max-width: 850px) {
+  .floor-plan-wrapper {
+    grid-template-columns: 1fr;
+  }
+  .floor-details-panel {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   QR Scanner Layout
+   ========================================================================== */
+#scannerReader video {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================================================
+   Exhibitor Badge Printing & Styling
+   ========================================================================== */
+.badge-print-wrapper {
+  background: #fdfdfd;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #eaeaea;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.badge-card-container {
+  width: 384px; /* 4 inches at 96 DPI */
+  height: 288px; /* 3 inches at 96 DPI */
+  background: #ffffff;
+  color: #1a202c;
+  border: 4px solid #1a202c;
+  border-radius: 12px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+  overflow: hidden;
+}
+
+.badge-card-top-border {
+  height: 12px;
+  background: linear-gradient(90deg, #0f4c81 0%, #d21034 50%, #f1c40f 100%);
+  width: 100%;
+}
+
+.badge-card-header {
+  padding: 10px 15px 0 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge-card-logo {
+  height: 36px;
+  width: auto;
+}
+
+.badge-card-header-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.badge-card-header-text strong {
+  font-size: 1rem;
+  color: #0f4c81;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.1;
+}
+
+.badge-card-header-text span {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #718096;
+  letter-spacing: 0.1em;
+}
+
+.badge-card-body {
+  padding: 10px 20px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+.badge-card-body h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a202c;
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.badge-card-body h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f4c81;
+  margin: 4px 0 0 0;
+  line-height: 1.2;
+}
+
+.badge-card-body p {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #718096;
+  margin: 2px 0 0 0;
+}
+
+.badge-card-footer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: auto;
+}
+
+.badge-booth-box {
+  display: flex;
+  flex-direction: column;
+  background: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 6px 12px;
+  text-align: left;
+}
+
+.badge-booth-lbl {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: #a0aec0;
+  letter-spacing: 0.05em;
+}
+
+.badge-booth-box strong {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #d21034;
+}
+
+.badge-qr-container {
+  border: 1px solid #e2e8f0;
+  padding: 4px;
+  background: #fff;
+  border-radius: 6px;
+}
+
+.badge-card-bottom-banner {
+  background: #1a202c;
+  color: #ffffff;
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 6px 0;
+  text-transform: uppercase;
+}
+
+/* Print CSS Media Queries to isolate name badges */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #badgeModal, #badgeModal * {
+    visibility: hidden;
+  }
+  #badgePrintWrapper, #badgePrintWrapper * {
+    visibility: visible;
+  }
+  #badgePrintWrapper {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .badge-card-container {
+    box-shadow: none !important;
+    border: 4px solid #000 !important;
+    page-break-inside: avoid;
   }
 }
 

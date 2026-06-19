@@ -378,7 +378,8 @@ function mapRegistrationToDb(reg) {
     signature: reg.signature,
     datesigned: reg.dateSigned,
     checked_in: reg.checkedIn === true || reg.checkedIn === 'Yes',
-    checked_in_at: reg.checkedInAt || null
+    checked_in_at: reg.checkedInAt || null,
+    table_number: reg.tableNumber || null
   };
 }
 
@@ -415,7 +416,8 @@ function mapRegistrationFromDb(dbReg) {
     signature: dbReg.signature,
     dateSigned: dbReg.datesigned,
     checkedIn: dbReg.checked_in === true || dbReg.checked_in === 'Yes',
-    checkedInAt: dbReg.checked_in_at || null
+    checkedInAt: dbReg.checked_in_at || null,
+    tableNumber: dbReg.table_number || null
   };
 }
 
@@ -513,6 +515,7 @@ async function initDatabase() {
   
   // Render views after data loaded
   renderDirectory();
+  renderExpoFloorPlan();
   if (adminDashboard && adminDashboard.style.display === 'block') {
     renderAdminAttendeeList();
   }
@@ -887,6 +890,24 @@ function openProfileModal(biz) {
     } else {
       if (interestsBlock) interestsBlock.style.display = 'none';
     }
+  }
+
+  // Set up vCard download click listener
+  const btnDownloadVCard = document.getElementById('btnDownloadVCard');
+  if (btnDownloadVCard) {
+    const newBtn = btnDownloadVCard.cloneNode(true);
+    btnDownloadVCard.parentNode.replaceChild(newBtn, btnDownloadVCard);
+    newBtn.addEventListener('click', () => {
+      downloadVCard(
+        biz.name,
+        biz.owner,
+        biz.phone,
+        biz.email,
+        biz.website,
+        biz.title,
+        biz.category
+      );
+    });
   }
 
   businessProfileModal.classList.add('open');
@@ -1538,6 +1559,29 @@ function renderTicketStub(reg) {
     }
   }
 
+  // Set up vCard download trigger inside Ticket Modal
+  const btnTicketVCard = document.getElementById('btnTicketVCard');
+  if (btnTicketVCard) {
+    if (reg.bizName && reg.bizName.trim() !== '') {
+      btnTicketVCard.style.display = 'block';
+      const newBtn = btnTicketVCard.cloneNode(true);
+      btnTicketVCard.parentNode.replaceChild(newBtn, btnTicketVCard);
+      newBtn.addEventListener('click', () => {
+        downloadVCard(
+          reg.bizName,
+          reg.ownerName,
+          reg.phone,
+          reg.email,
+          reg.website,
+          reg.title,
+          reg.industry
+        );
+      });
+    } else {
+      btnTicketVCard.style.display = 'none';
+    }
+  }
+
   // Open the Modal
   ticketModal.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1586,7 +1630,7 @@ function renderAdminAttendeeList() {
   if (registrations.length === 0) {
     adminTableBody.innerHTML = `
       <tr>
-        <td colspan="11" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+        <td colspan="12" style="text-align: center; padding: 2rem; color: var(--text-muted);">
           No registrations recorded yet.
         </td>
       </tr>
@@ -1623,6 +1667,17 @@ function renderAdminAttendeeList() {
       ? `<button class="admin-action-btn btn-checkin-attendee disabled" style="opacity: 0.5; cursor: not-allowed;" title="Already Checked In"><i class="fa-solid fa-user-check"></i></button>`
       : `<button class="admin-action-btn btn-checkin-attendee" data-id="${reg.regId}" style="border-color: #2ecc71; color: #2ecc71;" title="Confirm Attendance"><i class="fa-solid fa-user-plus"></i></button>`;
 
+    // Booth assignment selector dropdown
+    let boothSelectHtml = `<span style="color: var(--text-muted);">N/A</span>`;
+    if (reg.exhibitor === 'Yes') {
+      boothSelectHtml = `<select class="admin-booth-select" data-id="${reg.regId}" style="background:var(--bg-input); border:1px solid var(--border-color); color:#fff; border-radius:4px; padding:2px 4px; font-size:0.85rem;">
+        <option value="">None</option>
+        ${Array.from({length: 20}, (_, i) => i + 1).map(num => `
+          <option value="${num}" ${parseInt(reg.tableNumber) === num ? 'selected' : ''}>Table ${String(num).padStart(2, '0')}</option>
+        `).join('')}
+      </select>`;
+    }
+
     const row = document.createElement('tr');
     row.id = `adminRow-${reg.regId}`;
     row.innerHTML = `
@@ -1633,11 +1688,13 @@ function renderAdminAttendeeList() {
       <td>${reg.email || ''}</td>
       <td>${reg.industry || ''}</td>
       <td><span class="badge-status ${exhibitorClass}">${reg.exhibitor || 'No'}</span></td>
+      <td>${boothSelectHtml}</td>
       <td><span class="badge-status ${electricityClass}">${reg.electricity || 'No'}</span></td>
       <td><span class="badge-status ${consentClass}">${reg.directoryConsent || 'No'}</span></td>
       <td>${checkedInBadge}</td>
-      <td style="display: flex; gap: 0.5rem;">
+      <td style="display: flex; gap: 0.4rem; align-items: center;">
         <button class="admin-action-btn btn-view-reg-ticket" data-id="${reg.regId}" title="View Ticket"><i class="fa-solid fa-ticket"></i></button>
+        <button class="admin-action-btn btn-print-badge" data-id="${reg.regId}" title="Print Badge" style="border-color: var(--accent-gold); color: var(--accent-gold);"><i class="fa-solid fa-id-badge"></i></button>
         ${checkinActionBtn}
         <button class="admin-action-btn btn-delete-reg" data-id="${reg.regId}" title="Delete Registration"><i class="fa-solid fa-trash"></i></button>
       </td>
@@ -1651,6 +1708,52 @@ function renderAdminAttendeeList() {
       const id = btn.getAttribute('data-id');
       const reg = registrations.find(r => r.regId === id);
       if (reg) renderTicketStub(reg);
+    });
+  });
+
+  // Attach print badge triggers
+  adminTableBody.querySelectorAll('.btn-print-badge').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-id');
+      const reg = registrations.find(r => r.regId === id);
+      if (reg) openBadgeModal(reg);
+    });
+  });
+
+  // Attach booth select change event listeners
+  adminTableBody.querySelectorAll('.admin-booth-select').forEach(select => {
+    select.addEventListener('change', async (e) => {
+      const id = select.getAttribute('data-id');
+      const tableVal = e.target.value;
+      const reg = registrations.find(r => r.regId === id);
+      if (reg) {
+        const prevTable = reg.tableNumber;
+        reg.tableNumber = tableVal ? parseInt(tableVal) : null;
+        
+        // Save to Database or LocalStorage
+        if (useSupabase && supabaseClient) {
+          try {
+            const { error } = await supabaseClient
+              .from('registrations')
+              .update({ table_number: reg.tableNumber })
+              .eq('regid', id);
+              
+            if (error) throw error;
+          } catch(err) {
+            console.error("Failed to save booth assignment to Supabase:", err);
+            // Revert on database save failure
+            reg.tableNumber = prevTable;
+            e.target.value = prevTable || "";
+            alert("Database error: Could not save booth assignment.");
+            return;
+          }
+        } else {
+          safeSetItem('haconet_registrations', JSON.stringify(registrations));
+        }
+
+        // Re-render visual floor plan
+        renderExpoFloorPlan();
+      }
     });
   });
 
@@ -2500,6 +2603,11 @@ function initAdminTabs() {
       const panel = document.getElementById(`adminPanel${capitalize(target)}`);
       if (panel) panel.classList.add('active');
 
+      // Stop camera scanner when switching away from the scanner tab
+      if (target !== 'scanner') {
+        stopCameraScanner();
+      }
+
       // Render panel on first activation
       if (target === 'sponsors') renderAdminSponsors();
       else if (target === 'speakers') renderAdminSpeakers();
@@ -2509,6 +2617,7 @@ function initAdminTabs() {
       else if (target === 'settings') renderAdminSettings();
       else if (target === 'legal') renderAdminLegal();
       else if (target === 'gallery') renderAdminGallery();
+      else if (target === 'scanner') initCameraScanner();
     });
   });
 }
@@ -3558,6 +3667,354 @@ document.getElementById('btnClearInquiries')?.addEventListener('click', () => {
   safeRemoveItem('haconet_inquiries');
   renderAdminInquiries();
 });
+
+// ==========================================================================
+// B2B Lead Retrieval: Export Contact to vCard (.vcf)
+// ==========================================================================
+function downloadVCard(bizName, ownerName, phone, email, website, title, category) {
+  const vcard = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `N:${ownerName || 'Representative'};;;`,
+    `FN:${ownerName || 'Representative'}`,
+    `ORG:${bizName || 'Business'}`,
+    `TITLE:${title || ''}`,
+    `TEL;TYPE=CELL:${phone || ''}`,
+    `EMAIL;TYPE=PREF,INTERNET:${email || ''}`,
+    `URL:${website || ''}`,
+    `NOTE:Category: ${category || 'Other'} - Met at HACONET Business Expo`,
+    'END:VCARD'
+  ].join('\r\n');
+
+  const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${(bizName || ownerName || 'contact').replace(/\s+/g, '_')}_contact.vcf`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// ==========================================================================
+// Expo Floor Plan & Booth Mapping
+// ==========================================================================
+function renderExpoFloorPlan() {
+  const boothsGrid = document.getElementById('boothsGrid');
+  if (!boothsGrid) return;
+  boothsGrid.innerHTML = '';
+
+  let assignedCount = 0;
+
+  for (let i = 1; i <= 20; i++) {
+    const booth = document.createElement('div');
+    booth.className = 'booth-node';
+    booth.id = `boothNode-${i}`;
+    
+    // Find exhibitor with this table number
+    const exhibitor = registrations.find(r => r.exhibitor === 'Yes' && parseInt(r.tableNumber) === i);
+    
+    booth.innerHTML = `
+      <span class="booth-num">${String(i).padStart(2, '0')}</span>
+      <span class="booth-label">${exhibitor ? 'Assigned' : 'Available'}</span>
+    `;
+
+    if (exhibitor) {
+      booth.classList.add('assigned');
+      assignedCount++;
+
+      booth.addEventListener('click', () => {
+        document.querySelectorAll('.booth-node').forEach(b => b.classList.remove('highlighted'));
+        booth.classList.add('highlighted');
+
+        const detailBox = document.getElementById('boothDetailContent');
+        if (detailBox) {
+          const websiteBtn = exhibitor.website 
+            ? `<a href="${exhibitor.website}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 0.5rem; text-align: center;"><i class="fa-solid fa-globe"></i> Website</a>`
+            : '';
+          
+          detailBox.innerHTML = `
+            <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem;">
+              <span class="biz-cat-tag" style="font-size:0.75rem; background:rgba(241,196,15,0.1); color:var(--accent-gold); padding:2px 8px; border-radius:50px; text-transform:uppercase; font-weight:600;">${exhibitor.industry || 'Other'}</span>
+              <h4 class="serif-font" style="font-size: 1.35rem; color: #fff; margin: 0.5rem 0 0.25rem 0;">${exhibitor.bizName || 'Untitled Business'}</h4>
+              <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;"><i class="fa-solid fa-user-tie" style="color:var(--accent-gold); margin-right:6px;"></i> ${exhibitor.ownerName || 'Representative'}</p>
+              
+              <div style="display:flex; flex-direction:column; gap:0.5rem; font-size:0.85rem; border-top:1px dashed var(--border-color); padding-top:0.75rem; margin-bottom: 1rem;">
+                <div><i class="fa-solid fa-phone" style="width:16px; margin-right:6px; color:var(--text-muted);"></i> ${exhibitor.phone || '—'}</div>
+                <div><i class="fa-solid fa-envelope" style="width:16px; margin-right:6px; color:var(--text-muted);"></i> ${exhibitor.email || '—'}</div>
+                ${exhibitor.address ? `<div><i class="fa-solid fa-location-dot" style="width:16px; margin-right:6px; color:var(--text-muted);"></i> ${exhibitor.address}</div>` : ''}
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <button class="btn btn-gold btn-sm" id="btnMapVCard-${exhibitor.regId}" style="width: 100%;"><i class="fa-solid fa-id-card"></i> Save Contact</button>
+                ${websiteBtn}
+              </div>
+            </div>
+          `;
+
+          document.getElementById(`btnMapVCard-${exhibitor.regId}`)?.addEventListener('click', () => {
+            downloadVCard(exhibitor.bizName, exhibitor.ownerName, exhibitor.phone, exhibitor.email, exhibitor.website, exhibitor.title, exhibitor.industry);
+          });
+        }
+      });
+    } else {
+      booth.addEventListener('click', () => {
+        document.querySelectorAll('.booth-node').forEach(b => b.classList.remove('highlighted'));
+        booth.classList.add('highlighted');
+
+        const detailBox = document.getElementById('boothDetailContent');
+        if (detailBox) {
+          detailBox.innerHTML = `
+            <div style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); border-radius: var(--radius-md); padding: 1.5rem; text-align: center;">
+              <i class="fa-solid fa-store" style="font-size: 2.25rem; color: var(--accent-gold); opacity:0.8; margin-bottom: 0.75rem; display:block;"></i>
+              <h4 style="font-size: 1.15rem; color: #fff; margin-bottom: 0.25rem;">Table ${String(i).padStart(2, '0')} Available</h4>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 1.25rem;">
+                Are you an exhibitor? Register today to reserve this table space for your business.
+              </p>
+              <a href="#register" class="btn btn-gold btn-sm" style="width: 100%;"><i class="fa-solid fa-pen-to-square"></i> Register & Book Table</a>
+            </div>
+          `;
+        }
+      });
+    }
+
+    boothsGrid.appendChild(booth);
+  }
+
+  const statAssigned = document.getElementById('mapStatAssigned');
+  const statAvailable = document.getElementById('mapStatAvailable');
+  if (statAssigned) statAssigned.innerText = assignedCount;
+  if (statAvailable) statAvailable.innerText = 20 - assignedCount;
+}
+
+// Bind Map Search Locator Event
+document.getElementById('btnSearchMap')?.addEventListener('click', () => {
+  const query = document.getElementById('mapSearchInput')?.value.trim().toLowerCase();
+  if (!query) return;
+
+  const matched = registrations.find(r => 
+    r.exhibitor === 'Yes' && 
+    r.tableNumber && 
+    (
+      r.tableNumber.toString() === query ||
+      (r.bizName || '').toLowerCase().includes(query) ||
+      (r.ownerName || '').toLowerCase().includes(query)
+    )
+  );
+
+  if (matched && matched.tableNumber) {
+    const node = document.getElementById(`boothNode-${matched.tableNumber}`);
+    if (node) {
+      node.click();
+      node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  } else {
+    alert("No assigned exhibitor table matches that query.");
+  }
+});
+
+// ==========================================================================
+// Staff Check-in Live Camera QR Scanner
+// ==========================================================================
+let html5QrScanner = null;
+
+function initCameraScanner() {
+  const scannerSelect = document.getElementById('scannerCameraSelect');
+  if (!scannerSelect) return;
+
+  Html5Qrcode.getCameras().then(devices => {
+    scannerSelect.innerHTML = '';
+    if (devices && devices.length > 0) {
+      devices.forEach(device => {
+        const option = document.createElement('option');
+        option.value = device.id;
+        option.text = device.label || `Camera ${scannerSelect.length + 1}`;
+        scannerSelect.appendChild(option);
+      });
+    } else {
+      scannerSelect.innerHTML = '<option value="">No cameras detected</option>';
+    }
+  }).catch(err => {
+    console.error("Error retrieving cameras:", err);
+    scannerSelect.innerHTML = '<option value="">Camera access denied</option>';
+  });
+
+  const btnStart = document.getElementById('btnStartScanner');
+  const btnStop = document.getElementById('btnStopScanner');
+
+  btnStart?.addEventListener('click', startCameraScanner);
+  btnStop?.addEventListener('click', stopCameraScanner);
+}
+
+function startCameraScanner() {
+  const cameraSelect = document.getElementById('scannerCameraSelect');
+  const cameraId = cameraSelect?.value;
+  if (!cameraId) {
+    alert("Please select a camera source first.");
+    return;
+  }
+
+  const logs = document.getElementById('scannerLogs');
+  if (logs) logs.innerHTML = `<div style="color:var(--accent-gold);">Starting camera scanner...</div>`;
+
+  if (html5QrScanner) {
+    html5QrScanner.stop().catch(() => {}).then(() => {
+      launchScanner(cameraId);
+    });
+  } else {
+    launchScanner(cameraId);
+  }
+}
+
+function launchScanner(cameraId) {
+  html5QrScanner = new Html5Qrcode("scannerReader");
+  html5QrScanner.start(
+    cameraId, 
+    {
+      fps: 10,
+      qrbox: { width: 250, height: 250 }
+    },
+    (decodedText) => {
+      processScanResult(decodedText);
+    },
+    (errorMessage) => {
+      // Ignore scan noise
+    }
+  ).then(() => {
+    document.getElementById('btnStartScanner').style.display = 'none';
+    document.getElementById('btnStopScanner').style.display = 'inline-block';
+    const logs = document.getElementById('scannerLogs');
+    if (logs) logs.innerHTML = `<div style="color:#2ecc71;">Scanner running. Position QR code inside the frame.</div>`;
+  }).catch(err => {
+    console.error("Error starting camera scanner:", err);
+    alert("Failed to access camera stream.");
+  });
+}
+
+function stopCameraScanner() {
+  if (html5QrScanner) {
+    html5QrScanner.stop().then(() => {
+      document.getElementById('btnStartScanner').style.display = 'inline-block';
+      document.getElementById('btnStopScanner').style.display = 'none';
+      const logs = document.getElementById('scannerLogs');
+      if (logs) logs.innerHTML = `<div style="color:var(--text-muted);">Scanner stopped.</div>`;
+    }).catch(err => {
+      console.error("Error stopping scanner:", err);
+    });
+  }
+}
+
+async function processScanResult(decodedText) {
+  const logs = document.getElementById('scannerLogs');
+  if (!logs) return;
+
+  console.log("Ticket scanned:", decodedText);
+
+  let regId = decodedText;
+  if (decodedText.includes('checkin=')) {
+    try {
+      const url = new URL(decodedText);
+      regId = url.searchParams.get('checkin');
+    } catch(e) {
+      console.warn("Invalid scanned URL format, assuming raw ID:", decodedText);
+    }
+  }
+
+  logs.innerHTML = `<div>Scanned Ticket Ref: <strong>${regId}</strong></div>`;
+
+  let reg = registrations.find(r => r.regId === regId);
+  if (!reg && useSupabase && supabaseClient) {
+    logs.innerHTML += `<div>Record not found in memory. Querying database...</div>`;
+    const { data, error } = await supabaseClient.from('registrations').select('*').eq('regid', regId);
+    if (!error && data && data.length > 0) {
+      reg = mapRegistrationFromDb(data[0]);
+      registrations.push(reg);
+    }
+  }
+
+  if (reg) {
+    const isAlreadyChecked = reg.checkedIn === true || reg.checkedIn === 'Yes';
+    if (isAlreadyChecked) {
+      logs.innerHTML += `<div style="color:#e67e22; font-weight:700; margin-top:0.5rem;"><i class="fa-solid fa-circle-exclamation"></i> Already Checked In: ${reg.bizName || reg.ownerName}</div>`;
+    } else {
+      logs.innerHTML += `<div>Checking in: <strong>${reg.bizName || reg.ownerName}</strong>...</div>`;
+      
+      const checkinTime = new Date().toLocaleTimeString();
+      reg.checkedIn = true;
+      reg.checkedInAt = checkinTime;
+      
+      if (useSupabase && supabaseClient) {
+        await supabaseClient.from('registrations').update({
+          checked_in: true,
+          checked_in_at: checkinTime
+        }).eq('regid', regId);
+      } else {
+        safeSetItem('haconet_registrations', JSON.stringify(registrations));
+      }
+
+      logs.innerHTML += `<div style="color:#2ecc71; font-weight:700; margin-top:0.5rem;"><i class="fa-solid fa-circle-check"></i> Check-in Confirmed: ${reg.bizName || reg.ownerName} at ${checkinTime}</div>`;
+      renderAdminAttendeeList();
+    }
+  } else {
+    logs.innerHTML += `<div style="color:var(--border-error); font-weight:700; margin-top:0.5rem;"><i class="fa-solid fa-circle-xmark"></i> Invalid Ticket Reference!</div>`;
+  }
+}
+
+// ==========================================================================
+// Exhibitor Name Badge Generator & Modal
+// ==========================================================================
+const badgeModal = document.getElementById('badgeModal');
+const btnCloseBadgeModal = document.getElementById('btnCloseBadgeModal');
+const btnCancelBadge = document.getElementById('btnCancelBadge');
+const btnPrintBadgeAction = document.getElementById('btnPrintBadgeAction');
+
+function openBadgeModal(reg) {
+  if (!badgeModal) return;
+
+  const bName = document.getElementById('badgeAttendeeName');
+  const bBiz = document.getElementById('badgeBusinessName');
+  const bRole = document.getElementById('badgeAttendeeRole');
+  const bBooth = document.getElementById('badgeBoothNumber');
+  const bQr = document.getElementById('badgeQrCodeImg');
+
+  if (bName) bName.innerText = reg.ownerName || 'Attendee';
+  if (bBiz) bBiz.innerText = reg.bizName || 'General Admission';
+  if (bRole) bRole.innerText = reg.title || 'Participant';
+  if (bBooth) {
+    bBooth.innerText = reg.tableNumber ? `TABLE ${String(reg.tableNumber).padStart(2, '0')}` : 'GENERAL';
+  }
+  if (bQr) {
+    const checkinUrl = `${window.location.origin}${window.location.pathname}?checkin=${encodeURIComponent(reg.regId)}`;
+    bQr.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(checkinUrl)}`;
+  }
+
+  badgeModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  if (btnPrintBadgeAction) {
+    const newBtn = btnPrintBadgeAction.cloneNode(true);
+    btnPrintBadgeAction.parentNode.replaceChild(newBtn, btnPrintBadgeAction);
+    newBtn.addEventListener('click', () => {
+      window.print();
+    });
+  }
+}
+
+function closeBadgeModal() {
+  if (badgeModal) {
+    badgeModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+
+if (btnCloseBadgeModal) btnCloseBadgeModal.addEventListener('click', closeBadgeModal);
+if (btnCancelBadge) btnCancelBadge.addEventListener('click', closeBadgeModal);
+if (badgeModal) {
+  badgeModal.addEventListener('click', (e) => {
+    if (e.target === badgeModal) closeBadgeModal();
+  });
+}
 
 // ==========================================================================
 // Initialize everything
