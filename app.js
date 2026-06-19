@@ -552,7 +552,7 @@ function loadLocalStorageFallback() {
 }
 
 // ==========================================================================
-// 4. Navigation & Header Animations
+// 4. Navigation, Header Animations & SPA Hash Routing
 // ==========================================================================
 if (header) {
   window.addEventListener('scroll', () => {
@@ -561,27 +561,75 @@ if (header) {
     } else {
       header.classList.remove('scrolled');
     }
-    
-    // Update nav link highlighting based on section scroll
-    let currentSection = '';
-    const sections = document.querySelectorAll('section');
-    
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop;
-      const sectionHeight = section.clientHeight;
-      if (window.scrollY >= (sectionTop - 120)) {
-        currentSection = section.getAttribute('id');
-      }
-    });
-
-    navLinks.forEach(link => {
-      link.classList.remove('active');
-      if (link.getAttribute('href') === `#${currentSection}`) {
-        link.classList.add('active');
-      }
-    });
   });
 }
+
+// SPA Hash Routing handler
+function navigateView(hash) {
+  // Normalize hash (default to home if empty)
+  let view = hash || '#home';
+  if (view === '#') view = '#home';
+
+  // Intercept registration hash to trigger focus registration mode
+  if (view === '#register') {
+    setFocusRegistration(true);
+    return;
+  }
+
+  // Ensure focus registration mode is exited if we go to another hash
+  if (document.body.classList.contains('focus-registration')) {
+    document.body.classList.remove('focus-registration');
+  }
+
+  // Define main sections participating in routing
+  const routedIds = ['home', 'about', 'sponsors', 'directory', 'event', 'testimonials-gallery', 'faq', 'inquiry', 'register'];
+
+  // Add hidden-view to all routed sections
+  routedIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden-view');
+  });
+
+  // Determine which sections to show based on the active view
+  let activeIds = [];
+  if (view === '#event') {
+    // Meet & Greet view shows event details + photo gallery
+    activeIds = ['event', 'testimonials-gallery'];
+  } else {
+    // For other views, map the hash to the element ID
+    const matchedId = view.substring(1);
+    if (routedIds.includes(matchedId)) {
+      activeIds = [matchedId];
+    } else {
+      // Fallback to home
+      activeIds = ['home'];
+      view = '#home';
+    }
+  }
+
+  // Remove hidden-view from active sections
+  activeIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('hidden-view');
+  });
+
+  // Update navigation menu active states
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    const href = link.getAttribute('href');
+    if (href === view) {
+      link.classList.add('active');
+    }
+  });
+
+  // Reset page scroll position to top
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// Bind routing listeners
+window.addEventListener('hashchange', () => {
+  navigateView(window.location.hash);
+});
 
 // Mobile menu toggle
 if (menuToggle && navLinksList) {
@@ -607,6 +655,7 @@ if (menuToggle && navLinksList) {
 // Sector link filter click from footer
 sectorLinks.forEach(link => {
   link.addEventListener('click', (e) => {
+    window.location.hash = '#directory';
     const cat = link.getAttribute('data-cat');
     const pill = Array.from(categoryPills).find(p => p.getAttribute('data-category') === cat);
     if (pill) {
@@ -1993,17 +2042,15 @@ function setFocusRegistration(active) {
     if (new URLSearchParams(window.location.search).get('register') === 'true') {
       window.history.pushState({ register: false }, '', newUrl);
     }
-    // Scroll to the registration anchor on landing page
-    const regSection = document.getElementById('register');
-    if (regSection) {
-      regSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    // Switch SPA routing view to home
+    window.location.hash = '#home';
   }
 }
 
 // Handle window history navigation (back/forward buttons)
 window.addEventListener('popstate', () => {
   checkUrlParamsForFocusReg();
+  navigateView(window.location.hash);
 });
 
 // Attach event listeners for focused registration mode transition
@@ -3489,5 +3536,8 @@ initAdminTabs();
   renderSponsorsSection();
   renderSpeakersSection();
   renderFaqSection();
+
+  // Run SPA Routing for the initial view
+  navigateView(window.location.hash);
 })();
 
