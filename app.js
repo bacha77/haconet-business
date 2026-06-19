@@ -6,7 +6,64 @@
 // Global diagnostic error logger
 window.addEventListener('error', (event) => {
   console.error("HACONET JavaScript Uncaught Error:", event.error);
+  try {
+    const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+    if (isMobile) {
+      let errDiv = document.getElementById('mobile-debug-overlay');
+      if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = 'mobile-debug-overlay';
+        errDiv.style.position = 'fixed';
+        errDiv.style.bottom = '10px';
+        errDiv.style.left = '10px';
+        errDiv.style.right = '10px';
+        errDiv.style.background = 'rgba(231, 76, 60, 0.95)';
+        errDiv.style.color = '#fff';
+        errDiv.style.padding = '12px';
+        errDiv.style.borderRadius = '8px';
+        errDiv.style.fontSize = '12px';
+        errDiv.style.fontFamily = 'monospace';
+        errDiv.style.zIndex = '999999';
+        errDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.5)';
+        errDiv.style.maxHeight = '150px';
+        errDiv.style.overflowY = 'auto';
+        errDiv.innerHTML = '<strong>Mobile Debug Log:</strong><br>';
+        document.body.appendChild(errDiv);
+      }
+      const errMsg = event.error ? (event.error.message || event.error.toString()) : event.message;
+      errDiv.innerHTML += `• ${errMsg}<br>`;
+    }
+  } catch(e) {
+    console.error("Error displaying mobile debug overlay:", e);
+  }
 });
+
+// Safe LocalStorage Wrapper for private/sandboxed webviews
+const memoryStorage = {};
+function safeGetItem(key) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch (e) {
+    console.warn(`localStorage.getItem failed for key "${key}":`, e);
+    return memoryStorage[key] || null;
+  }
+}
+function safeSetItem(key, value) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch (e) {
+    console.warn(`localStorage.setItem failed for key "${key}":`, e);
+    memoryStorage[key] = String(value);
+  }
+}
+function safeRemoveItem(key) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch (e) {
+    console.warn(`localStorage.removeItem failed for key "${key}":`, e);
+    delete memoryStorage[key];
+  }
+}
 
 // ==========================================================================
 // 1. Initial Seed Data
@@ -429,7 +486,7 @@ async function initDatabase() {
         console.error("Fetching registrations failed:", rError);
         // Fallback list of registrations inside local storage if select failed
         try {
-          const fallbackRegs = JSON.parse(localStorage.getItem('haconet_registrations'));
+          const fallbackRegs = JSON.parse(safeGetItem('haconet_registrations'));
           registrations = Array.isArray(fallbackRegs) ? fallbackRegs : SEED_REGISTRATIONS;
         } catch (e) {
           registrations = SEED_REGISTRATIONS;
@@ -463,7 +520,7 @@ function loadLocalStorageFallback() {
   
   // Safe parsing for businesses
   try {
-    businesses = JSON.parse(localStorage.getItem('haconet_businesses'));
+    businesses = JSON.parse(safeGetItem('haconet_businesses'));
   } catch (e) {
     console.error("Corrupted businesses in localStorage, resetting...", e);
     businesses = null;
@@ -471,7 +528,7 @@ function loadLocalStorageFallback() {
   if (!businesses || !Array.isArray(businesses) || businesses.length === 0) {
     businesses = SEED_BUSINESSES;
     try {
-      localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+      safeSetItem('haconet_businesses', JSON.stringify(businesses));
     } catch (e) {
       console.error("Failed to save businesses to localStorage:", e);
     }
@@ -479,7 +536,7 @@ function loadLocalStorageFallback() {
 
   // Safe parsing for registrations
   try {
-    registrations = JSON.parse(localStorage.getItem('haconet_registrations'));
+    registrations = JSON.parse(safeGetItem('haconet_registrations'));
   } catch (e) {
     console.error("Corrupted registrations in localStorage, resetting...", e);
     registrations = null;
@@ -487,7 +544,7 @@ function loadLocalStorageFallback() {
   if (!registrations || !Array.isArray(registrations)) {
     registrations = SEED_REGISTRATIONS;
     try {
-      localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+      safeSetItem('haconet_registrations', JSON.stringify(registrations));
     } catch (e) {
       console.error("Failed to save registrations to localStorage:", e);
     }
@@ -941,7 +998,7 @@ if (addBusinessForm) {
 
     businesses.push(newBiz);
     if (!useSupabase) {
-      localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+      safeSetItem('haconet_businesses', JSON.stringify(businesses));
     }
     
     closeAddBusinessModal();
@@ -1324,7 +1381,7 @@ if (regForm) {
 
     registrations.push(newRegistration);
     if (!useSupabase) {
-      localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+      safeSetItem('haconet_registrations', JSON.stringify(registrations));
     }
 
     // 2. Add to Public Directory if Consent given and doesn't already exist
@@ -1355,7 +1412,7 @@ if (regForm) {
 
         businesses.push(newBizEntry);
         if (!useSupabase) {
-          localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+          safeSetItem('haconet_businesses', JSON.stringify(businesses));
         }
         renderDirectory();
       }
@@ -1559,7 +1616,7 @@ function renderAdminAttendeeList() {
               return;
             }
           } else {
-            localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+            safeSetItem('haconet_registrations', JSON.stringify(registrations));
           }
           
           renderAdminAttendeeList();
@@ -1584,7 +1641,7 @@ function renderAdminAttendeeList() {
 
         registrations = registrations.filter(r => r.regId !== id);
         if (!useSupabase) {
-          localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+          safeSetItem('haconet_registrations', JSON.stringify(registrations));
         }
         renderAdminAttendeeList();
       }
@@ -1800,7 +1857,7 @@ async function checkUrlParamsForCheckin() {
               return;
             }
           } else {
-            localStorage.setItem('haconet_registrations', JSON.stringify(registrations));
+            safeSetItem('haconet_registrations', JSON.stringify(registrations));
           }
           
           // Update modal UI
@@ -2131,13 +2188,13 @@ function initInquiryForm() {
 function saveInquiryToLocalStorage(inq) {
   let localInqs = [];
   try {
-    localInqs = JSON.parse(localStorage.getItem('haconet_inquiries')) || [];
+    localInqs = JSON.parse(safeGetItem('haconet_inquiries')) || [];
   } catch (e) {
     localInqs = [];
   }
   if (!Array.isArray(localInqs)) localInqs = [];
   localInqs.push(inq);
-  localStorage.setItem('haconet_inquiries', JSON.stringify(localInqs));
+  safeSetItem('haconet_inquiries', JSON.stringify(localInqs));
 }
 
 // ==========================================================================
@@ -2200,30 +2257,30 @@ async function loadCmsContent() {
   }
 
   if (!loadedFromSupabase) {
-    try { sponsors = JSON.parse(localStorage.getItem('haconet_sponsors')) || null; } catch(e) { sponsors = null; }
+    try { sponsors = JSON.parse(safeGetItem('haconet_sponsors')) || null; } catch(e) { sponsors = null; }
     if (!Array.isArray(sponsors) || sponsors.length === 0) {
       sponsors = [...SEED_SPONSORS];
-      localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
+      safeSetItem('haconet_sponsors', JSON.stringify(sponsors));
     }
 
-    try { speakers = JSON.parse(localStorage.getItem('haconet_speakers')) || null; } catch(e) { speakers = null; }
+    try { speakers = JSON.parse(safeGetItem('haconet_speakers')) || null; } catch(e) { speakers = null; }
     if (!Array.isArray(speakers) || speakers.length === 0) {
       speakers = [...SEED_SPEAKERS];
-      localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
+      safeSetItem('haconet_speakers', JSON.stringify(speakers));
     }
 
-    try { faqItems = JSON.parse(localStorage.getItem('haconet_faq')) || null; } catch(e) { faqItems = null; }
+    try { faqItems = JSON.parse(safeGetItem('haconet_faq')) || null; } catch(e) { faqItems = null; }
     if (!Array.isArray(faqItems) || faqItems.length === 0) {
       faqItems = [...SEED_FAQ];
-      localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+      safeSetItem('haconet_faq', JSON.stringify(faqItems));
     }
   }
 }
 
 async function saveCmsToLocalStorage() {
-  localStorage.setItem('haconet_sponsors', JSON.stringify(sponsors));
-  localStorage.setItem('haconet_speakers', JSON.stringify(speakers));
-  localStorage.setItem('haconet_faq', JSON.stringify(faqItems));
+  safeSetItem('haconet_sponsors', JSON.stringify(sponsors));
+  safeSetItem('haconet_speakers', JSON.stringify(speakers));
+  safeSetItem('haconet_faq', JSON.stringify(faqItems));
   
   if (useSupabase && supabaseClient) {
     try {
@@ -2457,7 +2514,7 @@ async function deleteBusiness(id) {
       renderDirectory();
     }
   } else {
-    localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+    safeSetItem('haconet_businesses', JSON.stringify(businesses));
   }
 }
 
@@ -2527,7 +2584,7 @@ document.getElementById('businessEditorForm')?.addEventListener('submit', async 
       return;
     }
   } else {
-    localStorage.setItem('haconet_businesses', JSON.stringify(businesses));
+    safeSetItem('haconet_businesses', JSON.stringify(businesses));
   }
 
   closeBusinessModal();
@@ -2618,7 +2675,7 @@ document.getElementById('adminSettingsForm')?.addEventListener('submit', async (
     }
   } else {
     eventSettings = newSettings;
-    localStorage.setItem('haconet_event_settings', JSON.stringify(newSettings));
+    safeSetItem('haconet_event_settings', JSON.stringify(newSettings));
     applyEventSettings(eventSettings);
     alert("Settings saved locally!");
   }
@@ -2666,7 +2723,7 @@ document.getElementById('adminLegalForm')?.addEventListener('submit', async (e) 
     }
   } else {
     legalDocs = newDocs;
-    localStorage.setItem('haconet_legal_docs', JSON.stringify(newDocs));
+    safeSetItem('haconet_legal_docs', JSON.stringify(newDocs));
     alert("Legal documents saved locally!");
   }
 
@@ -2768,7 +2825,7 @@ document.getElementById('adminUploadGalleryForm')?.addEventListener('submit', as
       }
     } else {
       galleryPhotos.unshift(newPhoto);
-      localStorage.setItem('haconet_gallery', JSON.stringify(galleryPhotos));
+      safeSetItem('haconet_gallery', JSON.stringify(galleryPhotos));
       alert('Photo saved locally!');
     }
 
@@ -2797,7 +2854,7 @@ window.deleteGalleryPhoto = async (id) => {
     }
   } else {
     galleryPhotos = galleryPhotos.filter(p => p.id !== id);
-    localStorage.setItem('haconet_gallery', JSON.stringify(galleryPhotos));
+    safeSetItem('haconet_gallery', JSON.stringify(galleryPhotos));
   }
   renderAdminGallery();
   renderPublicGallery();
@@ -2863,7 +2920,7 @@ document.getElementById('btnGalleryNext')?.addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
   // Try to load local gallery fallback if supabase fails before initDatabase completes
   try {
-    const loc = JSON.parse(localStorage.getItem('haconet_gallery'));
+    const loc = JSON.parse(safeGetItem('haconet_gallery'));
     if (loc) galleryPhotos = loc;
   } catch(e) {}
   
@@ -3387,7 +3444,7 @@ function renderAdminInquiries() {
   const tbody = document.getElementById('adminInquiriesTableBody');
   if (!tbody) return;
   let localInqs = [];
-  try { localInqs = JSON.parse(localStorage.getItem('haconet_inquiries')) || []; } catch(e) { localInqs = []; }
+  try { localInqs = JSON.parse(safeGetItem('haconet_inquiries')) || []; } catch(e) { localInqs = []; }
   if (!Array.isArray(localInqs) || localInqs.length === 0) {
     tbody.innerHTML = `<tr><td colspan="6"><div class="cms-empty-state"><i class="fa-solid fa-envelope-open-text"></i><p>No inquiries received yet.</p></div></td></tr>`;
     return;
@@ -3405,7 +3462,7 @@ function renderAdminInquiries() {
 // Clear inquiries button
 document.getElementById('btnClearInquiries')?.addEventListener('click', () => {
   if (!confirm('Are you sure you want to clear all inquiries? This cannot be undone.')) return;
-  localStorage.removeItem('haconet_inquiries');
+  safeRemoveItem('haconet_inquiries');
   renderAdminInquiries();
 });
 
