@@ -457,9 +457,14 @@ function mapRegistrationToDb(reg) {
     signature: reg.signature,
     datesigned: reg.dateSigned,
     checked_in: reg.checkedIn === true || reg.checkedIn === 'Yes',
-    checked_in_at: reg.checkedInAt || null,
-    table_number: reg.tableNumber || null
+    checked_in_at: reg.checkedInAt || null
   };
+  
+  if (reg.tableNumber !== undefined) {
+    dbReg.table_number = reg.tableNumber;
+  }
+  
+  return dbReg;
 }
 
 // Helper to map lowercase database columns to camelCase registration fields
@@ -657,19 +662,30 @@ if (header) {
 
 // SPA Hash Routing handler
 function navigateView(hash) {
+  const urlParams = new URLSearchParams(window.location.search);
+  
   // Normalize hash (default to home if empty)
   let view = hash || '#home';
   if (view === '#') view = '#home';
 
+  // If URL has ?register=true, force the view to be register
+  if (urlParams.get('register') === 'true') {
+    view = '#register';
+    if (!document.body.classList.contains('focus-registration')) {
+      document.body.classList.add('focus-registration');
+    }
+  }
+
   // Intercept registration hash to trigger focus registration mode
-  if (view === '#register') {
+  if (view === '#register' && !document.body.classList.contains('focus-registration')) {
     setFocusRegistration(true);
     return;
   }
 
   // Ensure focus registration mode is exited if we go to another hash
-  if (document.body.classList.contains('focus-registration')) {
-    document.body.classList.remove('focus-registration');
+  if (view !== '#register' && document.body.classList.contains('focus-registration')) {
+    setFocusRegistration(false);
+    return;
   }
 
   // Define main sections participating in routing
@@ -686,6 +702,8 @@ function navigateView(hash) {
   if (view === '#event') {
     // Meet & Greet view shows event details + photo gallery
     activeIds = ['event', 'testimonials-gallery'];
+  } else if (view === '#register') {
+    activeIds = ['register'];
   } else {
     // For other views, map the hash to the element ID
     const matchedId = view.substring(1);
@@ -1464,6 +1482,7 @@ if (regForm) {
         wizardCard.classList.add('animate-shake');
         setTimeout(() => wizardCard.classList.remove('animate-shake'), 400);
       }
+      alert("Please provide your digital signature (Type Full Name) to submit the registration.");
       return;
     }
 
@@ -2264,6 +2283,7 @@ function setFocusRegistration(active) {
     if (new URLSearchParams(window.location.search).get('register') !== 'true') {
       window.history.pushState({ register: true }, '', newUrl);
     }
+    navigateView('#register');
   } else {
     document.body.classList.remove('focus-registration');
     const newUrl = `${window.location.origin}${window.location.pathname}`;
@@ -2271,7 +2291,11 @@ function setFocusRegistration(active) {
       window.history.pushState({ register: false }, '', newUrl);
     }
     // Switch SPA routing view to home
-    window.location.hash = '#home';
+    if (window.location.hash === '#register' || window.location.hash === '') {
+      window.location.hash = '#home';
+    } else {
+      navigateView(window.location.hash);
+    }
   }
 }
 
