@@ -3896,5 +3896,88 @@ body.focus-registration .registration-layout-grid {
   }
 }
 
-. s p o n s o r - b a d g e   {   d i s p l a y :   i n l i n e - f l e x ;   a l i g n - i t e m s :   c e n t e r ;   g a p :   0 . 3 r e m ;   f o n t - s i z e :   0 . 7 5 r e m ;   f o n t - w e i g h t :   7 0 0 ;   p a d d i n g :   0 . 2 r e m   0 . 5 r e m ;   b o r d e r - r a d i u s :   4 p x ;   t e x t - t r a n s f o r m :   u p p e r c a s e ;   l e t t e r - s p a c i n g :   0 . 5 p x ;   }   . s p o n s o r - g o l d   {   b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 1 3 5 d e g ,   # f f d 7 0 0 ,   # f f 8 c 0 0 ) ;   c o l o r :   # f f f ;   b o x - s h a d o w :   0   2 p x   8 p x   r g b a ( 2 5 5 ,   2 1 5 ,   0 ,   0 . 4 ) ;   }   . s p o n s o r - s i l v e r   {   b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 1 3 5 d e g ,   # e 0 e 0 e 0 ,   # 9 e 9 e 9 e ) ;   c o l o r :   # 3 3 3 ;   b o x - s h a d o w :   0   2 p x   8 p x   r g b a ( 1 5 8 ,   1 5 8 ,   1 5 8 ,   0 . 4 ) ;   }   . s p o n s o r - b r o n z e   {   b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 1 3 5 d e g ,   # c d 7 f 3 2 ,   # 8 b 4 5 1 3 ) ;   c o l o r :   # f f f ;   b o x - s h a d o w :   0   2 p x   8 p x   r g b a ( 2 0 5 ,   1 2 7 ,   5 0 ,   0 . 4 ) ;   }  
- 
+.sponsor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sponsor-gold {
+  background: linear-gradient(135deg, #ffd700, #ff8c00);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+.sponsor-silver {
+  background: linear-gradient(135deg, #e0e0e0, #9e9e9e);
+  color: #333;
+  box-shadow: 0 2px 8px rgba(158, 158, 158, 0.4);
+}
+.sponsor-bronze {
+  background: linear-gradient(135deg, #cd7f32, #8b4513);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+}
+
+/* ===== ADVANCED UI & ANIMATIONS ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+.glass-panel, .modal-box {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+}
+.navbar {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.biz-card {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border-radius: 12px;
+}
+.biz-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+.btn {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+.btn:active::after {
+  opacity: 1;
+  transition: 0s;
+  transform: scale(0, 0) translate(-50%);
+}

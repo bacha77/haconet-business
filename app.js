@@ -4221,6 +4221,41 @@ if (badgeModal) {
   });
 }
 
+// ===== SCROLL REVEAL ANIMATIONS =====
+function initScrollReveal() {
+  const reveals = document.querySelectorAll('.reveal, section, .biz-card');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+      }
+    });
+  }, { threshold: 0.1 });
+  
+  reveals.forEach(el => {
+    el.classList.add('reveal');
+    observer.observe(el);
+  });
+}
+
+// Re-initialize animations after directory renders
+const originalRenderDirectory = renderDirectory;
+renderDirectory = function() {
+  originalRenderDirectory();
+  setTimeout(() => {
+    const cards = document.querySelectorAll('.biz-card');
+    cards.forEach(card => {
+      if (!card.classList.contains('reveal')) {
+        card.classList.add('reveal');
+        // Let CSS catch up before setting active
+        setTimeout(() => card.classList.add('active'), 50);
+      }
+    });
+  }, 100);
+};
+
+document.addEventListener('DOMContentLoaded', initScrollReveal);
+
 // ==========================================================================
 // Initialize everything
 // ==========================================================================
