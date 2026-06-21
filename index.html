@@ -49,7 +49,7 @@
         <li><a href="#home" class="nav-link active" id="navLinkHome">Home</a></li>
         <li><a href="#about" class="nav-link" id="navLinkAbout">About Us</a></li>
         <li><a href="#sponsors" class="nav-link" id="navLinkSponsors">Sponsors</a></li>
-        <li><a href="#directory" class="nav-link" id="navLinkDirectory">Directory</a></li>
+        <li><a href="#directory" class="nav-link" id="navLinkDirectory">Exhibitors</a></li>
         <li><a href="#event" class="nav-link" id="navLinkEvent">Meet & Greet</a></li>
         <li><a href="#faq" class="nav-link" id="navLinkFaq">FAQ</a></li>
         <li><a href="#inquiry" class="nav-link" id="navLinkInquiry">Contact</a></li>
@@ -762,6 +762,17 @@
                       <input type="radio" name="regElectricity" value="No" checked required> No
                     </label>
                   </div>
+                </div>
+                
+                <div class="form-group full-width" id="groupSponsorship">
+                  <label>Sponsorship Upgrade <span class="required">*</span></label>
+                  <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.2rem; margin-bottom: 0.5rem;">Stand out at the expo! Upgrade to a sponsorship tier to get featured in the directory and event banners.</p>
+                  <select id="regSponsorship" class="form-control" required>
+                    <option value="None" selected>No Sponsorship (Standard Registration)</option>
+                    <option value="Bronze">Bronze Sponsor (Featured in Directory)</option>
+                    <option value="Silver">Silver Sponsor (Featured in Directory + Logo on Screens)</option>
+                    <option value="Gold">Gold Sponsor (Premium Booth + Homepage Banner + Directory)</option>
+                  </select>
                 </div>
                 
                 <div class="form-group full-width" id="groupConsent">
@@ -1958,8 +1969,11 @@
         
         <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem;" class="print-btn-row" id="ticketActions">
           <button class="btn btn-secondary" id="btnDismissTicket">Close</button>
-          <button class="btn btn-secondary" id="btnTicketVCard" style="display: none;">
-            <i class="fa-solid fa-id-card"></i> Save Contact (vCard)
+          <button class="btn btn-primary" id="btnGoogleCalendar" style="background-color: #4285F4; border-color: #4285F4; color: #fff;">
+            <i class="fa-brands fa-google"></i> Google Calendar
+          </button>
+          <button class="btn btn-primary" id="btnAppleCalendar" style="background-color: #333; border-color: #333; color: #fff;">
+            <i class="fa-brands fa-apple"></i> Apple/Outlook
           </button>
           <button class="btn btn-gold" id="btnPrintTicket">
             <i class="fa-solid fa-print"></i> Print Ticket / Save PDF

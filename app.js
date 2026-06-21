@@ -376,6 +376,8 @@ const ticketModal = document.getElementById('ticketModal');
 const btnCloseTicketModal = document.getElementById('btnCloseTicketModal');
 const btnDismissTicket = document.getElementById('btnDismissTicket');
 const btnPrintTicket = document.getElementById('btnPrintTicket');
+const btnGoogleCalendar = document.getElementById('btnGoogleCalendar');
+const btnAppleCalendar = document.getElementById('btnAppleCalendar');
 
 // Wizard Elements
 const wizardCard = document.getElementById('registrationWizard');
@@ -464,6 +466,10 @@ function mapRegistrationToDb(reg) {
     dbReg.table_number = reg.tableNumber;
   }
   
+  if (reg.sponsorshipLevel !== undefined && reg.sponsorshipLevel !== 'None') {
+    dbReg.sponsorship_level = reg.sponsorshipLevel;
+  }
+  
   return dbReg;
 }
 
@@ -501,7 +507,8 @@ function mapRegistrationFromDb(dbReg) {
     dateSigned: dbReg.datesigned,
     checkedIn: dbReg.checked_in === true || dbReg.checked_in === 'Yes',
     checkedInAt: dbReg.checked_in_at || null,
-    tableNumber: dbReg.table_number || null
+    tableNumber: dbReg.table_number || null,
+    sponsorshipLevel: dbReg.sponsorship_level || 'None'
   };
 }
 
@@ -887,7 +894,10 @@ function renderDirectory() {
       : '';
 
     card.innerHTML = `
-      <span class="biz-cat-tag">${biz.category || 'Other'}</span>
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+        <span class="biz-cat-tag">${biz.category || 'Other'}</span>
+        ${biz.sponsorship_level && biz.sponsorship_level !== 'None' ? `<span class="sponsor-badge sponsor-${biz.sponsorship_level.toLowerCase()}"><i class="fa-solid fa-star"></i> ${biz.sponsorship_level}</span>` : ''}
+      </div>
       <h3 class="biz-title serif-font">${biz.name || 'Untitled Business'}</h3>
       <div class="biz-owner"><i class="fa-solid fa-user-tie"></i> ${biz.owner || 'Representative'}</div>
       <p class="biz-desc">${biz.description || ''}</p>
@@ -1377,6 +1387,9 @@ function compileSummaryReview() {
   const consentEl = document.getElementById('regDirectoryConsent');
   const directoryConsent = consentEl && consentEl.checked ? 'Yes' : 'No';
 
+  const sponsorEl = document.getElementById('regSponsorship');
+  const sponsorshipLevel = sponsorEl ? sponsorEl.value : 'None';
+
   reviewSummaryContainer.innerHTML = `
     <div class="summary-block" id="summaryBlockBiz">
       <h5 class="summary-title">Business Profile Summary</h5>
@@ -1400,6 +1413,9 @@ function compileSummaryReview() {
         
         <span class="summary-lbl">Electricity:</span>
         <span class="summary-val">${electricity === 'Yes' ? 'Required' : 'Not required'}</span>
+        
+        <span class="summary-lbl">Sponsor:</span>
+        <span class="summary-val">${sponsorshipLevel !== 'None' ? sponsorshipLevel + ' Sponsor' : 'Standard Registration'}</span>
         
         <span class="summary-lbl">Consented:</span>
         <span class="summary-val">${directoryConsent === 'Yes' ? 'Yes, list business details in directory booklet' : 'No directory consent'}</span>
@@ -1515,6 +1531,9 @@ if (regForm) {
     const consentEl = document.getElementById('regDirectoryConsent');
     const directoryConsent = consentEl && consentEl.checked ? 'Yes' : 'No';
 
+    const sponsorEl = document.getElementById('regSponsorship');
+    const sponsorshipLevel = sponsorEl ? sponsorEl.value : 'None';
+
     const accommodations = document.getElementById('regAccommodations') ? document.getElementById('regAccommodations').value.trim() : '';
     const signature = document.getElementById('regSignature').value.trim();
 
@@ -1541,6 +1560,7 @@ if (regForm) {
       exhibitor,
       electricity,
       directoryConsent,
+      sponsorshipLevel,
       accommodations,
       signature,
       dateSigned: regDateField ? regDateField.value : '',
@@ -1580,7 +1600,8 @@ if (regForm) {
           address: address ? `${address}, ${city}, ${state} ${zip}` : `${city}, ${state}`,
           established: parseInt(established),
           description: description,
-          interests: interests
+          interests: interests,
+          sponsorship_level: sponsorshipLevel
         };
 
         if (useSupabase) {
@@ -1710,6 +1731,45 @@ if (btnCloseTicketModal) {
 if (btnPrintTicket) {
   btnPrintTicket.addEventListener('click', () => {
     window.print();
+  });
+}
+
+// Add to Calendar Handlers
+const eventTitle = encodeURIComponent("HACONET Business Meet & Greet");
+const eventDetails = encodeURIComponent("Annual Networking Event for Haitian-owned businesses. Present your ticket stub at the entrance.");
+const eventLocation = encodeURIComponent("Gillie Community Center, 2100 Morse Rd, Columbus, OH 43229");
+
+// Thursday, Aug 6, 2026, 5:00 PM - 9:00 PM EST is UTC 21:00 to 01:00 (+1 day)
+const googleDates = "20260806T210000Z/20260807T010000Z";
+
+if (btnGoogleCalendar) {
+  btnGoogleCalendar.addEventListener('click', () => {
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&details=${eventDetails}&location=${eventLocation}&dates=${googleDates}`;
+    window.open(url, '_blank');
+  });
+}
+
+if (btnAppleCalendar) {
+  btnAppleCalendar.addEventListener('click', () => {
+    const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20260806T210000Z
+DTEND:20260807T010000Z
+SUMMARY:HACONET Business Meet & Greet
+DESCRIPTION:Annual Networking Event for Haitian-owned businesses.
+LOCATION:Gillie Community Center, 2100 Morse Rd, Columbus, OH 43229
+END:VEVENT
+END:VCALENDAR`;
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'haconet_expo_2026.ics';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
 }
 
