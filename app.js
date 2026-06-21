@@ -378,6 +378,8 @@ const btnDismissTicket = document.getElementById('btnDismissTicket');
 const btnPrintTicket = document.getElementById('btnPrintTicket');
 const btnGoogleCalendar = document.getElementById('btnGoogleCalendar');
 const btnAppleCalendar = document.getElementById('btnAppleCalendar');
+const btnShareLinkedIn = document.getElementById('btnShareLinkedIn');
+const btnShareFacebook = document.getElementById('btnShareFacebook');
 
 // Wizard Elements
 const wizardCard = document.getElementById('registrationWizard');
@@ -1770,6 +1772,25 @@ END:VCALENDAR`;
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  });
+}
+
+// Social Sharing Handlers
+const shareUrl = "https://bacha77.github.io/haconet-business/";
+const shareTitle = encodeURIComponent("HACONET Business Expo 2026");
+const shareSummary = encodeURIComponent("I'm exhibiting at the HACONET Business Meet & Greet! Come visit our booth.");
+
+if (btnShareLinkedIn) {
+  btnShareLinkedIn.addEventListener('click', () => {
+    const url = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(shareUrl)}&title=${shareTitle}&summary=${shareSummary}&source=LinkedIn`;
+    window.open(url, '_blank', 'width=600,height=600');
+  });
+}
+
+if (btnShareFacebook) {
+  btnShareFacebook.addEventListener('click', () => {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    window.open(url, '_blank', 'width=600,height=600');
   });
 }
 
