@@ -380,6 +380,8 @@ const btnGoogleCalendar = document.getElementById('btnGoogleCalendar');
 const btnAppleCalendar = document.getElementById('btnAppleCalendar');
 const btnShareLinkedIn = document.getElementById('btnShareLinkedIn');
 const btnShareFacebook = document.getElementById('btnShareFacebook');
+const btnShareWhatsApp = document.getElementById('btnShareWhatsApp');
+const btnShareTikTok = document.getElementById('btnShareTikTok');
 
 // Wizard Elements
 const wizardCard = document.getElementById('registrationWizard');
@@ -1791,6 +1793,25 @@ if (btnShareFacebook) {
   btnShareFacebook.addEventListener('click', () => {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
     window.open(url, '_blank', 'width=600,height=600');
+  });
+}
+
+if (btnShareWhatsApp) {
+  btnShareWhatsApp.addEventListener('click', () => {
+    const url = `https://api.whatsapp.com/send?text=${shareSummary}%20${encodeURIComponent(shareUrl)}`;
+    window.open(url, '_blank');
+  });
+}
+
+if (btnShareTikTok) {
+  btnShareTikTok.addEventListener('click', () => {
+    // TikTok does not have a web URL sharing endpoint. 
+    // We will copy the link to the clipboard and alert the user.
+    navigator.clipboard.writeText(`${decodeURIComponent(shareSummary)} ${shareUrl}`).then(() => {
+      alert("Text and link copied to clipboard! Open the TikTok app to paste and share with your followers.");
+    }).catch(err => {
+      console.error("Failed to copy text: ", err);
+    });
   });
 }
 
