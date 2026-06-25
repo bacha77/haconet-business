@@ -1778,7 +1778,7 @@ END:VCALENDAR`;
 }
 
 // Social Sharing Handlers
-const shareUrl = "https://bacha77.github.io/haconet-business/";
+const shareUrl = "https://haitianbusinesses.haconet.org/";
 const shareTitle = encodeURIComponent("HACONET Business Expo 2026");
 const shareSummary = encodeURIComponent("I'm exhibiting at the HACONET Business Meet & Greet! Come visit our booth.");
 
